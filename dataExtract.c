@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LINE_BUFFER 1024
+#define LINE_BUFFER_SIZE 1024
 
 const char fileName[] = "run0001_CE_ON__1-current.csv";
 int main()
@@ -14,29 +14,46 @@ int main()
         exit(1);
     }
 
-    char line[LINE_BUFFER];
+    char line[LINE_BUFFER_SIZE];
     char *pch;
     int counter = 0;
     int colNum = 0;
-    // read one line
-    while(fgets(line, LINE_BUFFER, fPtr)!=NULL){
+    int attributeNum;
 
-        printf("%d: %s", ++counter, line);
+    // read first line, split the line by comma
+    fgets(line, LINE_BUFFER_SIZE, fPtr);
+    pch = strtok (line,",");
+    while (pch != NULL){
+        colNum++;
+        printf ("%s\n",pch);
+        pch = strtok (NULL, ",");
+    }
+    attributeNum = colNum-1;  // exclude first column (time stamp)
+    printf("attributeNum = %d\n\n", attributeNum);
+
+    // read file by line
+    while(fgets(line, LINE_BUFFER_SIZE, fPtr)!=NULL){
+        counter++;
+        printf("%d: ",counter);
+        char timeStamp[128];
+        double *attributeArray = calloc(attributeNum, sizeof(double));
 
         // split the line by comma
         pch = strtok (line,",");
-        while (pch != NULL){
-            if(counter==1) colNum++;
-            printf ("%s\n",pch);
+        int i;
+        for(i=-1; i<attributeNum; i++){
+            if(i==-1){
+                strcpy(timeStamp,pch);
+                printf("%s \t", timeStamp);
+            }
+            else{
+                attributeArray[i] = atof(pch);
+                printf("%lf \t", attributeArray[i]);
+            }
             pch = strtok (NULL, ",");
         }
-
-        // store data, except for time stamp
-        if(counter>1){
-            double attributeArray*;
-
-        }
+        printf("\n");
     }
-    printf("colNum = %d\n", colNum);
+    printf("\nTotal: %d data read\n", counter);
     return 0;
 }
