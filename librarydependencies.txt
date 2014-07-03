@@ -1,0 +1,2 @@
+FeatureExtraction:
+gsl 1.15 64bit  https://code.google.com/p/oscats/downloads/list
