@@ -1,166 +1,181 @@
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <dirent.h>
+#include <iostream>
+#include <fstream>
+#include <cstring>
+#include <string>
+#include <vector>
 
-#define LINE_BUFFER_SIZE 1024
-#define MAX_FILE_LIST_SIZE 512
-#define MAX_CYCLE_INFO_ARRAY_LENGTH 256
+const int LINE_BUFFER_SIZE = 1024;
+const int MAX_FILE_LIST_SIZE = 512;
+const int MAX_CYCLE_INFO_ARRAY_LENGTH = 256;
+
+using namespace std;
 
 const char cycleListFileName[] = "use_file_list.csv";
 const char dataDirName[] = "dp_variable_selection";
+const char selectionPath[] = ".\\dp_variable_selection\\selection\\";  // Windows only
 
-struct CycleInfo {
-    double cycle;
-    int *fileNoList;
-    char *fileNameList;
-    int length;
+struct FileData{
+    int id;
+    int originalFileId;
+    string fileName;
+    vector<vector<double> > dataVector;
+    vector<string> *timeStamp;
+    vector<string> *attributeTypeVector;
 };
 
-void parseList(const char *listFileName, struct CycleInfo **cycleInfoArray, int *cycleInfoArrayLength)
+struct CycleData {
+    double cycle;
+    vector<FileData> *fileDataVector;
+};
+
+FileData& getFileById(vector<CycleData> &cycleDataVector, int id){
+    for(unsigned i=0; i<cycleDataVector.size(); i++){  // search corresponding FileData
+        vector<FileData> &vec = *cycleDataVector[i].fileDataVector;
+        for(unsigned j=0; j<vec.size(); j++){
+            if(vec[j].id==id){
+                return vec[j];
+                break;
+            }
+        }
+    }
+    return *(new FileData);
+}
+
+void extractList(const char *listFileName, vector<CycleData> &cycleDataVector)
 {
     // open file
-    FILE *fPtr = fopen(listFileName, "r");
-    if(!fPtr) {
+    ifstream inFile(listFileName, ios::in);
+    if(!inFile) {
         printf("Cannot open file: %s\n",listFileName);
         exit(1);
     }
 
     // initialize
-    char line[LINE_BUFFER_SIZE];
+    char lineBuffer[LINE_BUFFER_SIZE];
     char *pch;
-    *cycleInfoArrayLength = 0;
-    *cycleInfoArray = (struct CycleInfo *)calloc(MAX_CYCLE_INFO_ARRAY_LENGTH, sizeof(struct CycleInfo));
+    cycleDataVector.clear();
 
-    // discard first line
-    fgets(line, LINE_BUFFER_SIZE, fPtr);
+    // discard first line (useless)
+    inFile.getline(lineBuffer, LINE_BUFFER_SIZE);
 
-    // read file by line
-    while(fgets(line, LINE_BUFFER_SIZE, fPtr)!=NULL) {
+    // read data (remaining lines)
+    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)) {
 
-        double cycle;
-        int *fileNoList = calloc(MAX_FILE_LIST_SIZE, sizeof(int));
-        (*cycleInfoArray)[*cycleInfoArrayLength].fileNoList = fileNoList;
+        CycleData cycleData;  // create a new element
+        cycleData.fileDataVector = new vector<FileData>;
 
-        // split the line by comma
-        pch = strtok (line,",");
-        cycle = atof(pch);
+        // split the line by comma (CSV file)
+        pch = strtok (lineBuffer,",");
+        cycleData.cycle = atof(pch);
         pch = strtok (NULL, ",");
-        int colNum=0;
         while(pch != NULL) {
-            fileNoList[colNum] = atof(pch);
+            FileData fileData;
+            fileData.originalFileId = atof(pch);
+            cycleData.fileDataVector->push_back(fileData);
             pch = strtok (NULL, ",");
-            colNum++;
         }
-        (*cycleInfoArray)[*cycleInfoArrayLength].length = colNum-1;
-        int i;
-        printf("cycle %.1f  total %d data :\n", cycle, colNum);
-        for(i=0; i<colNum-1; i++) {
-            printf("%d \t", (*cycleInfoArray)[*cycleInfoArrayLength].fileNoList[i]);
+        #ifdef PRINT_LIST
+        cout << "cycle " << cycleData.cycle << ": total " << cycleData.fileDataVector->size() << " data." << endl;
+        for(int i=0; i<cycleData.fileDataVector->size(); i++) {
+            cout << (*cycleData.fileDataVector)[i].originalFileId << " \t";
         }
-        printf("\n");
-
-        (*cycleInfoArrayLength)++;
+        cout << endl;
+        #endif
+        cycleDataVector.push_back(cycleData); // Add to vector
     }
-
+    inFile.close();
 }
 
 void singleFileExtract(const char *fileName)
 {
     // open file
-    FILE *fPtr = fopen(fileName, "r");
-    if(!fPtr) {
+    ifstream inFile(fileName, ios::in);
+    if(!inFile) {
         printf("Cannot open file: %s\n",fileName);
-        exit(1);
     }
-    printf("%s:\n",fileName);
+    // cout << fileName << endl;
 
-    char line[LINE_BUFFER_SIZE];
+    char lineBuffer[LINE_BUFFER_SIZE];
     char *pch;
-    int counter = 0;
-    int colNum = 0;
-    int attributeNum;
 
-    // read first line, split the line by comma
-    fgets(line, LINE_BUFFER_SIZE, fPtr);
-    pch = strtok (line,",");
+    // Initialize
+    FileData fileData;
+    //fileData.dataVector = new vector<vector<double> >;
+    fileData.attributeTypeVector = new vector<string>;
+    fileData.timeStamp = new vector<string>;
+
+    // read first line (attribute type)
+    inFile.getline(lineBuffer, LINE_BUFFER_SIZE);
+    pch = strtok (lineBuffer,",");
     while (pch != NULL) {
-        colNum++;
-        //printf ("%s\n",pch);
+        fileData.attributeTypeVector->push_back(pch);
+        // cout << fileData.attributeTypeVector->back() << " \t";
         pch = strtok (NULL, ",");
     }
-    attributeNum = colNum-1;  // exclude first column (time stamp)
-    //printf("attributeNum = %d\n\n", attributeNum);
 
-    // read file by line
-    while(fgets(line, LINE_BUFFER_SIZE, fPtr)!=NULL) {
-        counter++;
-        //printf("%d: ",counter);
-        char timeStamp[128];
-        double *attributeArray = calloc(attributeNum, sizeof(double));
-        if(attributeArray==NULL){
-            printf("\nMemory run out !!!\n");
-            exit(100);
-        }
-
+    // read data by line
+    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)) {
+        vector<double> dataInLine;
+        dataInLine.reserve(8);
         // split the line by comma
-        pch = strtok (line,",");
-        int i;
-        for(i=-1; i<attributeNum; i++) {
-            if(i==-1) {
-                strcpy(timeStamp,pch);
-                //printf("%s \t", timeStamp);
-            } else {
-                attributeArray[i] = atof(pch);
-                //printf("%lf \t", attributeArray[i]);
-            }
+        pch = strtok (lineBuffer,",");
+        fileData.timeStamp->push_back(pch);
+        pch = strtok (NULL, ",");
+        for(unsigned i=0; i<fileData.attributeTypeVector->size()-1; i++) {
+            dataInLine.push_back(atof(pch));
             pch = strtok (NULL, ",");
         }
-        //printf("\n");
+        fileData.dataVector.push_back(dataInLine);
     }
-    printf("\nTotal: %d data read\n", counter);
-    fclose(fPtr);
+    #ifdef PRINT_FILE
+    cout << "In file " << fileName << " read " << fileData.dataVector.size() << " lines" << endl;
+    for(int i=0; i<10; i++){
+        for(int j=0; j<fileData.dataVector[i].size(); j++){
+            cout << fileData.dataVector[i][j] << " \t";
+        }
+        cout << endl;
+    }
+    #endif
+    inFile.close();
 }
 
-int getNextFileNo(struct CycleInfo *cycleInfoArray, int arrayLength)
+int getNextFileNo(vector<CycleData> &cycleDataVector)
 {
-    static int listNo = 0;
-    static int fileNo = 0;
+    static unsigned cycle = 0;
+    static unsigned file = 0;
     int nextFileNo = -1;
-    if(listNo < arrayLength) {
-        if(fileNo < cycleInfoArray[listNo].length) {
-            nextFileNo = cycleInfoArray[listNo].fileNoList[fileNo];
-            fileNo++;
-        } else {  // change to next list
-            listNo++;
-            fileNo=0;
-            if(listNo < arrayLength) {
-                nextFileNo = cycleInfoArray[listNo].fileNoList[fileNo];
-                fileNo=1;
-            }
+    if(cycle < cycleDataVector.size()) {
+        if(file >= cycleDataVector[cycle].fileDataVector->size()) {
+            cycle++;
+            file=0;
         }
+        if(cycle < cycleDataVector.size())
+            nextFileNo = (*cycleDataVector[cycle].fileDataVector)[file].originalFileId;
+        file++;
     }
     return nextFileNo;
 }
 
-void cycleExtract()
+void cycleExtract(vector<CycleData> &cycleDataVector)
 {
-    struct CycleInfo *cycleInfoArray=0;
-    int cycleInfoArrayLength;
-    char fileNameList[2048][256];
-    int fileCounter=0;
+    vector<string> fileNameVector;
+
+    static int newIdCounter = 0; // give each selected file an unique new ID
 
     // choose file on list
-    parseList(cycleListFileName, &cycleInfoArray, &cycleInfoArrayLength);
-    printf("cycleInfoArrayLength = %d\n", cycleInfoArrayLength);
+    extractList(cycleListFileName, cycleDataVector);
+    printf("cycleDataVector.size() = %d\n", cycleDataVector.size());
 
     DIR *dir;
     struct dirent *ent;
-    int nextFileNo = getNextFileNo(cycleInfoArray, cycleInfoArrayLength);
+    int nextFileNo = getNextFileNo(cycleDataVector);
     int fileNameIndex = -1;
     char fileNameIndexStr[5];
 
     // search data directory
+    string path = selectionPath;
     if ((dir = opendir (dataDirName)) != NULL) {
         while ((ent = readdir (dir)) != NULL){
             if(strstr(ent->d_name, "run")==NULL) continue;  // exclude other file
@@ -168,14 +183,25 @@ void cycleExtract()
             fileNameIndexStr[4]=0;
             fileNameIndex = atoi(fileNameIndexStr);
             if(fileNameIndex==nextFileNo){  // file id matched
-                nextFileNo = getNextFileNo(cycleInfoArray, cycleInfoArrayLength);
-                char relativePath[256] = ".\\dp_variable_selection\\selection\\";
-                strcpy(fileNameList[fileCounter++], strcat(relativePath, ent->d_name));
-                printf("%d \t", fileNameIndex);
+                nextFileNo = getNextFileNo(cycleDataVector);
+                for(unsigned i=0; i<cycleDataVector.size(); i++){  // search corresponding FileData
+                    vector<FileData> &vec = *cycleDataVector[i].fileDataVector;
+                    for(unsigned j=0; j<vec.size(); j++){
+                        if(vec[j].originalFileId==fileNameIndex){
+                            vec[j].id = newIdCounter++;
+                            vec[j].fileName = ent->d_name;
+                            break;
+                        }
+                    }
+                }
+                fileNameVector.push_back(path + ent->d_name);
+                // cout << fileNameVector.back() << endl;
+                #ifdef COPY_FILE_TO_SELECTION
                 char cmd[512] = "copy /y .\\dp_variable_selection\\\"";  // copy to selection directory
                 strcat(cmd, ent->d_name);
                 strcat(cmd, "\" .\\dp_variable_selection\\selection");
-                //system(cmd);
+                system(cmd);
+                #endif
 
             }
         }
@@ -187,9 +213,9 @@ void cycleExtract()
     }
 
     // start file extraction
-    int i;
-    for(i=0; i<fileCounter; i++){
-        singleFileExtract(fileNameList[i]);
+    // i<fileNameVector.size()
+    for(unsigned i=0; i<2; i++){
+        singleFileExtract(fileNameVector[i].c_str());
     }
     printf("Finished !\n");
 
@@ -197,6 +223,19 @@ void cycleExtract()
 
 int main()
 {
-    cycleExtract();
+    vector<CycleData> cycleDataVector;
+    cycleExtract(cycleDataVector);
+    FileData fd = getFileById(cycleDataVector, 0);
+    cout << "FileName = \"" << fd.fileName << "\"" << endl;
+    cout << "originalFileId = " << fd.originalFileId << endl;
+    cout << fd.dataVector.size() << endl;
+    /*for(unsigned i=0; i<fd.dataVector->size(); i++){
+        cout << "fd.dataVector->size() = " << fd.dataVector->size() << endl;
+        cout << "(*fd.dataVector)[i].size() = " << (*fd.dataVector)[i].size() << endl;
+        for(unsigned j=0; j<(*fd.dataVector)[i].size(); j++){
+            cout << (*fd.dataVector)[i][j] << " ";
+        }
+        cout << endl;
+    }*/
     return 0;
 }
