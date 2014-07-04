@@ -6,12 +6,16 @@
 #include<gsl/gsl_statistics_double.h>
 #include<iostream>
 #include<vector>
-
 #define attrNum 6
 #define dataSize 6
-#define outputNum 12
+#define featureNum 12
+#define fileNum 2
 
 using namespace std;
+
+double *FeatureExtraction(double* cleanData);
+void runFeatureExtraction();
+void GenParaFeatureNameSet();
 
 double rowData[6][6]={
 {-5.701741013,100.016276,1199.951172,5000,5.502386154,0.009155553},
@@ -21,58 +25,66 @@ double rowData[6][6]={
 {-5.671250419,97.57486979,748.4130859,4849.853516,5.502386154,0.009155553},
 {-5.701741013,92.36653646,855.7128906,4805.908203,5.502386154,0.006103702},
 };
+const char featureName[][30] ={"peak(not implement)","peak(not implement)",
+"mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};
+
 // 1:no segmentation  2:segmentation
 typedef enum {disable, enable, enableless}segmentPara;
+segmentPara seg = disable;
+vector<vector<vector<string> > > ParaFeatureNameSet;
 
-const char* fileName = "cleandata";
-double *FeatureExtraction(double* cleanData);
 
 int main(){
 
+	runFeatureExtraction();
 
 
 
 
-	segmentPara seg = disable;
-	double* tempResult;
+
+	
+	return 0;
+}
+
+void runFeatureExtraction(){
+	
+		double* tempResult;
 	tempResult = (double*)calloc(attrNum,sizeof(double));
 	double temp[dataSize];
-	//read from result of dataEtract
-	/*for(int count = 1;count<=cycleNum;count++){	
-		FILE *fPtr = fopen(strcat(fileName+itoa(count,buffer,10)+".txt"),"r");
-		/*not implement yet
-		depend on file input
-		read in cleanData
-		*/
-		/*
-		if(!fPtr){
-    	    printf("Cannot open file: %s\n",fileName);
-        	exit(1);
-    	}
-	}*/
+
 	switch (seg){
 		case disable://no segmentation
-		
-			vector<double> *singleResult = new vector<double> [outputNum];
-			for(int j = 0;j < attrNum;j++){
+			vector<vector<double>*> totalResult;
+			vector<double> *singleResult = new vector<double> [featureNum];
+			for(int k = 0;k < fileNum;k++){
 			
-				for(int i = 0;i < dataSize;i++)
-					temp[i] = rowData[i][j];			
-				tempResult = FeatureExtraction(temp);
+				for(int j = 0;j < attrNum;j++){
+							
+					for(int i = 0;i < dataSize;i++)
+						temp[i] = rowData[i][j];			
+					tempResult = FeatureExtraction(temp);
 			
-				for(int i = 0;i < outputNum;i++){
-					singleResult[i].push_back(tempResult[i]);
-					//printf("%lf\t",singleResult[i][j]);
+					for(int i = 0;i < featureNum;i++){
+						singleResult[i].push_back(tempResult[i]);
+					}
 				}
-				//printf("\n");
+				totalResult.push_back(singleResult);
 			}
-			for(int i = 0;i < outputNum;i++){
-				for(int j = 0;j < attrNum;j++)
-				printf("%lf\t",singleResult[i][j]);
-				cout<<endl;
-			}
+			GenParaFeatureNameSet();
+			for(int k = 0;k < fileNum;k++){
 			
-			//GenParaFeatureNameSet();			
+				for(int i = 0;i < featureNum;i++){
+					for(int j = 0;j < attrNum;j++){
+					
+						printf("%lf\t",totalResult[k][i][j]);
+						cout<<ParaFeatureNameSet[k][i][j];
+						cout<<endl;
+					}
+					cout<<endl;
+				}
+			}
+
+			
 			break;
 			
 		/*case enable://segmentation
@@ -83,8 +95,6 @@ int main(){
 			break;*/
 		
 	}
-	
-	return 0;
 }
 
 double *FeatureExtraction(double* cleanData){
@@ -126,8 +136,30 @@ double *FeatureExtraction(double* cleanData){
 	
 }
 
+void GenParaFeatureNameSet(){
+	ParaFeatureNameSet.resize(fileNum);
+	for(int k = 0;k < fileNum;k++)
+		ParaFeatureNameSet[k].resize(featureNum);
+	for(int k = 0;k < fileNum;k++)
+		for(int i = 0;i < featureNum;i++)
+			ParaFeatureNameSet[k][i].resize(attrNum);
+	string tempStr;
+	for(int k = 0;k < fileNum;k++){
+		for(int i = 0;i < featureNum;i++){
+			for(int j = 0;j < attrNum;j++){
+				tempStr.clear();
+				tempStr = "File_";
+				tempStr += k+48;
+				tempStr += "_Attr_";
+				tempStr += j+48;
+				tempStr += "_";
+				tempStr += featureName[i];
+				ParaFeatureNameSet[k][i][j] = tempStr;
 
-
+			}
+		}
+	}
+}
 
 /*
 FeatureExtraction_m(){
