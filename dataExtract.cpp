@@ -62,12 +62,15 @@ int getNextFileNo(vector<CycleData> &cycleDataVector)
 
 void extractList(const char *listFileName, vector<CycleData> &cycleDataVector)
 {
+    cout << "Load list file: " << listFileName << " ... ";
+
     // open file
     ifstream inFile(listFileName, ios::in);
     if(!inFile) {
-        printf("Cannot open file: %s\n",listFileName);
+        printf("Cannot open file!",listFileName);
         exit(1);
     }
+    cout << "successfully." << endl;
 
     // initialize
     char lineBuffer[LINE_BUFFER_SIZE];
@@ -101,12 +104,13 @@ void extractList(const char *listFileName, vector<CycleData> &cycleDataVector)
         #endif
         cycleDataVector.push_back(cycleData); // Add to vector
     }
+    cout << "Read " << cycleDataVector.size() << " lines in list file." << endl;
     inFile.close();
 }
 
 void copyToSelection(vector<CycleData> &cycleDataVector){
     // search data directory
-    cout << "Starting copy ..." << endl;
+    cout << "Starting selection copy ..." << endl;
     DIR *dir;
     struct dirent *ent;
     int nextFileNo = getNextFileNo(cycleDataVector);
@@ -114,6 +118,7 @@ void copyToSelection(vector<CycleData> &cycleDataVector){
     char fileNameIndexStr[5];
     if ((dir = opendir (dataDir.c_str())) != NULL) {
         cout << "dataDirName: " << dataDir << endl;
+        mkdir(dataSelectionDir.c_str());
         while ((ent = readdir (dir)) != NULL){
             if(strstr(ent->d_name, "run")==NULL) continue;  // exclude other file
             strncpy(fileNameIndexStr, ent->d_name+3,4); // get file serial number
@@ -123,6 +128,7 @@ void copyToSelection(vector<CycleData> &cycleDataVector){
             if(fileNameIndex==nextFileNo){  // file id matched
                 string cmd = "copy /y \"" + dataDir + ent->d_name + "\"";
                 cmd += " \"" + dataSelectionDir + ent->d_name + "\"" ;
+                cout << cmd;
                 system(cmd.c_str());
                 nextFileNo = getNextFileNo(cycleDataVector);
             }
@@ -130,6 +136,7 @@ void copyToSelection(vector<CycleData> &cycleDataVector){
         closedir (dir);
     } else {
         // could not open directory
+        cout << dataDir << " : ";
         perror ("");
         return;
     }
@@ -184,15 +191,14 @@ void singleFileExtract(const char *fileName, FileData &fileData)
     #endif
 }
 
-void cycleExtract(vector<CycleData> &cycleDataVector, bool doCopy)
+bool cycleExtract(vector<CycleData> &cycleDataVector, bool doCopy)
 {
     vector<string> fileNameVector;
 
     static int newIdCounter = 0; // give each selected file an unique new ID
 
-    // choose file on list
+    // reading list file
     extractList(cycleListFileName.c_str(), cycleDataVector);
-    cout << "cycleDataVector.size() = " << cycleDataVector.size() << endl;
 
     if(doCopy){
         // copy data to selection if first time run
@@ -241,8 +247,9 @@ void cycleExtract(vector<CycleData> &cycleDataVector, bool doCopy)
         closedir (dir);
     } else {
         // could not open directory
+        cout << dataSelectionDir.c_str() << " : ";
         perror ("");
-        return;
+        return false;
     }
 
     // start file extraction
@@ -257,7 +264,7 @@ void cycleExtract(vector<CycleData> &cycleDataVector, bool doCopy)
         }
     }
     printf("Finished !\n");
-
+    return true;
 }
 
 int main(int argc, char *argv[])
@@ -266,8 +273,13 @@ int main(int argc, char *argv[])
 
     bool doCopy = false;
     if(argc==2 && strcmp(argv[1],"init")==0)
-        doCopy = false;
-    cycleExtract(cycleDataVector, doCopy);
+        doCopy = true;
+    bool exStatus = cycleExtract(cycleDataVector, doCopy);
+
+    if(!exStatus){
+        cout << "Extracting failed." << endl;
+        exit(1);
+    }
 
     FileData fd = getFileById(cycleDataVector, 0);
     cout << "fileName = \"" << fd.fileName << "\"" << endl;
