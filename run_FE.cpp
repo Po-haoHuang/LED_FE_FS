@@ -2,23 +2,33 @@
 #include<stdlib.h>
 #include<string.h>
 #include<math.h>
-#include <gsl/gsl_sort.h>
+#include<gsl/gsl_sort.h>
 #include<gsl/gsl_statistics_double.h>
 #include<iostream>
 #include<vector>
+#include<string>
+
+
 #define attrNum 6
 #define dataSize 6
 #define featureNum 12
 #define fileNum 1
-#define segNum 2
+int segNum = 4;
 
 using namespace std;
 
+
+
+//Function declaration
+//For FE
 double *FeatureExtraction(double* cleanData);
-void runFeatureExtraction();
+int runFeatureExtraction();
 void GenParaFeatureNameSet();
 double *FeatureExtraction_seg(int chunkSize,double* cleanData);
 void GenParaFeatureNameSet_seg();
+
+
+
 
 double rowData[6][6]={
 {-5.701741013,100.016276,1199.951172,5000,5.502386154,0.009155553},
@@ -28,40 +38,67 @@ double rowData[6][6]={
 {-5.671250419,97.57486979,748.4130859,4849.853516,5.502386154,0.009155553},
 {-5.701741013,92.36653646,855.7128906,4805.908203,5.502386154,0.006103702},
 };
+//vector<vector<double> > rowData;
+//int attrNum,dataSize;
 const char featureName[][30] ={"peak(not implement)","peak(not implement)",
 "mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};
 
-// 1:no segmentation  2:segmentation
+//type for segmentation 1:no segmentation  2:segmentation
 typedef enum {disable, enable}segmentPara;
 segmentPara seg = disable;
+
+//ParaFeatureNameSet
 vector<vector<vector<string> > > ParaFeatureNameSet;
 
 int main(int argc, char *argv[]){
 
 
+	//start FE
+	/*
+	rowData = fd.dataVector;
+	dataSize = fd.dataVector.size();
+	attrNum = fd.dataVector[0].size();
+	*/
+	if(atoi(argv[1]) == 0 || atoi(argv[1]) == 1){
 
-
+		seg = (segmentPara)atoi(argv[1]);
+	}
+	else{
+		cerr<<"Segmentation option value error."<<endl
+		<<"0 for disable."<<endl<<"1 for enable.";
+		return -1;
+	}
+	
 	runFeatureExtraction();
+	system("pause");
 	return 0;
 }
 
-void runFeatureExtraction(){
+int runFeatureExtraction(){
 	
 	double* tempResult;
-	tempResult = (double*)calloc(attrNum,sizeof(double));
 	vector<double>temp;
 	vector<vector<vector<double> > > totalResult;
 	vector<vector<double> > singleResult;
 	double* temp_array;
+	//Option of segmentation
+	/*cout<<"Segmentation ?"<<endl<<"Enter 0 to disable,1 to enable."<<endl;
+	scanf("%1d",&seg);*/
+	
 
 
 	switch (seg){
 		case disable://no segmentation
+			//Initialization
 			singleResult.clear();
 			totalResult.clear();
 			temp.clear();
 			temp.resize(dataSize);
 			singleResult.resize(featureNum);
+			/*Call FE by file,attribute and data size
+			EX: calculate 12 features of first attribute of first file
+			while first call FE.
+			Result:File_1_Attr_1_firstfeature - File_1_Attr_1_lasttfeature*/
 			for(int k = 0;k < fileNum;k++){
 			
 				for(int j = 0;j < attrNum;j++){
@@ -76,8 +113,9 @@ void runFeatureExtraction(){
 				}
 				totalResult.push_back(singleResult);
 			}
+			//Generate the correspnding nametags for FE output
 			GenParaFeatureNameSet();
-			
+			//#ifdef checkFEoutput
 			for(int k = 0;k < fileNum;k++){
 			
 				for(int i = 0;i < featureNum;i++){
@@ -90,15 +128,28 @@ void runFeatureExtraction(){
 					cout<<endl;
 				}
 			}
+			//#endif
 
 			break;
 			
-		case enable://segmentation
+		case enable://segmentation enabled
+		
+			//Initialization
 			temp.clear();
 			singleResult.clear();
 			totalResult.clear();
 			singleResult.resize(featureNum*segNum);
 			int tempSize = 0;
+			while(segNum > dataSize){
+            	cerr<<"Segmentation number too large."<<endl<<
+				"Please enter a new Segmentation number:";
+				scanf("%d",&segNum);
+				//return -1;
+			}
+			/*Call FE by file,attribute and data size
+			EX: calculate 12 features of first attribute of first segment
+			of file while first call FE.
+			Result:File_1_Seg_1_Attr_1_firstfeature - File_1_Seg_1_Attr_1_lasttfeature*/
 
 			for(int k = 0;k < fileNum;k++){
 				
@@ -137,19 +188,22 @@ void runFeatureExtraction(){
 				}
 				totalResult.push_back(singleResult);
 			}
+			GenParaFeatureNameSet_seg();
+			//#ifdef checkFEoutput
 			for(int k = 0;k < fileNum;k++){
 
 				for(int i = 0;i < featureNum*segNum;i++){
 					for(int j = 0;j < attrNum;j++){
 
 						printf("%lf\t",totalResult[k][i][j]);
-						//cout<<ParaFeatureNameSet[k][i][j];
+						cout<<ParaFeatureNameSet[k][i][j];
 						cout<<endl;
 					}
 					cout<<endl;
 				}
 			}
-			//GenParaFeatureNameSet_seg();
+			//#endif
+
 			break;
 		
 	}
@@ -203,14 +257,17 @@ void GenParaFeatureNameSet(){
 		for(int i = 0;i < featureNum;i++)
 			ParaFeatureNameSet[k][i].resize(attrNum);
 	string tempStr;
+	char buffer[50];
 	for(int k = 0;k < fileNum;k++){
 		for(int i = 0;i < featureNum;i++){
 			for(int j = 0;j < attrNum;j++){
 				tempStr.clear();
 				tempStr = "File_";
-				tempStr += k+48;
+				sprintf(buffer,"%d",k);
+				tempStr += buffer;
 				tempStr += "_Attr_";
-				tempStr += j+48;
+				sprintf(buffer,"%d",j);
+				tempStr += buffer;
 				tempStr += "_";
 				tempStr += featureName[i];
 				ParaFeatureNameSet[k][i][j] = tempStr;
@@ -264,25 +321,34 @@ double *FeatureExtraction_seg(int chunkSize,double* cleanData){
 void GenParaFeatureNameSet_seg(){
 	ParaFeatureNameSet.resize(fileNum);
 	for(int k = 0;k < fileNum;k++)
-		ParaFeatureNameSet[k].resize(featureNum);
+		ParaFeatureNameSet[k].resize(featureNum*segNum);
 	for(int k = 0;k < fileNum;k++)
-		for(int i = 0;i < featureNum;i++)
+		for(int i = 0;i < featureNum*segNum;i++)
 			ParaFeatureNameSet[k][i].resize(attrNum);
 	string tempStr;
+	char buffer[50];
 	for(int k = 0;k < fileNum;k++){
-		for(int i = 0;i < featureNum;i++){
-			for(int j = 0;j < attrNum;j++){
-				tempStr.clear();
-				tempStr = "File_";
-				tempStr += k+48;
-				tempStr += "_Attr_";
-				tempStr += j+48;
-				tempStr += "_";
-				tempStr += featureName[i];
-				ParaFeatureNameSet[k][i][j] = tempStr;
+		for(int m = 0;m < segNum;m++ ){
+
+			for(int i = 0;i < featureNum;i++){
+
+				for(int j = 0;j < attrNum;j++){
+					tempStr.clear();
+					tempStr = "File_";
+					sprintf(buffer,"%d",k);
+					tempStr += buffer;
+					tempStr += "_Seg_";
+					sprintf(buffer,"%d",m+1);
+					tempStr += buffer;
+					tempStr += "_Attr_";
+					sprintf(buffer,"%d",j);
+					tempStr += buffer;
+					tempStr += "_";
+					tempStr += featureName[i];
+					ParaFeatureNameSet[k][i+m*featureNum][j] = tempStr;
+				}
 
 			}
 		}
 	}
 }
-
