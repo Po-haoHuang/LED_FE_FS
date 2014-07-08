@@ -53,9 +53,10 @@ int main(int argc, char *argv[])
     vector<FileData> fileDataVector;
     bool getAllFileSuccessful = db.getAllFileData(fileDataVector);
     if(getAllFileSuccessful){
-        cout << endl << "There are " << fileDataVector.size() << " files extracted:" << endl;
+        cout << endl << "There are " << fileDataVector.size() << " files extracted:";
+        cout << ", containing: ";
         for(unsigned i = 0; i< fileDataVector.size(); i++){
-            cout << " containing: " << fileDataVector[i].id << " \t" << endl;
+            cout << fileDataVector[i].id << " \t";
         }
     }else{
         cout << "No file extracted." << endl;

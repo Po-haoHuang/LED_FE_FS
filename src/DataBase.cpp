@@ -70,10 +70,7 @@ bool DataBase::getCycle(double sCycle, CycleData& cd){
 bool DataBase::getAllFileData(vector<FileData>& fdVector){
     fdVector.clear();
     for(unsigned i=0; i<mdb.size(); i++){ // search cycles
-        cout << "In cycle " << mdb[i].cycle << endl;
-        cout << "valid = " << mdb[i].valid << endl;
         if(mdb[i].valid){
-            cout << "mdb[i].fileDataVector.size() = " << mdb[i].fileDataVector.size() << endl;
             for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){
                 fdVector.push_back(mdb[i].fileDataVector[j]);
             }
