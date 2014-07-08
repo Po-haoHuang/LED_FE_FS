@@ -28,8 +28,9 @@ DataBase::~DataBase()
 bool DataBase::init(string useDir, string listFileName){
     dir = useDir;
     listFile = listFileName;
-    bool exListSuccessful = extractList();
-    if(exListSuccessful){
+    bool loadListSuccessful = loadListFile();
+    if(loadListSuccessful){
+        addFileFromDir();
         dbValid = true;
         return true;
     }
@@ -81,7 +82,7 @@ bool DataBase::getAllFileData(vector<FileData>& fdVector){
     return true;
 }
 
-void DataBase::printList(){
+void DataBase::printCycleList(){
     cout << "Avaliable cycles on list: "  << endl;
     for(unsigned i=0; i<mdb.size(); i++){
         cout << mdb[i].cycle << " \t";
@@ -89,24 +90,7 @@ void DataBase::printList(){
     cout << endl;
 }
 
-int DataBase::getNextFileNo()
-{
-    static unsigned cycle = 0;
-    static unsigned file = 0;
-    int nextFileNo = -1;
-    if(cycle < mdb.size()) {
-        if(file >= mdb[cycle].fileDataVector.size()) {
-            cycle++;
-            file=0;
-        }
-        if(cycle < mdb.size())
-            nextFileNo = mdb[cycle].fileDataVector[file].originalFileId;
-        file++;
-    }
-    return nextFileNo;
-}
-
-bool DataBase::extractList()
+bool DataBase::loadListFile()
 {
     cout << "Load list file: " << listFile << " ... ";
 
@@ -138,9 +122,9 @@ bool DataBase::extractList()
         pch = strtok (NULL, ",");
         while(pch != NULL) {
             FileData fileData;
-            fileData.originalFileId = atof(pch);
+            fileData.fid = atof(pch);
             fileData.id = newIdCounter++;
-            //fileData.fileName =
+            this->fileIdVector.push_back(fileData.fid);
             cycleData.fileDataVector.push_back(fileData);
             pch = strtok (NULL, ",");
         }
@@ -150,45 +134,45 @@ bool DataBase::extractList()
     return true;
 }
 
-bool DataBase::init(string rawDataDir, string useDir, string listFileName){
-    init(useDir, listFileName);
-    // search data directory
-    cout << "Starting selection copy ... " << endl;
-    DIR *dir;
+bool DataBase::addFileFromDir()
+{
+    cout << "Adding files to database ... ";
+    // Resolve file
+    DIR *sDir;
     struct dirent *ent;
-    int nextFileNo = getNextFileNo();
-    int fileNameIndex = -1;
-    char fileNameIndexStr[5];
-    if ((dir = opendir (rawDataDir.c_str())) != NULL) {
-        cout << "rawDataDir: " << rawDataDir << endl;
-        mkdir(useDir.c_str());
-        while ((ent = readdir (dir)) != NULL){
-            if(strstr(ent->d_name, "run")==NULL) continue;  // exclude other file
-            strncpy(fileNameIndexStr, ent->d_name+3,4); // get file serial number
-            fileNameIndexStr[4]=0;
-            fileNameIndex = atoi(fileNameIndexStr);
-            // cout << "nextFileNo: " << nextFileNo << endl;
-            if(fileNameIndex==nextFileNo){  // file id matched
-                string cmd = "copy /y \"" + rawDataDir + ent->d_name + "\"";
-                cmd += " \"" + useDir + ent->d_name + "\"" ;
-                cout << ent->d_name << ": ";
-                system(cmd.c_str());
-                nextFileNo = getNextFileNo();
+    if ((sDir = opendir (dir.c_str())) != NULL) {
+        string curFileName;
+        unsigned fidCounter = 0;
+        while ((ent = readdir (sDir)) != NULL){
+            curFileName = ent->d_name;
+            if(curFileName.find("run")!=string::npos){  // find data file
+                int curFid = atoi(curFileName.substr(3,6).c_str()); // get file serial number
+                if(fileIdVector[fidCounter] == curFid){
+                    fidCounter++;
+                    fileNameVector.push_back(curFileName);
+                }
             }
         }
     } else {
         // could not open directory
-        cout << rawDataDir << " : ";
+        cout << dir << " : ";
         perror ("");
         return false;
     }
-    closedir (dir);
-    return true;
+    closedir (sDir);
+
+    for(unsigned i=0; i<mdb.size(); i++){
+        for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){
+            mdb[i].fileDataVector[j].fileName = fileNameVector[mdb[i].fileDataVector[j].id];
+        }
+    }
+
+    cout << "recognize " << fileIdVector.size() << " data files."  << endl;
 }
 
 bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 {
-    cout << "FileData ID: " << fileData.id << "  extracting ...";
+    cout << "FileData ID: " << fileData.id << "  extracting ... ";
 
     // open file
     ifstream inFile((dir+fileName).c_str(), ios::in);
@@ -229,40 +213,6 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 
 bool DataBase::extract(double cycleBegin, double cycleEnd)
 {
-    // search data directory
-    DIR *sDir;
-    struct dirent *ent;
-    int nextFileNo = getNextFileNo();
-    int fileNameIndex = -1;
-    char fileNameIndexStr[5];
-    if ((sDir = opendir (dir.c_str())) != NULL) {
-        while ((ent = readdir (sDir)) != NULL){
-            if(strstr(ent->d_name, "run")==NULL) continue;  // exclude other file
-            strncpy(fileNameIndexStr, ent->d_name+3,4); // get file serial number
-            fileNameIndexStr[4]=0;
-            fileNameIndex = atoi(fileNameIndexStr);
-            // cout << "fileNameIndex: " << fileNameIndex << "  nextFileNo: " << nextFileNo << endl;
-            if(fileNameIndex==nextFileNo){  // file id matched
-                nextFileNo = getNextFileNo();
-                for(unsigned i=0; i<mdb.size(); i++){  // search corresponding FileData
-                    vector<FileData> &vec = mdb[i].fileDataVector;
-                    for(unsigned j=0; j<vec.size(); j++){
-                        if(vec[j].originalFileId==fileNameIndex){
-                            vec[j].fileName = ent->d_name;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        closedir (sDir);
-    } else {
-        // could not open directory
-        cout << dir.c_str() << " : ";
-        perror ("");
-        return false;
-    }
-
     // Error check
     double lowerBound = DBL_MAX, upperBound = -DBL_MAX;
     for(unsigned i=0; i<mdb.size(); i++){
@@ -287,7 +237,7 @@ bool DataBase::extract(double cycleBegin, double cycleEnd)
             vector<FileData> &fdVector = mdb[i].fileDataVector;
             bool extractSuccessful = false;
             for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){ // for each file
-                extractSuccessful |= singleFileExtract(fdVector[j].fileName.c_str(), fdVector[j]);
+                extractSuccessful |= singleFileExtract(fdVector[j].fileName, fdVector[j]);
                 cycleDataQuantity+= fdVector[j].dataVector.size();
             }
             mdb[i].valid = extractSuccessful;

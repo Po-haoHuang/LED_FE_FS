@@ -13,7 +13,7 @@ public:
     virtual ~FileData();
 
     int id;
-    int originalFileId;
+    int fid;
     string fileName;
     vector<vector<double> > dataVector;
     vector<string> timeStamp;

@@ -15,25 +15,20 @@ using namespace std;
 
 const string cycleListFileName = "use_file_list.csv";
 const string dataDir = ".\\dp_variable_selection\\";
-const string dataSelectionDir = ".\\dp_variable_selection\\selection\\";
 
 int main(int argc, char *argv[])
 {
     // database
     DataBase db;
 
-    if(argc==2 && strcmp(argv[1],"init")==0){
-        db.init(dataDir, dataSelectionDir,cycleListFileName);  // copy listed files to run directory
-    }else{
-        db.init(dataSelectionDir,cycleListFileName);   // use filtered files directory as working directory
-    }
+    db.init(dataDir, cycleListFileName);   // use filtered files directory as working directory
 
     if(!db.valid()){
         cout << "Database initializing failed." << endl;
         return 1;
     }
 
-    db.printList();
+    db.printCycleList();
 
     // Set cycle range
     double cycleBegin, cycleEnd;
@@ -85,7 +80,7 @@ int main(int argc, char *argv[])
     bool getFileDataSuccessful = db.getFileById(fid, fd);
     if(getFileDataSuccessful){
         cout << "fileName = \"" << fd.fileName << "\"" << endl;
-        cout << "originalFileId = " << fd.originalFileId << endl;
+        cout << "fid = " << fd.fid << endl;
         cout << "id = " << fd.id << endl;
         cout << "total lines = " << fd.dataVector.size() << endl;
         cout << "First 5 lines = " << endl;
