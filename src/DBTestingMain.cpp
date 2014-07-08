@@ -50,13 +50,12 @@ int main(int argc, char *argv[])
     }
 
     // get all file data example
-    vector<CycleData> cycleDataVector;
-    bool getAllFileSuccessful = db.getAllFileData(cycleDataVector);
+    vector<FileData> fileDataVector;
+    bool getAllFileSuccessful = db.getAllFileData(fileDataVector);
     if(getAllFileSuccessful){
-        cout << endl << "There are " << cycleDataVector.size() << " cycles extracted:" << endl;
-        for(unsigned i = 0; i< cycleDataVector.size(); i++){
-            cout << cycleDataVector[i].cycle << ": ";
-            cout << " contains " << cycleDataVector[i].fileDataVector.size() << " files." << endl;
+        cout << endl << "There are " << fileDataVector.size() << " files extracted:" << endl;
+        for(unsigned i = 0; i< fileDataVector.size(); i++){
+            cout << " containing: " << fileDataVector[i].id << " \t" << endl;
         }
     }else{
         cout << "No file extracted." << endl;
