@@ -21,12 +21,11 @@ int main(int argc, char *argv[])
     // database
     DataBase db;
 
-    bool doCopy = false;
     if(argc==2 && strcmp(argv[1],"init")==0){
         db.copyToSelection(dataDir, dataSelectionDir, cycleListFileName);  // copy listed files to run directory
     }
 
-    db.init(dataSelectionDir, cycleListFileName);   // use filtered files
+    db.init(dataSelectionDir, cycleListFileName);   // use filtered files directory as working directory
 
     db.printList();
 
@@ -40,7 +39,7 @@ int main(int argc, char *argv[])
 
     if(!extractSuccess){
         cout << "Extracting failed." << endl;
-        exit(1);
+        return 1;
     }
 
     // usage example

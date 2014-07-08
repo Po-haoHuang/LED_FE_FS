@@ -28,6 +28,7 @@ bool DataBase::init(string useDir, string listFileName){
     dir = useDir;
     listFile = listFileName;
     extractList();
+    return true;
 }
 
 
@@ -49,7 +50,7 @@ bool DataBase::getFileById(int id, FileData &fd){
 
 void DataBase::printList(){
     cout << "avaliable cycles on list: "  << endl;
-    for(int i=0; i<mdb.size(); i++){
+    for(unsigned i=0; i<mdb.size(); i++){
         cout << mdb[i].cycle << " \t";
     }
     cout << endl;
@@ -80,7 +81,7 @@ bool DataBase::extractList()
     ifstream inFile(listFile.c_str(), ios::in);
     if(!inFile) {
         cout << "Cannot open file!" << endl;
-        exit(1);
+        return false;
     }
     cout << "successfully." << endl;
 
@@ -112,6 +113,7 @@ bool DataBase::extractList()
         mdb.push_back(cycleData); // Add to vector
     }
     inFile.close();
+    return true;
 }
 
 bool DataBase::copyToSelection(string rawDataDir, string useDir, string listName){
@@ -155,8 +157,9 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
     ifstream inFile((dir+fileName).c_str(), ios::in);
     if(!inFile) {
         cout << "Error! Cannot open file: " << dir+fileName << endl;
+        return false;
     }
-    cout << "File ID: " << fileData.originalFileId << "  extracting ...";
+    cout << "FileData ID: " << fileData.id << "  extracting ...";
 
 
     char lineBuffer[LINE_BUFFER_SIZE];
@@ -187,6 +190,7 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
     }
     inFile.close();
     cout << " read " << fileData.dataVector.size() << " lines" << endl;
+    return true;
 }
 
 bool DataBase::extract(double cycleBegin, double cycleEnd)
