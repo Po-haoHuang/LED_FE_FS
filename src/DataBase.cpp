@@ -67,6 +67,18 @@ bool DataBase::getCycle(double sCycle, CycleData& cd){
     return false;
 }
 
+bool DataBase::getAllFileData(vector<CycleData>& cycleDataVector){
+
+    for(unsigned i=0; i<mdb.size(); i++){ // search cycles
+        if(mdb[i].valid){
+            cycleDataVector.push_back(mdb[i]);
+        }
+    }
+    if(cycleDataVector.empty())
+        return false;
+    return true;
+}
+
 void DataBase::printList(){
     cout << "Avaliable cycles on list: "  << endl;
     for(unsigned i=0; i<mdb.size(); i++){

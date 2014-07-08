@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
     // Set cycle range
     double cycleBegin, cycleEnd;
-    cout << "Set cycle begin: ";
+    cout << endl << "Set cycle begin: ";
     cin >> cycleBegin;
     cout << "Set cycle end: ";
     cin >> cycleEnd;
@@ -47,6 +47,19 @@ int main(int argc, char *argv[])
     if(!extractSuccess){
         cout << "Extracting failed." << endl;
         return 1;
+    }
+
+    // get all file data example
+    vector<CycleData> cycleDataVector;
+    bool getAllFileSuccessful = db.getAllFileData(cycleDataVector);
+    if(getAllFileSuccessful){
+        cout << endl << "There are " << cycleDataVector.size() << " cycles extracted:" << endl;
+        for(unsigned i = 0; i< cycleDataVector.size(); i++){
+            cout << cycleDataVector[i].cycle << ": ";
+            cout << " contains " << cycleDataVector[i].fileDataVector.size() << " files." << endl;
+        }
+    }else{
+        cout << "No file extracted." << endl;
     }
 
     // Cycle Data usage example

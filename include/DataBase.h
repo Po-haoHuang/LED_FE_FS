@@ -15,6 +15,7 @@ public:
     virtual ~DataBase();
     bool getFileById(int id, FileData &fd);
     bool getCycle(double cycle, CycleData& cd);
+    bool getAllFileData(vector<CycleData>& cycleDataVector);
     void printList();
     bool init(string rawDataDir, string useDir, string listFileName);
     bool init(string useDir, string listFileName);
