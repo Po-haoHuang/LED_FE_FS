@@ -7,7 +7,11 @@
 #include<iostream>
 #include<vector>
 #include<string>
-
+#include <fstream>
+#include <dirent.h>
+//include file processing part
+#include "include/FileData.h"
+#include "include/DataBase.h"
 
 #define attrNum 6
 #define dataSize 6
@@ -17,7 +21,9 @@ int segNum = 4;
 
 using namespace std;
 
-
+const string cycleListFileName = "use_file_list.csv";
+const string dataDir = ".\\dp_variable_selection\\";
+const string dataSelectionDir = ".\\dp_variable_selection\\selection\\";
 
 //Function declaration
 //For FE
@@ -40,6 +46,8 @@ double rowData[6][6]={
 };
 //vector<vector<double> > rowData;
 //int attrNum,dataSize;
+
+//Feature_name list
 const char featureName[][30] ={"peak(not implement)","peak(not implement)",
 "mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};
 
@@ -51,24 +59,72 @@ segmentPara seg = disable;
 vector<vector<vector<string> > > ParaFeatureNameSet;
 
 int main(int argc, char *argv[]){
+	/*//Start File IO
+	
+    // database
+    DataBase db;
 
+    if(argc==2 && strcmp(argv[1],"init")==0){
+        db.copyToSelection(dataDir, dataSelectionDir, cycleListFileName);  // copy listed files to run directory
+    }
 
+    db.init(dataSelectionDir, cycleListFileName);   // use filtered files directory as working directory
+
+    db.printList();
+
+    // Set cycle range
+    double cycleBegin, cycleEnd;
+    cout << "set cycle begin: ";
+    cin >> cycleBegin;
+    cout << "set cycle end: ";
+    cin >> cycleEnd;
+    bool extractSuccess = db.extract(cycleBegin, cycleEnd); // start extracting file data
+
+    if(!extractSuccess){
+        cout << "Extracting failed." << endl;
+        return 1;
+    }
+    
 	//start FE
 	/*
 	rowData = fd.dataVector;
 	dataSize = fd.dataVector.size();
 	attrNum = fd.dataVector[0].size();
 	*/
-	if(atoi(argv[1]) == 0 || atoi(argv[1]) == 1){
-
-		seg = (segmentPara)atoi(argv[1]);
-	}
-	else{
-		cerr<<"Segmentation option value error."<<endl
-		<<"0 for disable."<<endl<<"1 for enable.";
+	if(argc > 4){
+		cerr<<"Too many arguments.\n";
 		return -1;
 	}
-	
+	else if(argc < 3){
+		cerr<<"Too few arguments.\n";
+		return -1;
+	}
+	else{
+
+		if(atoi(argv[1]) == 0){
+			if(argc == 4){
+				cerr<<"No need to enter segmentation number when disabled.\n";
+				return -1;
+			}
+			else
+			seg = (segmentPara)atoi(argv[1]);
+		}
+		else if(atoi(argv[1]) == 1 ){
+			if(argc == 3){
+				cerr<<"Need to enter segmentation number when enabled.\n";
+				return -1;
+			}
+			else{
+			seg = (segmentPara)atoi(argv[1]);
+			segNum = atoi(argv[2]);
+			}
+		}
+		else{
+			cerr<<"Segmentation option value error."<<endl
+			<<"0 for disable."<<endl<<"1 for enable.";
+			return -1;
+		}
+	}
 	runFeatureExtraction();
 	system("pause");
 	return 0;
@@ -81,6 +137,7 @@ int runFeatureExtraction(){
 	vector<vector<vector<double> > > totalResult;
 	vector<vector<double> > singleResult;
 	double* temp_array;
+	FILE* fout = fopen("Output.csv","w+");
 	//Option of segmentation
 	/*cout<<"Segmentation ?"<<endl<<"Enter 0 to disable,1 to enable."<<endl;
 	scanf("%1d",&seg);*/
@@ -115,37 +172,46 @@ int runFeatureExtraction(){
 			}
 			//Generate the correspnding nametags for FE output
 			GenParaFeatureNameSet();
-			//#ifdef checkFEoutput
+			//output
 			for(int k = 0;k < fileNum;k++){
 			
 				for(int i = 0;i < featureNum;i++){
-					for(int j = 0;j < attrNum;j++){
 					
-						printf("%lf\t",totalResult[k][i][j]);
-						cout<<ParaFeatureNameSet[k][i][j];
-						cout<<endl;
+					for(int j = 0;j < attrNum;j++){
+						fprintf(fout,"%s",ParaFeatureNameSet[k][i][j].c_str());
+						if(j != (attrNum-1))
+						fprintf(fout,",");
+						
 					}
-					cout<<endl;
+					fprintf(fout,"\n");
+					for(int j = 0;j < attrNum;j++){
+						fprintf(fout,"%lf",totalResult[k][i][j]);
+						if(j != (attrNum-1))
+						fprintf(fout,",");
+
+					}
+					fprintf(fout,"\n");
 				}
 			}
-			//#endif
-
+			fclose(fout);
 			break;
 			
 		case enable://segmentation enabled
-		
+			//check if segNum is valid
+			while(segNum > dataSize || segNum <= 0){
+            	cerr<<"Segmentation number error."<<endl<<
+				"Please enter a new Segmentation number:(1 ~ datasize)";
+				scanf("%d",&segNum);
+
+			}
 			//Initialization
 			temp.clear();
 			singleResult.clear();
 			totalResult.clear();
 			singleResult.resize(featureNum*segNum);
 			int tempSize = 0;
-			while(segNum > dataSize){
-            	cerr<<"Segmentation number too large."<<endl<<
-				"Please enter a new Segmentation number:";
-				scanf("%d",&segNum);
-				//return -1;
-			}
+
+
 			/*Call FE by file,attribute and data size
 			EX: calculate 12 features of first attribute of first segment
 			of file while first call FE.
@@ -174,7 +240,7 @@ int runFeatureExtraction(){
 								temp.push_back(rowData[i][j]);
 							}
 						}
-						//cout<<endl<<tempSize<<endl;
+
 						temp_array = &temp[0];
 						tempResult = FeatureExtraction_seg(tempSize,temp_array);
 						#ifdef printTempresult
@@ -188,22 +254,30 @@ int runFeatureExtraction(){
 				}
 				totalResult.push_back(singleResult);
 			}
+			//Generate the correspnding nametags for FE output
 			GenParaFeatureNameSet_seg();
-			//#ifdef checkFEoutput
+			//output
 			for(int k = 0;k < fileNum;k++){
 
 				for(int i = 0;i < featureNum*segNum;i++){
 					for(int j = 0;j < attrNum;j++){
+						fprintf(fout,"%s",ParaFeatureNameSet[k][i][j].c_str());
+						if(j != (attrNum-1))
+						fprintf(fout,",");
 
-						printf("%lf\t",totalResult[k][i][j]);
-						cout<<ParaFeatureNameSet[k][i][j];
-						cout<<endl;
 					}
-					cout<<endl;
+					fprintf(fout,"\n");
+					for(int j = 0;j < attrNum;j++){
+						fprintf(fout,"%lf",totalResult[k][i][j]);
+						if(j != (attrNum-1))
+						fprintf(fout,",");
+
+					}
+					fprintf(fout,"\n");
 				}
 			}
-			//#endif
 
+			fclose(fout);
 			break;
 		
 	}
