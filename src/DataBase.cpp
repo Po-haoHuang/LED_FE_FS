@@ -151,6 +151,7 @@ bool DataBase::extractList()
 }
 
 bool DataBase::init(string rawDataDir, string useDir, string listFileName){
+    init(useDir, listFileName);
     // search data directory
     cout << "Starting selection copy ... " << endl;
     DIR *dir;
@@ -170,7 +171,7 @@ bool DataBase::init(string rawDataDir, string useDir, string listFileName){
             if(fileNameIndex==nextFileNo){  // file id matched
                 string cmd = "copy /y \"" + rawDataDir + ent->d_name + "\"";
                 cmd += " \"" + useDir + ent->d_name + "\"" ;
-                cout << cmd;
+                cout << ent->d_name << ": ";
                 system(cmd.c_str());
                 nextFileNo = getNextFileNo();
             }
@@ -182,7 +183,6 @@ bool DataBase::init(string rawDataDir, string useDir, string listFileName){
         return false;
     }
     closedir (dir);
-    init(useDir, listFileName);
     return true;
 }
 
@@ -205,20 +205,19 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
     pch = strtok (lineBuffer,",");
     while (pch != NULL) {
         fileData.attributeTypeVector.push_back(pch);
-        // cout << fileData.attributeTypeVector->back() << " \t";
         pch = strtok (NULL, ",");
     }
 
     // read data by line
+    fileData.dataVector.reserve(1024);
+    vector<double> dataInLine(fileData.attributeTypeVector.size()-1);
     while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)) {
-        vector<double> dataInLine;
-        dataInLine.reserve(8);
         // split the line by comma
         pch = strtok (lineBuffer,",");
         fileData.timeStamp.push_back(pch);
         pch = strtok (NULL, ",");
         for(unsigned i=0; i<fileData.attributeTypeVector.size()-1; i++) {
-            dataInLine.push_back(atof(pch));
+            dataInLine[i]= atof(pch);
             pch = strtok (NULL, ",");
         }
         fileData.dataVector.push_back(dataInLine);
