@@ -1,10 +1,11 @@
-#include "DataBase.h"
-
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
 #include <cstring>
+#include <cfloat>
 #include <dirent.h>
+
+#include "../include/DataBase.h"
 
 using namespace std;
 
@@ -14,7 +15,7 @@ const unsigned int MAX_FILE_LIST_SIZE = 512;
 const unsigned int MAX_CYCLE_INFO_ARRAY_LENGTH = 256;
 
 
-DataBase::DataBase()
+DataBase::DataBase(): dbValid(false)
 {
     //ctor
 }
@@ -27,8 +28,12 @@ DataBase::~DataBase()
 bool DataBase::init(string useDir, string listFileName){
     dir = useDir;
     listFile = listFileName;
-    extractList();
-    return true;
+    bool exListSuccessful = extractList();
+    if(exListSuccessful){
+        dbValid = true;
+        return true;
+    }
+    return false;
 }
 
 
@@ -48,8 +53,22 @@ bool DataBase::getFileById(int id, FileData &fd){
     return false;
 }
 
+bool DataBase::getCycle(double sCycle, CycleData& cd){
+    for(unsigned i=0; i<mdb.size(); i++){ // search cycles
+        if(mdb[i].cycle == sCycle){
+            if(!mdb[i].valid)
+                return false;
+            else{
+                cd = mdb[i];
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void DataBase::printList(){
-    cout << "avaliable cycles on list: "  << endl;
+    cout << "Avaliable cycles on list: "  << endl;
     for(unsigned i=0; i<mdb.size(); i++){
         cout << mdb[i].cycle << " \t";
     }
@@ -107,6 +126,7 @@ bool DataBase::extractList()
             FileData fileData;
             fileData.originalFileId = atof(pch);
             fileData.id = newIdCounter++;
+            //fileData.fileName =
             cycleData.fileDataVector.push_back(fileData);
             pch = strtok (NULL, ",");
         }
@@ -116,16 +136,16 @@ bool DataBase::extractList()
     return true;
 }
 
-bool DataBase::copyToSelection(string rawDataDir, string useDir, string listName){
+bool DataBase::init(string rawDataDir, string useDir, string listFileName){
     // search data directory
-    cout << "Starting selection copy ..." << endl;
+    cout << "Starting selection copy ... " << endl;
     DIR *dir;
     struct dirent *ent;
     int nextFileNo = getNextFileNo();
     int fileNameIndex = -1;
     char fileNameIndexStr[5];
     if ((dir = opendir (rawDataDir.c_str())) != NULL) {
-        cout << "dataDirName: " << rawDataDir << endl;
+        cout << "rawDataDir: " << rawDataDir << endl;
         mkdir(useDir.c_str());
         while ((ent = readdir (dir)) != NULL){
             if(strstr(ent->d_name, "run")==NULL) continue;  // exclude other file
@@ -148,19 +168,20 @@ bool DataBase::copyToSelection(string rawDataDir, string useDir, string listName
         return false;
     }
     closedir (dir);
+    init(useDir, listFileName);
     return true;
 }
 
 bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 {
+    cout << "FileData ID: " << fileData.id << "  extracting ...";
+
     // open file
     ifstream inFile((dir+fileName).c_str(), ios::in);
     if(!inFile) {
-        cout << "Error! Cannot open file: " << dir+fileName << endl;
+        cout << "Error! Cannot open file: " << fileName << endl;
         return false;
     }
-    cout << "FileData ID: " << fileData.id << "  extracting ...";
-
 
     char lineBuffer[LINE_BUFFER_SIZE];
     char *pch;
@@ -195,8 +216,6 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 
 bool DataBase::extract(double cycleBegin, double cycleEnd)
 {
-    vector<string> fileNameVector;
-
     // search data directory
     DIR *sDir;
     struct dirent *ent;
@@ -204,7 +223,6 @@ bool DataBase::extract(double cycleBegin, double cycleEnd)
     int fileNameIndex = -1;
     char fileNameIndexStr[5];
     if ((sDir = opendir (dir.c_str())) != NULL) {
-        cout << "dir: " << dir << endl;
         while ((ent = readdir (sDir)) != NULL){
             if(strstr(ent->d_name, "run")==NULL) continue;  // exclude other file
             strncpy(fileNameIndexStr, ent->d_name+3,4); // get file serial number
@@ -222,15 +240,6 @@ bool DataBase::extract(double cycleBegin, double cycleEnd)
                         }
                     }
                 }
-                fileNameVector.push_back(dir + ent->d_name);
-                // cout << "using file: " << ent->d_name << endl;
-                #ifdef COPY_FILE_TO_SELECTION
-                char cmd[512] = "copy /y .\\dp_variable_selection\\\"";  // copy to selection directory
-                strcat(cmd, ent->d_name);
-                strcat(cmd, "\" .\\dp_variable_selection\\selection");
-                system(cmd);
-                #endif
-
             }
         }
         closedir (sDir);
@@ -241,25 +250,49 @@ bool DataBase::extract(double cycleBegin, double cycleEnd)
         return false;
     }
 
+    // Error check
+    double lowerBound = DBL_MAX, upperBound = -DBL_MAX;
+    for(unsigned i=0; i<mdb.size(); i++){
+        if(mdb[i].cycle > upperBound)
+            upperBound = mdb[i].cycle;
+        if(mdb[i].cycle < lowerBound)
+            lowerBound = mdb[i].cycle;
+    }
+    if(cycleEnd < cycleBegin || cycleBegin < lowerBound || cycleEnd > upperBound){
+        cout << "Cycle range error." << endl;
+        return false;
+    }
+
     // start file extraction
-    unsigned int totalDataQuantity = 0;
-    unsigned int cycleDataQuantity = 0;
+    unsigned totalDataQuantity = 0;
+    unsigned cycleDataQuantity = 0;
+    unsigned attributeSize = 0;
+    unsigned stringLength = 0;
     for(unsigned i=0; i<mdb.size(); i++){ // for each cycle
-        if(mdb[i].cycle>=cycleBegin && mdb[i].cycle<=cycleEnd){
+        if(mdb[i].cycle>=cycleBegin && mdb[i].cycle<=cycleEnd){  // for target range
             cout << "Extracting cycle " << mdb[i].cycle << " ... " << endl;
+            vector<FileData> &fdVector = mdb[i].fileDataVector;
+            bool extractSuccessful = false;
             for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){ // for each file
-                singleFileExtract(mdb[i].fileDataVector[j].fileName.c_str(),
-                                  mdb[i].fileDataVector[j]);
-                cycleDataQuantity+= mdb[i].fileDataVector[j].dataVector.size();
+                extractSuccessful |= singleFileExtract(fdVector[j].fileName.c_str(), fdVector[j]);
+                cycleDataQuantity+= fdVector[j].dataVector.size();
             }
-            mdb[i].valid = true;
-            cout << "consume " << cycleDataQuantity*(7*sizeof(double)+20*sizeof(char))/1024/1024 << " MB" << endl << endl;
+            mdb[i].valid = extractSuccessful;
+            if(!extractSuccessful)
+                return false;
+            if(!fdVector.front().dataVector.empty()){
+                attributeSize = fdVector.front().dataVector.front().size();
+                stringLength = fdVector.front().timeStamp.front().size();
+            }
+            cout << "Load " << cycleDataQuantity*(attributeSize*sizeof(double)
+                                +stringLength*sizeof(char))/1024.0/1024.0 << " MB" << endl << endl;
             totalDataQuantity += cycleDataQuantity;
         }
         if(mdb[i].cycle>cycleEnd)
             break;
     }
-    cout << "Cycle extraction finished !" << endl;
-    cout << "Totally consume " << totalDataQuantity*(7*sizeof(double)+20*sizeof(char))/1024/1024 << " MB" << endl;
+    cout << endl << "Cycle extraction finished !" << endl;
+    cout << "Totally load " << totalDataQuantity*(attributeSize*sizeof(double)
+                                +stringLength*sizeof(char))/1024.0/1024.0 << " MB" << endl;
     return true;
 }

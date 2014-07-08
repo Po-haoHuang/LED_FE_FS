@@ -14,10 +14,12 @@ public:
     DataBase();
     virtual ~DataBase();
     bool getFileById(int id, FileData &fd);
+    bool getCycle(double cycle, CycleData& cd);
     void printList();
-    bool copyToSelection(string rawDataDir, string useDir, string listName);
+    bool init(string rawDataDir, string useDir, string listFileName);
     bool init(string useDir, string listFileName);
     bool extract(double cycleBegin, double cycleEnd);
+    bool valid(){return dbValid;};
 
 private:
     vector<CycleData> mdb;
@@ -26,6 +28,7 @@ private:
     bool singleFileExtract(string fileName, FileData &fileData);
     string dir;
     string listFile;
+    bool dbValid;
 };
 
 #endif // DATABASE_H

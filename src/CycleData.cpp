@@ -1,4 +1,4 @@
-#include "CycleData.h"
+#include "../include/CycleData.h"
 
 CycleData::CycleData() : valid(false)
 {
