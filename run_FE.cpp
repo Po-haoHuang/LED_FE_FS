@@ -9,6 +9,7 @@
 #include<string>
 #include <fstream>
 #include <dirent.h>
+
 //include file processing part
 #include "include/FileData.h"
 #include "include/DataBase.h"
@@ -24,7 +25,6 @@ using namespace std;
 
 const string cycleListFileName = "use_file_list.csv";
 const string dataDir = ".\\dp_variable_selection\\";
-const string dataSelectionDir = ".\\dp_variable_selection\\selection\\";
 
 //Function declaration
 //For FE
@@ -51,26 +51,21 @@ int main(int argc, char *argv[]){
 
 	//Start File IO
 	
-    // database
+ 	// database
     DataBase db;
 
-    if(argc==2 && strcmp(argv[1],"init")==0){
-        db.init(dataDir, dataSelectionDir,cycleListFileName);
-		db.init(dataSelectionDir,cycleListFileName);   // copy listed files to run directory
-    }else{
-        db.init(dataSelectionDir,cycleListFileName);   // use filtered files directory as working directory
-    }
+    db.init(dataDir, cycleListFileName);   // use filtered files directory as working directory
 
     if(!db.valid()){
         cout << "Database initializing failed." << endl;
         return 1;
     }
 
-    db.printList();
+    db.printCycleList();
 
     // Set cycle range
     double cycleBegin, cycleEnd;
-    cout << "Set cycle begin: ";
+    cout << endl << "Set cycle begin: ";
     cin >> cycleBegin;
     cout << "Set cycle end: ";
     cin >> cycleEnd;
@@ -81,23 +76,25 @@ int main(int argc, char *argv[]){
         cout << "Extracting failed." << endl;
         return 1;
     }
-    // get all file data
+
+    // get all file data example
 
     bool getAllFileSuccessful = db.getAllFileData(fileDataVector);
     if(getAllFileSuccessful){
         cout << endl << "There are " << fileDataVector.size() << " files extracted:";
-        cout << ", containing: ";
+        cout << ", containing: " << endl;
         for(unsigned i = 0; i< fileDataVector.size(); i++){
             cout << fileDataVector[i].id << " \t";
         }
+
     }else{
         cout << "No file extracted." << endl;
     }
-    cout<<endl;
+    
+    
 	//start FE
 	fileNum = fileDataVector.size();
 	attrNum = fileDataVector[0].dataVector[0].size();
-
 
 	
 	//checking argv input
@@ -150,14 +147,13 @@ int runFeatureExtraction(){
 	vector<vector<vector<double> > > totalResult;
 	vector<vector<double> > singleResult;
 	double* temp_array;
-	FILE* fout = fopen("Output.csv","w+");
+
 
 	//enable or disable
 	switch (seg){
-		case disable://no segmentation
-		
+		case disable:{//no segmentation
+			FILE* fout = fopen("Output_noSeg.csv","w+");
 			//Initialization
-
 			totalResult.clear();
 			singleResult.resize(featureNum);
 			
@@ -166,7 +162,7 @@ int runFeatureExtraction(){
 			while first call FE.
 			Result:File_1_Attr_1_firstfeature - File_1_Attr_1_lasttfeature*/
 			for(unsigned k = 0;k < fileNum;k++){
-				rowData = fileDataVector[k].dataVector;
+				rowData = fileDataVector[0].dataVector;
 				dataSize = fileDataVector[k].dataVector.size();
 				temp.clear();
 				temp.resize(dataSize);
@@ -223,9 +219,10 @@ int runFeatureExtraction(){
 			}
 			cout<<"Output done."<<endl;
 			fclose(fout);
+		}
 			break;
 			
-		case enable://segmentation enabled
+		case enable:{//segmentation enabled
 			dataSize = fileDataVector[0].dataVector.size();
 
 			for(unsigned k = 1;k < fileNum;k++)
@@ -308,15 +305,16 @@ int runFeatureExtraction(){
 			cout<<"Output processing..."<<endl;
 			
 			//output
-			FILE* fout2 = fopen("Output2.csv","w+");
+			FILE* fout1 = fopen("Output_seg1.csv","w+");
+			FILE* fout2 = fopen("Output_seg2.csv","w+");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
 					for(int k = 0;k < segNum;k++){
-						fprintf(fout,"%s%d%s%d_%s,","Attr_",j,"_Seg_",k,featureName[i]);
+						fprintf(fout1,"%s%d%s%d_%s,","Attr_",j,"_Seg_",k,featureName[i]);
 					}
 				}
 			}
-			fprintf(fout,"\n");
+			fprintf(fout1,"\n");
 			for(unsigned k = 0;k < fileNum;k++){
 				for(unsigned j = 0;j < attrNum;j++){
 					/*for(unsigned j = 0;j < attrNum;j++){
@@ -327,22 +325,22 @@ int runFeatureExtraction(){
 					fprintf(fout,"\n");*/
 					for(unsigned i = 0;i < featureNum;i++){
 						for(unsigned l = 0;l < segNum;l++)
-							fprintf(fout,"%lf,",totalResult[k][l*featureNum+i][j]);
+							fprintf(fout1,"%lf,",totalResult[k][l*featureNum+i][j]);
 						/*if(j != (attrNum-1))
 						fprintf(fout,",");*/
 					}
 				}
-				fprintf(fout,"\n");
+				fprintf(fout1,"\n");
 
 			}
-			fclose(fout);
+			fclose(fout1);
 			
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
 					fprintf(fout2,"%s%d%s,","Attr_",j,featureName[i]);
 				}
 			}
-			fprintf(fout,"\n");
+			fprintf(fout2,"\n");
 			for(unsigned k = 0;k < fileNum;k++){
 				for(unsigned l = 0;l < segNum;l++){
 					for(unsigned j = 0;j < attrNum;j++){
@@ -366,6 +364,7 @@ int runFeatureExtraction(){
 
 			
 			cout<<"Output done."<<endl;
+		}
 			break;
 		
 	}
