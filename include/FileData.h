@@ -20,7 +20,7 @@ public:
     vector<string> attrTypeVector;
 
     unsigned size(){ return dataVector.size();}
-    unsigned attrSize(){return dataVector.empty()? 0 : dataVector.front().size();}
+    unsigned attrSize(){return attrTypeVector.empty()? 0 : attrTypeVector.size()-1;}
 
 private:
 };

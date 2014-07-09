@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
     db.printCycleList();
 
     // Set cycle range
-    double cycleBegin, cycleEnd;
+    double cycleBegin=1, cycleEnd=5;
     cout << endl << "Set cycle begin: ";
-    cin >> cycleBegin;
+    //cin >> cycleBegin;
     cout << "Set cycle end: ";
-    cin >> cycleEnd;
+    //cin >> cycleEnd;
     cout << endl;
     bool extractSuccess = db.extract(cycleBegin, cycleEnd); // start extracting file data
 
@@ -43,6 +43,8 @@ int main(int argc, char *argv[])
         cout << "Extracting failed." << endl;
         return 1;
     }
+
+    return 0;
 
     // get all file data example
     vector<FileData> fileDataVector;

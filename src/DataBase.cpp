@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <iterator>
 #include <cstdlib>
 #include <cstring>
 #include <cfloat>
@@ -168,7 +170,32 @@ bool DataBase::addFileFromDir()
     }
 
     cout << "recognize " << fileIdVector.size() << " data files."  << endl;
+    return true;
 }
+
+vector<string>& split(const string &s, char delim, vector<string>& elems) {
+    stringstream ss(s);
+    string item;
+    while (std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+void csv_value_split(string s, const char delimiter, vector<double> &lineValue)
+{
+    size_t start=0;
+    size_t end=s.find_first_of(delimiter);
+
+    while (end <= std::string::npos){
+	    lineValue.push_back(atoi((s.substr(start, end-start)).c_str()));
+	    if (end == std::string::npos)
+	    	break;
+    	start=end+1;
+    	end = s.find_first_of(delimiter, start);
+    }
+}
+
 
 bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 {
@@ -194,18 +221,15 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 
     // read data by line
     fileData.dataVector.reserve(1024);
-    vector<double> dataInLine(fileData.attrTypeVector.size()-1);
-    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)) {
-        // split the line by comma
-        pch = strtok (lineBuffer,",");
-        fileData.timeStamp.push_back(pch);
-        pch = strtok (NULL, ",");
-        for(unsigned i=0; i<fileData.attrTypeVector.size()-1; i++) {
-            dataInLine[i]= atof(pch);
-            pch = strtok (NULL, ",");
-        }
-        fileData.dataVector.push_back(dataInLine);
+    vector<double> lineValue;
+    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)){
+        char *firstComma = strstr(lineBuffer, ",");
+        fileData.timeStamp.push_back(string(lineBuffer, firstComma-lineBuffer));
+        lineValue.clear();
+        csv_value_split(string(firstComma+1), ',', lineValue);
+        fileData.dataVector.push_back(lineValue);
     }
+
     inFile.close();
     cout << " read " << fileData.dataVector.size() << " lines" << endl;
     return true;
