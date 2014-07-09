@@ -14,7 +14,7 @@ public:
     bool valid;
     vector<FileData> fileDataVector;
 
-    unsigned getCycleSize(){ return fileDataVector.size();}
+    unsigned cycleSize(){ return fileDataVector.size();}
 
 private:
 };

@@ -49,16 +49,30 @@ int main(int argc, char *argv[])
     bool getAllFileSuccessful = db.getAllFileData(fileDataVector);
     if(getAllFileSuccessful){
         cout << endl << "There are " << fileDataVector.size() << " files extracted:";
-        cout << ", containing: ";
+        cout << ", containing: " << endl;
         for(unsigned i = 0; i< fileDataVector.size(); i++){
             cout << fileDataVector[i].id << " \t";
+        }
+
+        FileData &fd = fileDataVector[0];
+        cout << endl << endl << "First extracted file: " << endl;
+        cout << "id: " << fd.id << endl;
+        cout << "filename: " << fd.fileName << endl;
+        for(unsigned i=0; i<fd.attrTypeVector.size(); i++){
+            cout << fd.attrTypeVector[i] << "  ";
+        }
+        cout << endl;
+        for(unsigned i=0; i<5; i++){
+            for(unsigned j=0; j<fileDataVector[i].dataVector[i].size(); j++)
+                cout << fileDataVector[i].dataVector[i][j] << "  ";
+            cout << endl;
         }
     }else{
         cout << "No file extracted." << endl;
     }
 
     // Cycle Data usage example
-    double cid;
+    /*double cid;
     cout << endl << "Select cycle id: ";
     cin >> cid;
     CycleData cd;
@@ -70,7 +84,7 @@ int main(int argc, char *argv[])
         }
     }else{
         cout << "Get cycle " << cid << " failed." << endl;
-    }
+    }*/
 
     // FileData usage example
     int fid;

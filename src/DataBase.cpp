@@ -40,7 +40,7 @@ bool DataBase::init(string useDir, string listFileName){
 
 bool DataBase::getFileById(int id, FileData &fd){
     for(unsigned i=0; i<mdb.size(); i++){  // for each cycle
-        for(unsigned j=0; j<mdb[i].getCycleSize(); j++){ // for  each file
+        for(unsigned j=0; j<mdb[i].cycleSize(); j++){ // for  each file
             if(mdb[i].fileDataVector[j].id==id){
                 if(!mdb[i].valid)
                     return false;
@@ -188,19 +188,19 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
     inFile.getline(lineBuffer, LINE_BUFFER_SIZE);
     pch = strtok (lineBuffer,",");
     while (pch != NULL) {
-        fileData.attributeTypeVector.push_back(pch);
+        fileData.attrTypeVector.push_back(pch);
         pch = strtok (NULL, ",");
     }
 
     // read data by line
     fileData.dataVector.reserve(1024);
-    vector<double> dataInLine(fileData.attributeTypeVector.size()-1);
+    vector<double> dataInLine(fileData.attrTypeVector.size()-1);
     while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)) {
         // split the line by comma
         pch = strtok (lineBuffer,",");
         fileData.timeStamp.push_back(pch);
         pch = strtok (NULL, ",");
-        for(unsigned i=0; i<fileData.attributeTypeVector.size()-1; i++) {
+        for(unsigned i=0; i<fileData.attrTypeVector.size()-1; i++) {
             dataInLine[i]= atof(pch);
             pch = strtok (NULL, ",");
         }
@@ -232,6 +232,7 @@ bool DataBase::extract(double cycleBegin, double cycleEnd)
     unsigned attributeSize = 0;
     unsigned stringLength = 0;
     for(unsigned i=0; i<mdb.size(); i++){ // for each cycle
+        cycleDataQuantity = 0;
         if(mdb[i].cycle>=cycleBegin && mdb[i].cycle<=cycleEnd){  // for target range
             cout << "Extracting cycle " << mdb[i].cycle << " ... " << endl;
             vector<FileData> &fdVector = mdb[i].fileDataVector;
@@ -240,22 +241,22 @@ bool DataBase::extract(double cycleBegin, double cycleEnd)
                 extractSuccessful |= singleFileExtract(fdVector[j].fileName, fdVector[j]);
                 cycleDataQuantity+= fdVector[j].dataVector.size();
             }
+            if(!fdVector.front().dataVector.empty()){
+                attributeSize = fdVector.front().attrSize();
+                stringLength = fdVector.front().timeStamp.front().size();
+            }
             mdb[i].valid = extractSuccessful;
             if(!extractSuccessful)
                 return false;
-            if(!fdVector.front().dataVector.empty()){
-                attributeSize = fdVector.front().dataVector.front().size();
-                stringLength = fdVector.front().timeStamp.front().size();
-            }
-            cout << "Load " << cycleDataQuantity*(attributeSize*sizeof(double)
-                                +stringLength*sizeof(char))/1024.0/1024.0 << " MB" << endl << endl;
+            cout << "Load " << cycleDataQuantity << " lines (" << cycleDataQuantity*(attributeSize*sizeof(double)
+                                +stringLength*sizeof(char))/1024.0/1024.0 << " MB)" << endl << endl;
             totalDataQuantity += cycleDataQuantity;
         }
         if(mdb[i].cycle>cycleEnd)
             break;
     }
     cout << endl << "Cycle extraction finished !" << endl;
-    cout << "Totally load " << totalDataQuantity*(attributeSize*sizeof(double)
-                                +stringLength*sizeof(char))/1024.0/1024.0 << " MB" << endl;
+    cout << "Totally load " << totalDataQuantity << " lines (" << totalDataQuantity*(attributeSize*sizeof(double)
+                                +stringLength*sizeof(char))/1024.0/1024.0 << " MB)" << endl;
     return true;
 }

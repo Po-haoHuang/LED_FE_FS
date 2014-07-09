@@ -17,7 +17,10 @@ public:
     string fileName;
     vector<vector<double> > dataVector;
     vector<string> timeStamp;
-    vector<string> attributeTypeVector;
+    vector<string> attrTypeVector;
+
+    unsigned size(){ return dataVector.size();}
+    unsigned attrSize(){return dataVector.empty()? 0 : dataVector.front().size();}
 
 private:
 };
