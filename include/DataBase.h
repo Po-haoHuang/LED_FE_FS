@@ -27,6 +27,7 @@ private:
     bool loadListFile();
     bool addFileFromDir();
     bool singleFileExtract(string fileName, FileData &fileData);
+    void csvValueSplit(string s, const char delimiter, vector<double> &lineValue);
     string dir;
     string listFile;
     bool dbValid;

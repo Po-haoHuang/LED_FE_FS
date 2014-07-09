@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     db.printCycleList();
 
     // Set cycle range
-    double cycleBegin=1, cycleEnd=5;
+    double cycleBegin=6.2, cycleEnd=6.2;
     cout << endl << "Set cycle begin: ";
     //cin >> cycleBegin;
     cout << "Set cycle end: ";
@@ -43,8 +43,6 @@ int main(int argc, char *argv[])
         cout << "Extracting failed." << endl;
         return 1;
     }
-
-    return 0;
 
     // get all file data example
     vector<FileData> fileDataVector;
@@ -63,15 +61,20 @@ int main(int argc, char *argv[])
         for(unsigned i=0; i<fd.attrTypeVector.size(); i++){
             cout << fd.attrTypeVector[i] << "  ";
         }
-        cout << endl;
+        cout << endl << "First 5 lines: " << endl;
         for(unsigned i=0; i<5; i++){
-            for(unsigned j=0; j<fileDataVector[i].dataVector[i].size(); j++)
-                cout << fileDataVector[i].dataVector[i][j] << "  ";
+            for(unsigned j=0; j<fd.attrSize(); j++){
+                cout << fd.dataVector[i][j] << "  ";
+            }
             cout << endl;
         }
+        cout << endl;
     }else{
         cout << "No file extracted." << endl;
     }
+
+
+    return 0;
 
     // Cycle Data usage example
     /*double cid;

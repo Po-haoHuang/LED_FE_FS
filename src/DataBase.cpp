@@ -1,7 +1,5 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
-#include <iterator>
 #include <cstdlib>
 #include <cstring>
 #include <cfloat>
@@ -173,27 +171,20 @@ bool DataBase::addFileFromDir()
     return true;
 }
 
-vector<string>& split(const string &s, char delim, vector<string>& elems) {
-    stringstream ss(s);
-    string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
-}
-
-void csv_value_split(string s, const char delimiter, vector<double> &lineValue)
+void DataBase::csvValueSplit(string s, const char delimiter, vector<double> &lineValue)
 {
     size_t start=0;
     size_t end=s.find_first_of(delimiter);
 
     while (end <= std::string::npos){
-	    lineValue.push_back(atoi((s.substr(start, end-start)).c_str()));
+        //cout << atof((s.substr(start, end-start)).c_str()) << "  ";
+	    lineValue.push_back(atof((s.substr(start, end-start)).c_str()));
 	    if (end == std::string::npos)
 	    	break;
     	start=end+1;
     	end = s.find_first_of(delimiter, start);
     }
+    //cout << endl;
 }
 
 
@@ -226,7 +217,7 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
         char *firstComma = strstr(lineBuffer, ",");
         fileData.timeStamp.push_back(string(lineBuffer, firstComma-lineBuffer));
         lineValue.clear();
-        csv_value_split(string(firstComma+1), ',', lineValue);
+        csvValueSplit(string(firstComma+1), ',', lineValue);
         fileData.dataVector.push_back(lineValue);
     }
 
