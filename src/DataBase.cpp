@@ -177,14 +177,12 @@ void DataBase::csvValueSplit(string s, const char delimiter, vector<double> &lin
     size_t end=s.find_first_of(delimiter);
 
     while (end <= std::string::npos){
-        //cout << atof((s.substr(start, end-start)).c_str()) << "  ";
-	    lineValue.push_back(atof((s.substr(start, end-start)).c_str()));
+        lineValue.push_back(atof((s.substr(start, end-start)).c_str()));
 	    if (end == std::string::npos)
 	    	break;
     	start=end+1;
     	end = s.find_first_of(delimiter, start);
     }
-    //cout << endl;
 }
 
 

@@ -31,11 +31,11 @@ int main(int argc, char *argv[])
     db.printCycleList();
 
     // Set cycle range
-    double cycleBegin=6.2, cycleEnd=6.2;
+    double cycleBegin, cycleEnd;
     cout << endl << "Set cycle begin: ";
-    //cin >> cycleBegin;
+    cin >> cycleBegin;
     cout << "Set cycle end: ";
-    //cin >> cycleEnd;
+    cin >> cycleEnd;
     cout << endl;
     bool extractSuccess = db.extract(cycleBegin, cycleEnd); // start extracting file data
 

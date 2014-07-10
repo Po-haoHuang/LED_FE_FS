@@ -2,3 +2,5 @@ FeatureExtraction:
 gsl 1.15 64bit  https://code.google.com/p/oscats/downloads/list
 說明：解壓放C根目錄  Compile 時 linker 下指令連結此函式庫
 EX:  ../../../../GSL-1.15/lib/libgsl.a ../../../../GSL-1.15/lib/libgslcblas.a
+
+Dlib 32-bit
