@@ -15,14 +15,18 @@
 #include "include/DataBase.h"
 #include "include/CycleData.h"
 
+//Variable for feature extraction
 unsigned attrNum;
 unsigned dataSize;
 const unsigned featureNum = 12;
 unsigned fileNum;
 unsigned segNum;
 vector<FileData> fileDataVector;
+vector<vector<double> > rowData;
+
 using namespace std;
 
+//data DIR
 const string cycleListFileName = "use_file_list.csv";
 const string dataDir = ".\\dp_variable_selection\\";
 
@@ -34,7 +38,6 @@ void GenParaFeatureNameSet();
 double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData);
 void GenParaFeatureNameSet_seg();
 
-vector<vector<double> > rowData;
 
 //Feature_name list
 const char featureName[][30] ={"peak(not implement)","peak(not implement)",
@@ -91,7 +94,7 @@ int main(int argc, char *argv[]){
         cout << "No file extracted." << endl;
     }
     
-    
+    cout<<endl;
 	//start FE
 	fileNum = fileDataVector.size();
 	attrNum = fileDataVector[0].dataVector[0].size();
@@ -156,18 +159,20 @@ int runFeatureExtraction(){
 			//Initialization
 			totalResult.clear();
 			singleResult.resize(featureNum);
+
 			
 			/*Call FE by file,attribute and data size
 			EX: calculate 12 features of first attribute of first file
 			while first call FE.
 			Result:File_1_Attr_1_firstfeature - File_1_Attr_1_lasttfeature*/
 			for(unsigned k = 0;k < fileNum;k++){
-				rowData = fileDataVector[0].dataVector;
+				rowData = fileDataVector[k].dataVector;
 				dataSize = fileDataVector[k].dataVector.size();
 				temp.clear();
 				temp.resize(dataSize);
 				singleResult.clear();
 				singleResult.resize(featureNum);
+
 				for(unsigned j = 0;j < attrNum;j++){
 							
 					for(unsigned i = 0;i < dataSize;i++)
@@ -197,21 +202,8 @@ int runFeatureExtraction(){
 			fprintf(fout,"\n");
 			for(unsigned k = 0;k < fileNum;k++){
 				for(unsigned j = 0;j < attrNum;j++){
-					
-					/*for(unsigned j = 0;j < attrNum;j++){
-
-						fprintf(fout,"%s",ParaFeatureNameSet[k][i][j].c_str());
-						if(j != (attrNum-1))
-						fprintf(fout,",");
-						
-					}*/
-					//fprintf(fout,"\n");
 					for(unsigned i = 0;i < featureNum;i++){
-
 						fprintf(fout,"%lf,",totalResult[k][i][j]);
-						/*if(j != (attrNum-1))
-						fprintf(fout,",");*/
-
 					}
 					
 				}
@@ -256,12 +248,10 @@ int runFeatureExtraction(){
 
 
 				for (unsigned l = 0;l < segNum;l++){
-					//cout<<"seg"<<l<<endl;
 					for(unsigned j = 0;j < attrNum;j++){
-						//cout<<"attr"<<j<<endl;
+
 						tempSize = 0;
 						temp.clear();
-						//temp.resize(dataSize);
 						if(l != segNum - 1){
 							for(unsigned i = round((float)dataSize/(float)segNum*(float)l);
 							i <= round((float)dataSize/(float)segNum*(float)(l+1)-1.0);i++){
@@ -273,11 +263,9 @@ int runFeatureExtraction(){
 						else{
 							for(unsigned i =  round((float)dataSize/(float)segNum*(float)l);
 							i < dataSize;i++){
-								//cout<<i<<endl;
 								tempSize++;
 								temp.push_back(rowData[i][j]);
 							}
-							//cout<<"f";
 						}
 
 						temp_array = &temp[0];
@@ -292,7 +280,6 @@ int runFeatureExtraction(){
 						}
 					}
 				}
-				//cout<<"222";
 				totalResult.push_back(singleResult);
 				if( k!=0 && (k%20)==0 )
 					cout<<"Computing "<<k<<" files."<<endl;
@@ -317,17 +304,9 @@ int runFeatureExtraction(){
 			fprintf(fout1,"\n");
 			for(unsigned k = 0;k < fileNum;k++){
 				for(unsigned j = 0;j < attrNum;j++){
-					/*for(unsigned j = 0;j < attrNum;j++){
-						fprintf(fout,"%s",ParaFeatureNameSet[k][i][j].c_str());
-						if(j != (attrNum-1))
-						fprintf(fout,",");
-					}
-					fprintf(fout,"\n");*/
 					for(unsigned i = 0;i < featureNum;i++){
 						for(unsigned l = 0;l < segNum;l++)
 							fprintf(fout1,"%lf,",totalResult[k][l*featureNum+i][j]);
-						/*if(j != (attrNum-1))
-						fprintf(fout,",");*/
 					}
 				}
 				fprintf(fout1,"\n");
@@ -344,25 +323,14 @@ int runFeatureExtraction(){
 			for(unsigned k = 0;k < fileNum;k++){
 				for(unsigned l = 0;l < segNum;l++){
 					for(unsigned j = 0;j < attrNum;j++){
-					/*for(unsigned j = 0;j < attrNum;j++){
-						fprintf(fout,"%s",ParaFeatureNameSet[k][i][j].c_str());
-						if(j != (attrNum-1))
-						fprintf(fout,",");
-					}
-					fprintf(fout,"\n");*/
 						for(unsigned i = 0;i < featureNum;i++){
 							fprintf(fout2,"%lf,",totalResult[k][l*featureNum+i][j]);
-						/*if(j != (attrNum-1))
-						fprintf(fout,",");*/
 						}
 					}
 					fprintf(fout2,"\n");
 				}
 			}
 			fclose(fout2);
-
-
-			
 			cout<<"Output done."<<endl;
 		}
 			break;
