@@ -2,13 +2,14 @@
 #include<stdlib.h>
 #include<string.h>
 #include<math.h>
-#include<gsl/gsl_sort.h>
-#include<gsl/gsl_statistics_double.h>
+#include"gsl/gsl_sort.h"
+#include"gsl/gsl_statistics_double.h"
 #include<iostream>
 #include<vector>
 #include<string>
 #include <fstream>
 #include <dirent.h>
+
 
 //include file processing part
 #include "include/FileData.h"
@@ -33,7 +34,7 @@ const string dataDir = ".\\dp_variable_selection\\";
 //Function declaration
 //For FE
 double *FeatureExtraction(double* cleanData);
-int runFeatureExtraction();
+void runFeatureExtraction();
 void GenParaFeatureNameSet();
 double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData);
 void GenParaFeatureNameSet_seg();
@@ -80,8 +81,7 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    // get all file data example
-
+    // get all file data
     bool getAllFileSuccessful = db.getAllFileData(fileDataVector);
     if(getAllFileSuccessful){
         cout << endl << "There are " << fileDataVector.size() << " files extracted:";
@@ -93,8 +93,8 @@ int main(int argc, char *argv[]){
     }else{
         cout << "No file extracted." << endl;
     }
-    
     cout<<endl;
+    
 	//start FE
 	fileNum = fileDataVector.size();
 	attrNum = fileDataVector[0].dataVector[0].size();
@@ -136,29 +136,31 @@ int main(int argc, char *argv[]){
 			return -1;
 		}
 	}
+	
 	//run FE
 	runFeatureExtraction();
 	system("pause");
 	return 0;
 }
 
-int runFeatureExtraction(){
+void runFeatureExtraction(){
 	
 	//Initialization
-	double* tempResult;
-	vector<double>temp;
-	vector<vector<vector<double> > > totalResult;
-	vector<vector<double> > singleResult;
-	double* temp_array;
+	vector<vector<vector<double> > > totalResult;//Result for all files selected
+	vector<vector<double> > singleResult;//Result for a single file
+	double* tempResult;//Result for a single attribute(variable)
+	vector<double>temp;//All data in a single file for an attribute
+	double* temp_array;//Turn temp into array version for computing(actually only pass memory address)
 
 
 	//enable or disable
 	switch (seg){
 		case disable:{//no segmentation
-			FILE* fout = fopen("Output_noSeg.csv","w+");
+			
 			//Initialization
 			totalResult.clear();
 			singleResult.resize(featureNum);
+			FILE* fout = fopen("Output_noSeg.csv","w+");
 
 			
 			/*Call FE by file,attribute and data size
@@ -166,6 +168,7 @@ int runFeatureExtraction(){
 			while first call FE.
 			Result:File_1_Attr_1_firstfeature - File_1_Attr_1_lasttfeature*/
 			for(unsigned k = 0;k < fileNum;k++){
+				//Initialization for a new file
 				rowData = fileDataVector[k].dataVector;
 				dataSize = fileDataVector[k].dataVector.size();
 				temp.clear();
@@ -217,7 +220,7 @@ int runFeatureExtraction(){
 		case enable:{//segmentation enabled
 			dataSize = fileDataVector[0].dataVector.size();
 
-			for(unsigned k = 1;k < fileNum;k++)
+			for(unsigned k = 1;k < fileNum;k++)//Get minimum datasize of all selected files
 				dataSize = fileDataVector[k].dataVector.size() > dataSize?
 				dataSize : fileDataVector[k].dataVector.size();
 
@@ -240,11 +243,11 @@ int runFeatureExtraction(){
 			Result:File_1_Seg_1_Attr_1_firstfeature - File_1_Seg_1_Attr_1_lasttfeature*/
 
 			for(unsigned k = 0;k < fileNum;k++){
+				//Initialization for a new file
 				rowData = fileDataVector[k].dataVector;
 				dataSize = fileDataVector[k].dataVector.size();
 				singleResult.clear();
 				singleResult.resize(featureNum*segNum);
-				//cout<<"Computing "<<k<<" files."<<endl;
 
 
 				for (unsigned l = 0;l < segNum;l++){
@@ -296,7 +299,7 @@ int runFeatureExtraction(){
 			FILE* fout2 = fopen("Output_seg2.csv","w+");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
-					for(int k = 0;k < segNum;k++){
+                    for(unsigned k = 0;k < segNum;k++){
 						fprintf(fout1,"%s%d%s%d_%s,","Attr_",j,"_Seg_",k,featureName[i]);
 					}
 				}
