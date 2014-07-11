@@ -58,6 +58,7 @@ int main(int argc, char *argv[])
         cout << endl << endl << "First extracted file: " << endl;
         cout << "id: " << fd.id << endl;
         cout << "filename: " << fd.fileName << endl;
+        cout << "cycle: " << fd.cycle << endl;
         for(unsigned i=0; i<fd.attrTypeVector.size(); i++){
             cout << fd.attrTypeVector[i] << "  ";
         }

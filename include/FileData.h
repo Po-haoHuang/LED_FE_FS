@@ -14,6 +14,7 @@ public:
 
     int id;
     int fid;
+    double cycle;
     string fileName;
     vector<vector<double> > dataVector;
     vector<string> timeStamp;
