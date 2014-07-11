@@ -97,7 +97,7 @@ int main(int argc, char *argv[]){
     
 	//start FE
 	fileNum = fileDataVector.size();
-	attrNum = fileDataVector[0].dataVector[0].size();
+	attrNum = fileDataVector[0].attrSize();
 
 	
 	//checking argv input
@@ -197,18 +197,20 @@ void runFeatureExtraction(){
 			
 			cout<<"Output processing..."<<endl;
 			//output
+			fprintf(fout,"%s,%s,%s,","ID","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
-					fprintf(fout,"%s%d%s,","Attr_",j,featureName[i]);
+					fprintf(fout,"%s%d_%s,","Attr_",j,featureName[i]);
 				}
 			}
 			fprintf(fout,"\n");
 			for(unsigned k = 0;k < fileNum;k++){
+				fprintf(fout,"%d,%d,%d,",fileDataVector[k].id,
+				fileDataVector[k].fid,fileDataVector[k].nCycle);
 				for(unsigned j = 0;j < attrNum;j++){
 					for(unsigned i = 0;i < featureNum;i++){
 						fprintf(fout,"%lf,",totalResult[k][i][j]);
 					}
-					
 				}
 				fprintf(fout,"\n");
 			}
@@ -274,10 +276,6 @@ void runFeatureExtraction(){
 						temp_array = &temp[0];
 						tempResult = FeatureExtraction_seg(tempSize,temp_array);
 
-						/*#ifdef printTempresult
-						for(unsigned i = 0;i < featureNum;i++)
-						cout<<tempResult[i]<<endl;
-						#endif*/
 						for(unsigned i = 0+l*featureNum;i < 0+l*featureNum+featureNum;i++){
 							singleResult[i].push_back(tempResult[i-l*featureNum]);
 						}
@@ -297,6 +295,7 @@ void runFeatureExtraction(){
 			//output
 			FILE* fout1 = fopen("Output_seg1.csv","w+");
 			FILE* fout2 = fopen("Output_seg2.csv","w+");
+			fprintf(fout1,"%s,%s,%s,","ID","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
                     for(unsigned k = 0;k < segNum;k++){
@@ -306,6 +305,8 @@ void runFeatureExtraction(){
 			}
 			fprintf(fout1,"\n");
 			for(unsigned k = 0;k < fileNum;k++){
+				fprintf(fout1,"%d,%d,%d,",fileDataVector[k].id,
+				fileDataVector[k].fid,fileDataVector[k].nCycle);
 				for(unsigned j = 0;j < attrNum;j++){
 					for(unsigned i = 0;i < featureNum;i++){
 						for(unsigned l = 0;l < segNum;l++)
@@ -316,15 +317,17 @@ void runFeatureExtraction(){
 
 			}
 			fclose(fout1);
-			
+			fprintf(fout2,"%s,%s,%s,","ID","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
-					fprintf(fout2,"%s%d%s,","Attr_",j,featureName[i]);
+					fprintf(fout2,"%s%d_%s,","Attr_",j,featureName[i]);
 				}
 			}
 			fprintf(fout2,"\n");
 			for(unsigned k = 0;k < fileNum;k++){
 				for(unsigned l = 0;l < segNum;l++){
+					fprintf(fout2,"%d,%d,%d,",fileDataVector[k].id,
+					fileDataVector[k].fid,fileDataVector[k].nCycle);
 					for(unsigned j = 0;j < attrNum;j++){
 						for(unsigned i = 0;i < featureNum;i++){
 							fprintf(fout2,"%lf,",totalResult[k][l*featureNum+i][j]);
