@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
         cout << "id: " << fd.id << endl;
         cout << "filename: " << fd.fileName << endl;
         cout << "cycle: " << fd.cycle << endl;
+        cout << "nCycle: " << fd.nCycle << endl;
         for(unsigned i=0; i<fd.attrTypeVector.size(); i++){
             cout << fd.attrTypeVector[i] << "  ";
         }

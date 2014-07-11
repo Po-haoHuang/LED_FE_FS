@@ -11,6 +11,7 @@ public:
     CycleData();
     virtual ~CycleData();
     double cycle;
+    int nCycle;
     bool valid;
     vector<FileData> fileDataVector;
 

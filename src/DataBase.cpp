@@ -253,6 +253,8 @@ bool DataBase::extract(double cycleBegin, double cycleEnd)
             for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){ // for each file
                 extractSuccessful |= singleFileExtract(fdVector[j].fileName, fdVector[j]);
                 fdVector[j].cycle = mdb[i].cycle;
+                fdVector[j].nCycle = i;
+                mdb[i].nCycle = i;
                 cycleDataQuantity+= fdVector[j].dataVector.size();
             }
             if(!fdVector.front().dataVector.empty()){
