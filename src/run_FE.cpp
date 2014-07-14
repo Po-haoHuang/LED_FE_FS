@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<math.h>
+//gsl library for statistic
 #include"gsl/gsl_sort.h"
 #include"gsl/gsl_statistics_double.h"
 #include<iostream>
@@ -27,9 +28,7 @@ vector<vector<double> > rowData;
 
 using namespace std;
 
-//data DIR
-const string cycleListFileName = "..\\use_file_list.csv";
-const string dataDir = "..\\dp_variable_selection\\";
+
 
 //Function declaration
 //For FE
@@ -52,9 +51,36 @@ segmentPara seg = disable;
 vector<vector<vector<string> > > ParaFeatureNameSet;
 
 int main(int argc, char *argv[]){
-
-	//Start File IO
+	string cycleListFileName,dataDir;
+	int cycleBegin,cycleEnd;
 	
+
+	//checking argv input
+	if(argc > 6){//too many arguments
+		cerr<<"Too many arguments.\n";
+		return -1;
+	}
+
+	else if(argc < 6){//too few arguments
+		cerr<<"Too few arguments.\n";
+		return -1;
+	}
+	else{
+	//data DIR
+	cycleListFileName = argv[1];
+	dataDir = argv[2];
+	//Set cycle range
+	cycleBegin = atoi(argv[3]);
+	cycleEnd = atoi(argv[4]);
+	//set Segmentation number 
+	int segNum = atoi(argv[5]);
+	if (segNum == 1)
+		seg = disable;
+	else 
+		seg = enable;
+	}
+
+	//Start File IO	
  	// database
     DataBase db;
 
@@ -65,15 +91,6 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    db.printCycleList();
-
-    // Set cycle range
-    double cycleBegin, cycleEnd;
-    cout << endl << "Set cycle begin: ";
-    cin >> cycleBegin;
-    cout << "Set cycle end: ";
-    cin >> cycleEnd;
-    cout << endl;
     bool extractSuccess = db.extract(cycleBegin, cycleEnd); // start extracting file data
 
     if(!extractSuccess){
@@ -85,13 +102,10 @@ int main(int argc, char *argv[]){
     bool getAllFileSuccessful = db.getAllFileData(fileDataVector);
     if(getAllFileSuccessful){
         cout << endl << "There are " << fileDataVector.size() << " files extracted:";
-        cout << ", containing: " << endl;
-        for(unsigned i = 0; i< fileDataVector.size(); i++){
-            cout << fileDataVector[i].id << " \t";
-        }
 
     }else{
         cout << "No file extracted." << endl;
+		return 1;
     }
     cout<<endl;
     
@@ -100,42 +114,7 @@ int main(int argc, char *argv[]){
 	attrNum = fileDataVector[0].attrSize();
 
 	
-	//checking argv input
-	if(argc > 3){//too many arguments
-		cerr<<"Too many arguments.\n";
-		return -1;
-	}
 
-	else if(argc < 2){//too few arguments
-		cerr<<"Too few arguments.\n";
-		return -1;
-	}
-	else{
-
-		if(atoi(argv[1]) == 0){
-			if(argc == 3){//if disable need 2 arguments
-				cerr<<"No need to enter segmentation number when disabled.\n";
-				return -1;
-			}
-			else
-			seg = (segmentPara)atoi(argv[1]);
-		}
-		else if(atoi(argv[1]) == 1 ){
-			if(argc == 2){//if enable need 3 arguments
-				cerr<<"Need to enter segmentation number when enabled.\n";
-				return -1;
-			}
-			else{
-			seg = (segmentPara)atoi(argv[1]);
-			segNum = atoi(argv[2]);
-			}
-		}
-		else{//Other error of segmentation option
-			cerr<<"Segmentation option value error."<<endl
-			<<"0 for disable."<<endl<<"1 for enable.";
-			return -1;
-		}
-	}
 	
 	//run FE
 	runFeatureExtraction();
@@ -191,13 +170,13 @@ void runFeatureExtraction(){
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
 			cout<<"Computing done."<<endl;
-			//Generate the correspnding nametags for FE output
-			GenParaFeatureNameSet();
-			cout<<"Generating nametags done."<<endl;
+			//Generate the correspnding nametags for FE output currently not used
+			/*GenParaFeatureNameSet();
+			cout<<"Generating nametags done."<<endl;*/
 			
 			cout<<"Output processing..."<<endl;
 			//output
-			fprintf(fout,"%s,%s,%s,","ID","Original_ID","Cycle");
+			fprintf(fout,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
 					fprintf(fout,"%s%d_%s,","Attr_",j,featureName[i]);
@@ -227,12 +206,13 @@ void runFeatureExtraction(){
 				dataSize : fileDataVector[k].dataVector.size();
 
 			//check if segNum is valid
-			while(segNum > dataSize || segNum == 0){
+			if(segNum > dataSize || segNum == 0){
             	cerr<<"Segmentation number error."<<endl<<
-				"Please enter a new Segmentation number:(1 ~ datasize)";
-				scanf("%d",&segNum);
-
+				"Please enter a new Segmentation number:(1 ~ max_datasize)";
+				return;
+				
 			}
+			
 			
 			//Initialization
 			totalResult.clear();
@@ -286,16 +266,16 @@ void runFeatureExtraction(){
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
 			cout<<"Computing done."<<endl;
-			//Generate the correspnding nametags for FE output
-			GenParaFeatureNameSet_seg();
-			cout<<"Generating nametags done."<<endl;
+			//Generate the correspnding nametags for FE output currently not used
+			/*GenParaFeatureNameSet_seg();
+			cout<<"Generating nametags done."<<endl;*/
 
 			cout<<"Output processing..."<<endl;
 			
 			//output
 			FILE* fout1 = fopen("Output_seg1.csv","w+");
 			FILE* fout2 = fopen("Output_seg2.csv","w+");
-			fprintf(fout1,"%s,%s,%s,","ID","Original_ID","Cycle");
+			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
                     for(unsigned k = 0;k < segNum;k++){
@@ -317,7 +297,7 @@ void runFeatureExtraction(){
 
 			}
 			fclose(fout1);
-			fprintf(fout2,"%s,%s,%s,","ID","Original_ID","Cycle");
+			fprintf(fout2,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
 					fprintf(fout2,"%s%d_%s,","Attr_",j,featureName[i]);
@@ -346,8 +326,6 @@ void runFeatureExtraction(){
 }
 
 double *FeatureExtraction(double* cleanData){
-	//check if it is empty not implement yet
-
 	
 	unsigned length = dataSize;//not implement yet
 
@@ -383,7 +361,7 @@ double *FeatureExtraction(double* cleanData){
 	
 	
 }
-
+/*
 void GenParaFeatureNameSet(){
 	ParaFeatureNameSet.resize(fileNum);
 	for(unsigned k = 0;k < fileNum;k++)
@@ -411,11 +389,9 @@ void GenParaFeatureNameSet(){
 		}
 	}
 }
-
+*/
 
 double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
-//check if it is empty not implement yet
-
 	
 	unsigned length = chunkSize;//not implement yet
 
@@ -451,7 +427,7 @@ double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
 	return f;
 	
 }
-
+/*
 void GenParaFeatureNameSet_seg(){
 	ParaFeatureNameSet.resize(fileNum);
 	for(unsigned k = 0;k < fileNum;k++)
@@ -486,3 +462,4 @@ void GenParaFeatureNameSet_seg(){
 		}
 	}
 }
+*/
