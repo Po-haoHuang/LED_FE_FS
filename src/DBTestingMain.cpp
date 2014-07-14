@@ -28,10 +28,11 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // db.printCycleList();   // old cycle format
     db.printCycleList();
 
     // Set cycle range
-    double cycleBegin, cycleEnd;
+    int cycleBegin, cycleEnd;
     cout << endl << "Set cycle begin: ";
     cin >> cycleBegin;
     cout << "Set cycle end: ";

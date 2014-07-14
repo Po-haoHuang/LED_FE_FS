@@ -14,11 +14,12 @@ public:
     DataBase();
     virtual ~DataBase();
     bool getFileById(int id, FileData &fd);
-    bool getCycle(double cycle, CycleData& cd);
+    bool getCycleReal(double cycle, CycleData& cd);
+    bool getCycle(unsigned nCycle, CycleData& cd);
     bool getAllFileData(vector<FileData>& fdVector);
     void printCycleList();
     bool init(string useDir, string listFileName);
-    bool extract(double cycleBegin, double cycleEnd);
+    bool extract(unsigned cycleBegin, unsigned cycleEnd);
     bool valid(){return dbValid;};
 
 private:
