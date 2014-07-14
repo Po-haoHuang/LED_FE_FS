@@ -58,11 +58,13 @@ int main(int argc, char *argv[]){
 	//checking argv input
 	if(argc > 6){//too many arguments
 		cerr<<"Too many arguments.\n";
+		system("pause");
 		return -1;
 	}
 
 	else if(argc < 6){//too few arguments
 		cerr<<"Too few arguments.\n";
+		system("pause");
 		return -1;
 	}
 	else{
@@ -88,6 +90,7 @@ int main(int argc, char *argv[]){
 
     if(!db.valid()){
         cout << "Database initializing failed." << endl;
+        system("pause");
         return 1;
     }
 
@@ -95,6 +98,7 @@ int main(int argc, char *argv[]){
 
     if(!extractSuccess){
         cout << "Extracting failed." << endl;
+        system("pause");
         return 1;
     }
 
@@ -105,6 +109,7 @@ int main(int argc, char *argv[]){
 
     }else{
         cout << "No file extracted." << endl;
+        system("pause");
 		return 1;
     }
     cout<<endl;
