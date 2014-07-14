@@ -11,3 +11,7 @@ QT ³]­pgui
 FeatureSelecyion:
 
 Dlib 32-bit
+
+DataBase:
+(csv.h) -std=c++11 -D__NO_MINGW_LFS -DUSE_FAST_CSV 
+Fast CSV can only read fixed CSV format (i.e. exactly 8 columns containing "DataTime", "dP_Filter (X1)", ...)

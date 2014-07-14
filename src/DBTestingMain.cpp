@@ -28,7 +28,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // db.printCycleList();   // old cycle format
     db.printCycleList();
 
     // Set cycle range
@@ -76,11 +75,10 @@ int main(int argc, char *argv[])
         cout << "No file extracted." << endl;
     }
 
-
     return 0;
 
     // Cycle Data usage example
-    /*double cid;
+    double cid;
     cout << endl << "Select cycle id: ";
     cin >> cid;
     CycleData cd;
@@ -92,7 +90,7 @@ int main(int argc, char *argv[])
         }
     }else{
         cout << "Get cycle " << cid << " failed." << endl;
-    }*/
+    }
 
     // FileData usage example
     int fid;

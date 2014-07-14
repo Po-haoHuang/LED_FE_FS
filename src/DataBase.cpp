@@ -78,8 +78,7 @@ bool DataBase::getCycle(unsigned nCycle, CycleData& cd){
 }
 
 bool DataBase::getAllFileData(vector<FileData>& fdVector){
-    fdVector.clear();
-    for(unsigned i=0; i<mdb.size(); i++){ // search cycles
+    for(unsigned i=0; i<mdb.size(); i++){
         if(mdb[i].valid){
             for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){
                 fdVector.push_back(mdb[i].fileDataVector[j]);
