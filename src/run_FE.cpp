@@ -12,9 +12,9 @@
 
 
 //include file processing part
-#include "include/FileData.h"
-#include "include/DataBase.h"
-#include "include/CycleData.h"
+#include "../include/FileData.h"
+#include "../include/DataBase.h"
+#include "../include/CycleData.h"
 
 //Variable for feature extraction
 unsigned attrNum;
@@ -28,8 +28,8 @@ vector<vector<double> > rowData;
 using namespace std;
 
 //data DIR
-const string cycleListFileName = "use_file_list.csv";
-const string dataDir = ".\\dp_variable_selection\\";
+const string cycleListFileName = "..\\use_file_list.csv";
+const string dataDir = "..\\dp_variable_selection\\";
 
 //Function declaration
 //For FE
