@@ -184,7 +184,7 @@ void runFeatureExtraction(){
 			fprintf(fout,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
-					fprintf(fout,"%s%d_%s,","Attr_",j,featureName[i]);
+					fprintf(fout,"%s_%s,",fileDataVector[0].attrTypeVector[j+1].c_str(),featureName[i]);
 				}
 			}
 			fprintf(fout,"\n");
@@ -284,7 +284,7 @@ void runFeatureExtraction(){
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
                     for(unsigned k = 0;k < segNum;k++){
-						fprintf(fout1,"%s%d%s%d_%s,","Attr_",j,"_Seg_",k,featureName[i]);
+						fprintf(fout1,"%s%s%d_%s,",fileDataVector[0].attrTypeVector[j+1].c_str(),"_Seg_",k,featureName[i]);
 					}
 				}
 			}
@@ -305,7 +305,7 @@ void runFeatureExtraction(){
 			fprintf(fout2,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
-					fprintf(fout2,"%s%d_%s,","Attr_",j,featureName[i]);
+					fprintf(fout2,"%s_%s,",fileDataVector[0].attrTypeVector[j+1].c_str(),featureName[i]);
 				}
 			}
 			fprintf(fout2,"\n");

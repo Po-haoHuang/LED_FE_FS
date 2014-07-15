@@ -5,13 +5,21 @@ gsl 1.15 64bit  https://code.google.com/p/oscats/downloads/list
 EX:  ../../../../GSL-1.15/lib/libgsl.a ../../../../GSL-1.15/lib/libgslcblas.a
 
 QT 設計gui
-32bit 5.3 mingw 4.8.2
+32bit 5.3 mingw 4.8.2 
+default dll linking
+如果要standalone的exe,需built static qt,參考
+http://qt-project.org/wiki/How-to-build-a-static-Qt-for-Windows-MinGW
+
+DataBase:
+(csv.h) -std=c++11 -D__NO_MINGW_LFS -DUSE_FAST_CSV 
+Fast CSV can only read fixed CSV format (i.e. exactly 8 columns 	containing "DataTime", "dP_Filter (X1)", ...)
 
 
 FeatureSelecyion:
 
+Regression based:
 Dlib 32-bit
+mlpack
 
-DataBase:
-(csv.h) -std=c++11 -D__NO_MINGW_LFS -DUSE_FAST_CSV 
-Fast CSV can only read fixed CSV format (i.e. exactly 8 columns containing "DataTime", "dP_Filter (X1)", ...)
+
+
