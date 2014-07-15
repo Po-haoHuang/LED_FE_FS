@@ -77,12 +77,16 @@ bool DataBase::getCycle(unsigned nCycle, CycleData& cd){
     return true;
 }
 
+// May exceed 2GB memory limit and crashed !
 bool DataBase::getAllFileData(vector<FileData>& fdVector){
     for(unsigned i=0; i<mdb.size(); i++){
         if(mdb[i].valid){
+            cout << "cycle " << i+1 << endl;
             for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){
                 fdVector.push_back(mdb[i].fileDataVector[j]);
             }
+            mdb[i].fileDataVector.clear();
+            mdb[i].fileDataVector.shrink_to_fit();
         }
     }
     if(fdVector.empty())
@@ -191,6 +195,18 @@ void DataBase::csvValueSplit(string s, const char delimiter, vector<double> &lin
     	start=end+1;
     	end = s.find_first_of(delimiter, start);
     }
+}
+
+bool DataBase::getAllFileDataPtr(vector<FileData*>& fdPtrVector)
+{
+    for(unsigned i=0; i<mdb.size(); i++){
+        if(mdb[i].valid){
+            for(unsigned j=0; j<mdb[i].fileDataVector.size(); j++){
+                fdPtrVector.push_back(&(mdb[i].fileDataVector[j]));
+            }
+        }
+    }
+    return true;
 }
 
 

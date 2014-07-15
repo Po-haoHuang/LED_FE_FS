@@ -44,8 +44,38 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // get all file data ver. 2
+    vector<FileData*> fdPtrVector;
+    db.getAllFileDataPtr(fdPtrVector);
+
+    cout << endl << "There are " << fdPtrVector.size() << " files extracted:";
+    cout << ", containing: " << endl;
+    for(unsigned i = 0; i< fdPtrVector.size(); i++){
+        cout << fdPtrVector[i]->id << " \t";
+    }
+
+    FileData &fd = *fdPtrVector[0];
+    cout << endl << endl << "First extracted file: " << endl;
+    cout << "id: " << fd.id << endl;
+    cout << "filename: " << fd.fileName << endl;
+    cout << "cycle: " << fd.cycle << endl;
+    cout << "nCycle: " << fd.nCycle << endl;
+    for(unsigned i=0; i<fd.attrTypeVector.size(); i++){
+        cout << fd.attrTypeVector[i] << "  ";
+    }
+    cout << endl << "First 5 lines: " << endl;
+    for(unsigned i=0; i<5; i++){
+        for(unsigned j=0; j<fd.attrSize(); j++){
+            cout << fd.dataVector[i][j] << "  ";
+        }
+        cout << endl;
+    }
+    cout << endl;
+
+    return 0;
+
     // get all file data example
-    vector<FileData> fileDataVector;
+    /*vector<FileData> fileDataVector;
     bool getAllFileSuccessful = db.getAllFileData(fileDataVector);
     if(getAllFileSuccessful){
         cout << endl << "There are " << fileDataVector.size() << " files extracted:";
@@ -75,10 +105,10 @@ int main(int argc, char *argv[])
         cout << "No file extracted." << endl;
     }
 
-    return 0;
+    return 0;*/
 
     // Cycle Data usage example
-    double cid;
+    /*double cid;
     cout << endl << "Select cycle id: ";
     cin >> cid;
     CycleData cd;
@@ -90,10 +120,10 @@ int main(int argc, char *argv[])
         }
     }else{
         cout << "Get cycle " << cid << " failed." << endl;
-    }
+    }*/
 
     // FileData usage example
-    int fid;
+    /*int fid;
     cout << endl <<  "Select file id: ";
     cin >> fid;
     FileData fd;
@@ -113,6 +143,6 @@ int main(int argc, char *argv[])
         }
     }else{
         cout << "Unable to get id = " << fid << " FileData" << endl;
-    }
+    }*/
     return 0;
 }

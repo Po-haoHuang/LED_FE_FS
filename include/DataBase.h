@@ -21,6 +21,7 @@ public:
     bool init(string useDir, string listFileName);
     bool extract(unsigned cycleBegin, unsigned cycleEnd);
     bool valid(){return dbValid;};
+    bool getAllFileDataPtr(vector<FileData*>& fdPtrVector);
 
 private:
     vector<CycleData> mdb;
