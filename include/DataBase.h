@@ -19,9 +19,12 @@ public:
     bool getAllFileData(vector<FileData>& fdVector);
     void printCycleList();
     bool init(string useDir, string listFileName);
+    bool extractById(int id, FileData &fileData);
     bool extract(unsigned cycleBegin, unsigned cycleEnd);
     bool valid(){return dbValid;};
     bool getAllFileDataPtr(vector<FileData*>& fdPtrVector);
+    int beginOfCycle(unsigned cycle);
+    int endOfCycle(unsigned cycle);
 
 private:
     vector<CycleData> mdb;

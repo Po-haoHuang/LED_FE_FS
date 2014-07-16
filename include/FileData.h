@@ -18,7 +18,7 @@ public:
     int nCycle;
     string fileName;
     vector<vector<double> > dataVector;
-    vector<string> timeStamp;
+    //vector<string> timeStamp;
     vector<string> attrTypeVector;
 
     unsigned size(){ return dataVector.size();}

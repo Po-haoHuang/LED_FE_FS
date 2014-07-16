@@ -209,10 +209,20 @@ bool DataBase::getAllFileDataPtr(vector<FileData*>& fdPtrVector)
     return true;
 }
 
+int DataBase::beginOfCycle(unsigned cycle)
+{
+    return mdb[cycle-1].fileDataVector.front().id;
+}
+
+int DataBase::endOfCycle(unsigned cycle)
+{
+    return mdb[cycle-1].fileDataVector.back().id+1;
+}
+
 
 bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 {
-    cout << "FileData ID: " << fileData.id << "  extracting ... ";
+    //cout << "FileData ID: " << fileData.id << "  extracting ... ";
 
     // open file
     ifstream inFile((dir+fileName).c_str(), ios::in);
@@ -232,6 +242,8 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
         pch = strtok (NULL, ",");
     }
 
+    fileData.dataVector.reserve(1024);
+
     // read data by line, 2 method implement
 
     #ifdef USE_FAST_CSV
@@ -242,15 +254,13 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
                     "RunHyd1.feed1 (F300)", "FilterConsumption (C6)", "ScrubberConsumption (C5)", "Position (P21)");
     string DateTime;
     while(in.read_row(DateTime,lineValue[0], lineValue[1], lineValue[2], lineValue[3], lineValue[4], lineValue[5], lineValue[6])) {
-        fileData.timeStamp.push_back(DateTime);
+        //fileData.timeStamp.push_back(DateTime);
         fileData.dataVector.push_back(lineValue);
     }
-    #endif // USE_FAST_CSV
-
+    #endif
 
     #ifndef USE_FAST_CSV
     vector<double> lineValue;
-    fileData.dataVector.reserve(1024);
     while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)){
         char *firstComma = strstr(lineBuffer, ",");
         fileData.timeStamp.push_back(string(lineBuffer, firstComma-lineBuffer));
@@ -258,12 +268,29 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
         csvValueSplit(string(firstComma+1), ',', lineValue);
         fileData.dataVector.push_back(lineValue);
     }
-
     inFile.close();
-    #endif // USE_FAST_CSV
+    #endif
 
-    cout << " read " << fileData.dataVector.size() << " lines" << endl;
+    //cout << " read " << fileData.dataVector.size() << " lines" << endl;
     return true;
+}
+
+bool DataBase::extractById(int id, FileData &fileData)
+{
+    for(unsigned c=0; c<mdb.size(); c++){
+        for(unsigned i=0; i<mdb[c].fileDataVector.size(); i++){
+            if(id==mdb[c].fileDataVector[i].id){
+                if(singleFileExtract(mdb[c].fileDataVector[i].fileName, fileData)){
+                    fileData.id = mdb[c].fileDataVector[i].id;
+                    fileData.fid = mdb[c].fileDataVector[i].fid;
+                    return true;
+                }
+                else
+                    return false;
+            }
+        }
+    }
+    return false;
 }
 
 bool DataBase::extract(unsigned cycleBegin, unsigned cycleEnd)
@@ -294,7 +321,7 @@ bool DataBase::extract(unsigned cycleBegin, unsigned cycleEnd)
         }
         if(!fdVector.front().dataVector.empty()){
             attributeSize = fdVector.front().attrSize();
-            stringLength = fdVector.front().timeStamp.front().size();
+            //stringLength = fdVector.front().timeStamp.front().size();
         }
         mdb[i].valid = extractSuccessful;
         if(!extractSuccessful)

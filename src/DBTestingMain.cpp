@@ -27,16 +27,30 @@ int main(int argc, char *argv[])
         cout << "Database initializing failed." << endl;
         return 1;
     }
-
     db.printCycleList();
 
-    // Set cycle range
+    // set cycle range
     int cycleBegin, cycleEnd;
     cout << endl << "Set cycle begin: ";
     cin >> cycleBegin;
     cout << "Set cycle end: ";
     cin >> cycleEnd;
     cout << endl;
+
+    // extract single file only, and it won't be added in database.
+    // No memory size issue
+    cout << "Begin id: " << db.beginOfCycle(cycleBegin) << endl;
+    cout << "End id: " << db.endOfCycle(cycleEnd) << endl;
+    for(int id=db.beginOfCycle(cycleBegin); id<db.endOfCycle(cycleEnd); id++){
+        FileData fd;
+        if(db.extractById(id,fd)){
+            cout << "read file id: " << fd.id << " lines: " << fd.dataVector.size() << endl;
+        }
+    }
+
+    return 0;
+
+
     bool extractSuccess = db.extract(cycleBegin, cycleEnd); // start extracting file data
 
     if(!extractSuccess){
