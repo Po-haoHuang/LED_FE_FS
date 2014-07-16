@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 	cycleBegin = atoi(argv[3]);
 	cycleEnd = atoi(argv[4]);
 	//set Segmentation number 
-	int segNum = atoi(argv[5]);
+	segNum = atoi(argv[5]);
 	if (segNum == 1)
 		seg = disable;
 	else 
@@ -173,7 +173,7 @@ void runFeatureExtraction(){
 					}
 				}
 				totalResult.push_back(singleResult);
-				if( k!=0 && ((k-1)%100)==0 )
+				if( (k-1)!=0 && ((k-1)%100)==0 )
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
 			cout<<"Computing done."<<endl;
@@ -206,7 +206,7 @@ void runFeatureExtraction(){
 			break;
 			
 		case enable:{//segmentation enabled
-			dataSize = fileDataVector[0]->dataVector.size();
+			/*dataSize = fileDataVector[0]->dataVector.size();
 
 			for(unsigned k = 1;k < fileNum;k++)//Get minimum datasize of all selected files
 				dataSize = fileDataVector[k]->dataVector.size() > dataSize?
@@ -214,13 +214,13 @@ void runFeatureExtraction(){
 
 			//check if segNum is valid
 			if(segNum > dataSize || segNum == 0){
-            	cerr<<"Segmentation number error."<<endl<<
+            	cerr<<"Segmentation number error."<<dataSize<<endl<<
 				"Please enter a new Segmentation number:(1 ~ max_datasize)";
 				return;
 				
-			}
+			}*/
 			
-			
+
 			//Initialization
 			totalResult.clear();
 			unsigned tempSize = 0;
@@ -269,7 +269,7 @@ void runFeatureExtraction(){
 					}
 				}
 				totalResult.push_back(singleResult);
-				if( k!=0 && ((k-1)%100)==0 )
+				if( (k-1)!=0 && ((k-1)%100)==0 )
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
 			cout<<"Computing done."<<endl;
