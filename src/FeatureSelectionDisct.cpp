@@ -1,127 +1,20 @@
-#include "TargetLevel.h"
-
 #include <iostream>
-#include <fstream>
-#include <string>
 #include <vector>
-#include <algorithm>
-#include <cstdlib>
 #include <cfloat>
+#include <algorithm>
 
-using namespace std;
+#include "../include/FeatureSelection.h"
 
-const unsigned LINE_BUFFER_SIZE = 4096;
+using std::cout;
+using std::endl;
+using std::vector;
 
-TargetLevel::TargetLevel()
-{
-    //ctor
-}
-
-TargetLevel::~TargetLevel()
-{
-    //dtor
-}
-
-bool TargetLevel::init(string FE_fileName)
-{
-    cout << "Loading file \"" << FE_fileName << "\": ";
-
-    // open file
-    ifstream inFile((FE_fileName).c_str(), ios::in);
-    if(!inFile) {
-        cout << "Error: Cannot open file." << endl;
-        return false;
-    }
-    cout << "Successful" << endl;
-
-    // read attribute title
-    char lineBuffer[LINE_BUFFER_SIZE];
-    inFile.getline(lineBuffer, LINE_BUFFER_SIZE);
-    string attrTitle = lineBuffer;
-    unsigned thirdCommaPos = attrTitle.find(",");  // delete id, fid and cycle info
-    thirdCommaPos = attrTitle.find(",",thirdCommaPos+1);
-    thirdCommaPos = attrTitle.find(",",thirdCommaPos+1);
-    attrTitle = attrTitle.substr(thirdCommaPos+1);
-
-    // read attribute name
-    csvSplit(attrTitle, ',', attrNameVec);
-    attrNameVec.pop_back(); // remove redundant value
-    cout << "feature number: " << featureNumber() << endl;
-
-    // read data by line
-    featureData.reserve(1024);
-    vector<double> lineValue;
-    vector<string> lineStrValue;
-    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)){
-        lineValue.clear();
-        lineStrValue.clear();
-        csvSplit(string(lineBuffer), ',', lineStrValue);
-        featureDataCycle.push_back(atof(lineStrValue[2].c_str()));
-        for(unsigned i=3; i<lineStrValue.size(); i++){
-            lineValue.push_back(atof(lineStrValue[i].c_str()));
-        }
-        featureData.push_back(lineValue);
-    }
-    cout << "total lines: " << featureData.size() << endl;
-
-    inFile.close();
-    return true;
-}
-
-string TargetLevel::attrTitle()
-{
-    string title;
-    for(unsigned i=0; i<attrNameVec.size(); i++){
-        title += attrNameVec[i] + ",";
-    }
-    return title;
-}
-
-int TargetLevel::idOfAttr(string attrName)
-{
-    for(unsigned col=0; col<featureNumber(); col++){
-        if(attrNameVec[col].find(attrName) != string::npos){ // match
-            return col;
-        }
-    }
-    return -1;
-}
-
-bool TargetLevel::getAttrCol(string attrName, vector<double> &colVec)
-{
-    for(unsigned col=0; col<featureNumber(); col++){
-        if(attrNameVec[col].find(attrName) != string::npos){ // match
-            for(unsigned j=0; j<featureData.size(); j++){
-                colVec.push_back(featureData[j][col]);
-            }
-            return true;
-        }
-    }
-    return false;
-}
-
-
-
-void TargetLevel::csvSplit(string s, const char delimiter, vector<string> &value)
-{
-    size_t start=0;
-    size_t end=s.find_first_of(delimiter);
-
-    while (end <= std::string::npos){
-        value.push_back(s.substr(start, end-start));
-        if (end == std::string::npos)
-	    	break;
-    	start=end+1;
-    	end = s.find_first_of(delimiter, start);
-    }
-}
-
-bool TargetLevel::EW_discrete(vector<vector<int> >& discreteData, int partitionNum, vector<vector<double> >*inDataPtr)
+bool FeatureSelection::disct_ew(vector<vector<int> >& discreteData, int partitionNum, vector<vector<double> >*inDataPtr)
 {
     vector<vector<double> > *inFeatureDataPtr;
     if(inDataPtr==NULL){
         inFeatureDataPtr = &(this->featureData);
-        cout << "Start EW_discrete ... ";
+        cout << "Start disct_ew ... ";
     }else{
         inFeatureDataPtr = inDataPtr;
     }
@@ -174,9 +67,9 @@ bool TargetLevel::EW_discrete(vector<vector<int> >& discreteData, int partitionN
     return true;
 }
 
-bool TargetLevel::cycle_EW_discrete(vector<vector<int> >& discreteData, int partitionNum)
+bool FeatureSelection::disct_ew_cycle(vector<vector<int> >& discreteData, int partitionNum)
 {
-    cout << "Start cycle_EW_discrete ... containing cycle: ";
+    cout << "Start cycle_disct_ew ... containing cycle: ";
     vector<vector<double> > cycleFeatureData;
     vector<vector<int> > cycleDiscreteData;
     for(unsigned i=0; i<featureData.size(); i++){
@@ -184,7 +77,7 @@ bool TargetLevel::cycle_EW_discrete(vector<vector<int> >& discreteData, int part
         // when reading last element or cycles not equal, it's the end of cycleDiscreteData
         if(i==featureData.size()-1 || featureDataCycle[i]!=featureDataCycle[i+1]){
             cout << featureDataCycle[i] << " ";
-            EW_discrete(cycleDiscreteData, partitionNum, &cycleFeatureData);
+            disct_ew(cycleDiscreteData, partitionNum, &cycleFeatureData);
             for(unsigned ci=0; ci<cycleDiscreteData.size(); ci++){
                 discreteData.push_back(cycleDiscreteData[ci]);
             }
@@ -200,7 +93,7 @@ bool TargetLevel::cycle_EW_discrete(vector<vector<int> >& discreteData, int part
 
 //Need to modify to cut target attribute only
 // when value once grows over cut point's value, its label won't go lower.
-bool TargetLevel::mamual_discrete(vector<double> &inFeatureData, vector<int> &discreteData, vector<double> &cutPoints)
+bool FeatureSelection::disct_manual(vector<double> &inFeatureData, vector<int> &discreteData, vector<double> &cutPoints)
 {
     if(cutPoints.size()<=1){  // return n*1 matrix
         for(unsigned i=0; i<inFeatureData.size(); i++){
@@ -235,4 +128,3 @@ bool TargetLevel::mamual_discrete(vector<double> &inFeatureData, vector<int> &di
     }
     return true;
 }
-

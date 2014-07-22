@@ -4,9 +4,7 @@
 #include <vector>
 #include <algorithm>
 
-#include "../include/TargetLevel.h"
-#include "JMI.c"
-#include "mRMR_D.c"
+#include "../include/FeatureSelection.h"
 
 using namespace std;
 
@@ -27,18 +25,20 @@ int main(){
     }
 
     // main data class
-    TargetLevel targetLevel;
-    targetLevel.init(featureDataSetFileName);
+    FeatureSelection fs;
+    fs.init(featureDataSetFileName);
 
-    vector<double> cutPoints(manual_cut_points,manual_cut_points + sizeof(manual_cut_points)/sizeof(double));
+    // set cut points (defined in the head of file)
+    vector<double> cutPoints(manual_cut_points,manual_cut_points
+                             + sizeof(manual_cut_points)/sizeof(double));
 
     // EW_discrete for discreteData (JMI/MRMR function's input matrix)
     vector<vector<int> > discreteData;
-    targetLevel.EW_discrete(discreteData, cutPoints.size()+1);
+    fs.disct_ew(discreteData, cutPoints.size()+1);
 
     // choose target column
     vector<double> targetColVec;
-    if(!targetLevel.getAttrCol(targetColName, targetColVec)){
+    if(!fs.getAttrCol(targetColName, targetColVec)){
         cout << "Not found attrName: " << targetColName << endl;
         return 1;
     }
@@ -55,34 +55,35 @@ int main(){
     case 1:
 
     case 2:
-        targetLevel.mamual_discrete(targetColVec, labels, cutPoints);
+        fs.disct_manual(targetColVec, labels, cutPoints);
         break;
     case 3:
         for(unsigned i=0; i<discreteData.size(); i++){
-            labels.push_back(discreteData[i][targetLevel.idOfAttr(targetColName)]);
+            labels.push_back(discreteData[i][fs.idOfAttr(targetColName)]);
         }
         break;
     }
 
     // record using features' id (exclude undesired attributes)
-    vector<int> useFeatureId(targetLevel.featureNumber());
+    vector<int> useFeatureId(fs.featureNumber());
     for(unsigned i=0; i<useFeatureId.size(); i++){
         useFeatureId[i] = i;  // initialize: use all feature id
     }
-    for(unsigned i=0; i<targetLevel.featureNumber(); i++){
-        if(targetLevel.getAttrName(i).find("dP_Filter")!=string::npos){  // exclude dp_filter attribute
+    for(unsigned i=0; i<fs.featureNumber(); i++){
+        if(fs.getAttrName(i).find("dP_Filter")!=string::npos){  // exclude dp_filter attribute
             useFeatureId[i]=-1;
-        }else if(targetLevel.getAttrName(i).find("skewness")!=string::npos ||
-                targetLevel.getAttrName(i).find("kurtosis")!=string::npos){ // exclude skewness and kurtosis attribute
+        }else if(fs.getAttrName(i).find("skewness")!=string::npos ||
+                fs.getAttrName(i).find("kurtosis")!=string::npos){ // exclude skewness and kurtosis attribute
             useFeatureId[i]=-1;
         }else{
             vector<double> colVec;
-            targetLevel.getAttrCol(targetLevel.getAttrName(i), colVec);  // exclude zero columns
+            fs.getAttrCol(fs.getAttrName(i), colVec);  // exclude zero columns
             if(*max_element(colVec.begin(), colVec.end()) == 0){
                 useFeatureId[i]=-1;
             }
         }
     }
+
     // remove unused feature id
     vector<int> useFeatureIdReplace;  // temporary use only
     for(unsigned i=0; i<useFeatureId.size(); i++){
@@ -94,17 +95,17 @@ int main(){
     cout << "use " << useFeatureId.size() << " features: " << endl;
     resultFile << "use " << useFeatureId.size() << " features: " << endl;
     for(unsigned i=0; i<useFeatureId.size(); i++){
-        cout << i+1 << ": " << targetLevel.getAttrName(useFeatureId[i]) << endl;
-        resultFile << i+1 << ", " << targetLevel.getAttrName(useFeatureId[i]) << endl;
+        cout << i+1 << ": " << fs.getAttrName(useFeatureId[i]) << endl;
+        resultFile << i+1 << ", " << fs.getAttrName(useFeatureId[i]) << endl;
     }
     cout << endl;
 
     // use EW-cycle discrete data as input matrix
     int matrixCounter=0;
     double *dataMatrix = new double[discreteData.size()*(useFeatureId.size())];  // 966 * n
-    for(unsigned i=0; i<discreteData.size(); i++){
-        for(unsigned j=0; j<useFeatureId.size(); j++){
-            dataMatrix[matrixCounter++] = discreteData[i][useFeatureId[j]];
+    for(unsigned i=0; i<useFeatureId.size(); i++){
+        for(unsigned j=0; j<discreteData.size(); j++){
+            dataMatrix[matrixCounter++] = discreteData[j][useFeatureId[i]];
         }
     }
 
@@ -113,31 +114,40 @@ int main(){
     for(unsigned i=0; i<labels.size();  i++){
         labelsD[i] = labels[i];
     }
-
     int top_k = 15;
 
     // JMI
     double *outputFeaturesJMI = new double[top_k];
-    double *outputFeaturesScoresJMI = new double[top_k];
-    JMI(top_k, targetColVec.size(), useFeatureId.size(), dataMatrix, &labelsD[0], outputFeaturesJMI, outputFeaturesScoresJMI);
-    cout << "JMI select from " << targetColVec.size() << " samples: " << endl;
+    fs.JMI(top_k, targetColVec.size(), useFeatureId.size(), dataMatrix, &labelsD[0], outputFeaturesJMI);
+    cout  << "JMI select from " << targetColVec.size() << " samples: " << endl;
     resultFile << endl << "JMI select from " << targetColVec.size() << " samples: " << endl;
     for(int i=0; i<top_k; i++){
         int memId = useFeatureId[outputFeaturesJMI[i]];
-        cout << i+1 << ": " << targetLevel.getAttrName(memId) << endl;
-        resultFile << i+1 << "," << targetLevel.getAttrName(memId) << endl;
+        cout << i+1 << ": " << fs.getAttrName(memId) << endl;
+        resultFile << i+1 << "," << fs.getAttrName(memId) << endl;
     }
-    cout << endl;
 
     // MRMR
     double *outputFeaturesMRMR = new double[top_k];
-    mRMR_D(top_k, targetColVec.size(), useFeatureId.size(), dataMatrix, &labelsD[0], outputFeaturesMRMR);
-    cout << "MRMR select from " << targetColVec.size() << " samples: " << endl;
+    fs.MRMR(top_k, targetColVec.size(), useFeatureId.size(), dataMatrix, &labelsD[0], outputFeaturesMRMR);
+    cout << endl<< "MRMR select from " << targetColVec.size() << " samples: " << endl;
     resultFile << endl << "MRMR select from " << targetColVec.size() << " samples: " << endl;
     for(int i=0; i<top_k; i++){
         int memId = useFeatureId[outputFeaturesMRMR[i]];
-        cout << i+1 << ": " << targetLevel.getAttrName(memId) << endl;
-        resultFile << i+1 << ","<< targetLevel.getAttrName(memId) << endl;
+        cout << i+1 << ": " << fs.getAttrName(memId) << endl;
+        resultFile << i+1 << ","<< fs.getAttrName(memId) << endl;
+    }
+
+    // CHI
+    double *outputFeaturesCHI = new double[top_k];
+    int outputFeatureNum;
+    fs.CHI(top_k, targetColVec.size(), useFeatureId.size(), dataMatrix, &labelsD[0], outputFeaturesCHI, &outputFeatureNum);
+    cout << endl << "CHI select from " << targetColVec.size() << " samples: " << endl;
+    resultFile << endl << "CHI select from " << targetColVec.size() << " samples: " << endl;
+    for(int i=0; i<outputFeatureNum; i++){
+        int memId = useFeatureId[outputFeaturesMRMR[i]];
+        cout << i+1 << ": " << fs.getAttrName(memId) << endl;
+        resultFile << i+1 << ","<< fs.getAttrName(memId) << endl;
     }
     resultFile.close();
 
@@ -162,7 +172,6 @@ int main(){
     free(dataMatrix);
     free(labelsD);
     free(outputFeaturesJMI);
-    free(outputFeaturesScoresJMI);
     free(outputFeaturesMRMR);
 
     return 0;
