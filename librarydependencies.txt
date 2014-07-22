@@ -7,11 +7,13 @@ EX:  ../../../../GSL-1.15/lib/libgsl.a ../../../../GSL-1.15/lib/libgslcblas.a
 QT 設計gui
 32bit 5.3 mingw 4.8.2 
 default dll linking
-如果要standalone的exe,需built static qt,參考
+如果要standalone的exe,需built static qt
+附上 built 好的static版 如無法使用需重built 參考以下
 http://qt-project.org/wiki/How-to-build-a-static-Qt-for-Windows-MinGW
 
 DataBase:
-(csv.h) -std=c++11 -D__NO_MINGW_LFS -DUSE_FAST_CSV 
+如需使用快速讀取功能(csv.h),compile時加以下指令
+-std=c++11 -D__NO_MINGW_LFS -DUSE_FAST_CSV 
 Fast CSV can only read fixed CSV format (i.e. exactly 8 columns 	containing "DataTime", "dP_Filter (X1)", ...)
 
 
