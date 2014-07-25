@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <typeinfo>
 
 #include "../include/FeatureSelection.h"
+#include "../include/Regression.h"
 
 using namespace std;
 
@@ -67,6 +67,7 @@ int main(){
         fs.disct_manual(targetColVec, labels, cutPoints);
         break;
     case 3:
+
         break;
     }
 
@@ -140,6 +141,61 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
     }
+
+    // Regression
+    // usage of linear regression and ridge regression(set lambda = 1 or 2 or 3)
+    vector<vector<double> > selectedDataMatrix;
+    fs.allSelectedData(selectedDataMatrix);
+    Regression regs;
+	regs.init(selectedDataMatrix, targetColVec);
+
+    // 1. Least Square
+    vector<int> regs_result1;
+	regs.doLinearRegression(0,regs_result1);
+    cout << endl << "Least Square select: " << endl;
+    resultFile << endl << "Least Square select: " << endl;
+	for(int i = 0; i < top_k ;i++){
+        int useFtId = fs.useFeatureId(regs_result1[i]);
+        cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
+        resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
+	}
+
+	// 2. Ridge
+    vector<int> regs_result2;
+    int lambda2 = 1; // (1,2,3)
+	regs.doLinearRegression(lambda2,regs_result2);
+    cout << endl << "Ridge select: " << endl;
+    resultFile << endl << "Ridge select: " << endl;
+	for(int i = 0; i < top_k ;i++){
+        int useFtId = fs.useFeatureId(regs_result2[i]);
+        cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
+        resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
+	}
+
+    // 3. LASSO
+    vector<int> regs_result3;
+    int lambda3 = 1; // (1,2,3)
+	regs.doLarsRegression(lambda3, 0, regs_result3);
+    cout << endl << "LASSO select: " << endl;
+    resultFile << endl << "LASSO select: " << endl;
+	for(int i = 0; i < top_k ;i++){
+        int useFtId = fs.useFeatureId(regs_result3[i]);
+        cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
+        resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
+	}
+
+    // 4. Elastic net
+    vector<int> regs_result4;
+    int lambda41 = 1; // (1,2,3)
+    int lambda42 = 2; // (1,2,3)
+	regs.doLarsRegression(lambda41, lambda42, regs_result4);
+    cout << endl << "Elastic net select: " << endl;
+    resultFile << endl << "Elastic net select: " << endl;
+	for(int i = 0; i < top_k ;i++){
+        int useFtId = fs.useFeatureId(regs_result4[i]);
+        cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
+        resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
+	}
 
     // output labels data to csv file
     ofstream labelsFile(labelsFileName.c_str());

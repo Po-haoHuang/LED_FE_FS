@@ -70,16 +70,18 @@ bool FeatureSelection::init(string FE_fileName)
     return true;
 }
 
-string FeatureSelection::attrTitle()
+void FeatureSelection::allSelectedData(vector<vector<double> > &s)
 {
-    string title;
-    for(unsigned i=0; i<attrNameVec.size(); i++){
-        title += attrNameVec[i] + ",";
+    for(unsigned i=0; i<numOfSamples(); i++){
+        vector<double> oneSample;
+        for(unsigned j=0; j<numOfUsedFeatures(); j++){
+            oneSample.push_back(featureData[i][useFeatureId(j)]);
+        }
+        s.push_back(oneSample);
     }
-    return title;
 }
 
-int FeatureSelection::idOfAttr(string attrName)
+int FeatureSelection::attrId(string attrName)
 {
     for(unsigned col=0; col<numOfFeatures(); col++){
         if(attrNameVec[col].find(attrName) != string::npos){ // match

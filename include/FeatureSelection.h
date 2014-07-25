@@ -19,6 +19,7 @@ public:
 
     // data access
     vector<vector<double> > &allFeatureData(){return featureData;}
+    void allSelectedData(vector<vector<double> > &storage);
     bool getAttrCol(string attrName, vector<double> &colVec);
     bool getAttrCol(unsigned attrId, vector<double> &colVec);
 
@@ -26,10 +27,9 @@ public:
     unsigned numOfFeatures(){return attrNameVec.size();}
     unsigned numOfUsedFeatures(){return useFeatureId_.size();}
     unsigned numOfSamples(){return featureData.size();}
-    string getAttrName(int attrId){return attrNameVec[attrId];}
-    string attrTitle();
-    int idOfAttr(string attrName);
+    int attrId(string attrName);
     int useFeatureId(int i){return useFeatureId_[i];}
+    string getAttrName(int attrId){return attrNameVec[attrId];}
 
     // feature excluding
     void excludeAttr(string attrName);
@@ -52,8 +52,8 @@ private:
     vector<double> featureDataCycle;
     vector<string> attrNameVec;
     void csvSplit(string s, const char delimiter, vector<string> &value);
-    double chi2f(vector<double> &feature, vector<double> &label);
-    double SU(double *dataVector1, double *dataVector2, int vectorLength);
+    double chi2f(vector<double> &feature, vector<double> &label);  // for CHI
+    double SU(double *dataVector1, double *dataVector2, int vectorLength);  // for FCBF
 };
 
 #endif // FeatureSelection_H
