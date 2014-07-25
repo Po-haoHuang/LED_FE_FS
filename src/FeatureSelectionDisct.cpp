@@ -63,6 +63,7 @@ bool FeatureSelection::disct_ew(vector<vector<int> >& discreteData, int partitio
         discreteData.push_back(discreteLineValue);
     }
     if(inDataPtr==NULL){
+        // only output the selected features
         vector<vector<int> > selectedData;
         for(unsigned row=0; row<numOfSamples(); row++){
             vector<int> oneSample;
@@ -72,8 +73,6 @@ bool FeatureSelection::disct_ew(vector<vector<int> >& discreteData, int partitio
             selectedData.push_back(oneSample);
         }
         selectedData.swap(discreteData);
-        cout << "discreteData ft size: " << discreteData[0].size() << endl;
-        cout << "discreteData size: " << discreteData.size() << endl;
         cout << "done." << endl;
     }
     return true;

@@ -29,11 +29,14 @@ int main(){
     FeatureSelection fs;
     fs.init(featureDataSetFileName);
 
+    cout << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features" << endl;
+    resultFile << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features" << endl;
+
     // exclude some attributes
     fs.excludeAttr("dP_Filter");
     fs.excludeAttr("skewness");
     fs.excludeAttr("kurtosis");
-    fs.excludeZeros();
+    fs.excludeZeroColumn();
 
     // set cut points (defined in the head of file)
     vector<double> cutPoints(manual_cut_points,manual_cut_points
@@ -55,7 +58,7 @@ int main(){
 
     // choose the method
     int disctMethod = 2;
-    cout << "Which method to discretize labels ? 1.NON  2.manual  3.EW_discrete  : 2" << endl;
+    cout << "Which method to discretize labels ? 1.NON  2.manual  3.EW_discrete  : 2" << endl << endl;
     switch(disctMethod){
     default:
     case 1:
@@ -68,8 +71,8 @@ int main(){
     }
 
     // print the attributes in use
-    cout << "use " << fs.numOfUsedFeatures() << " features: " << endl;
-    resultFile << "use " << fs.numOfUsedFeatures() << " features: " << endl;
+    cout << "only use " << fs.numOfUsedFeatures() << " features for calculation: " << endl;
+    resultFile << "only use " << fs.numOfUsedFeatures() << " features for calculation: " << endl;
     for(unsigned i=0; i<fs.numOfUsedFeatures(); i++){
         cout << i+1 << ": " << fs.getAttrName(fs.useFeatureId(i)) << endl;
         resultFile << i+1 << ", " << fs.getAttrName(fs.useFeatureId(i)) << endl;
@@ -78,36 +81,37 @@ int main(){
 
     // change EW-discrete data to input matrix 1-D column array
     int matrixCounter=0;
-    double *dataMatrix = new double[discreteData.size()*(fs.numOfUsedFeatures())];  // 966 * n
+    double *dataMatrix = new double[fs.numOfSamples() * fs.numOfUsedFeatures()];  // 966 * n
     for(unsigned col=0; col<fs.numOfUsedFeatures(); col++){
         for(unsigned row=0; row<fs.numOfSamples(); row++){
-            dataMatrix[matrixCounter++] = discreteData[row][col];
+            dataMatrix[matrixCounter++] = static_cast<double>(discreteData[row][col]);
         }
     }
 
     // convert labels from int to double
     double *labelsD = new double[labels.size()];
     for(unsigned i=0; i<labels.size();  i++){
-        labelsD[i] = labels[i];
+        labelsD[i] = static_cast<double>(labels[i]);
     }
+
     int top_k = 15;
 
     // JMI
-    double *outputFeaturesJMI = new double[top_k];
-    fs.JMI(top_k, targetColVec.size(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesJMI);
-    cout  << "JMI select from " << targetColVec.size() << " samples: " << endl;
-    resultFile << endl << "JMI select from " << targetColVec.size() << " samples: " << endl;
-    for(int i=0; i<top_k; i++){
+    vector<int> outputFeaturesJMI;
+    fs.JMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesJMI);
+    cout  << "JMI select: " << endl;
+    resultFile << endl << "JMI select: " << endl;
+    for(unsigned i=0; i<outputFeaturesJMI.size(); i++){
         int useFtId = fs.useFeatureId(outputFeaturesJMI[i]);
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << "," << fs.getAttrName(useFtId) << endl;
     }
 
     // MRMR
-    double *outputFeaturesMRMR = new double[top_k];
-    fs.MRMR(top_k, targetColVec.size(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesMRMR);
-    cout << endl<< "MRMR select from " << targetColVec.size() << " samples: " << endl;
-    resultFile << endl << "MRMR select from " << targetColVec.size() << " samples: " << endl;
+    vector<int> outputFeaturesMRMR;
+    fs.MRMR(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesMRMR);
+    cout << endl<< "MRMR select: " << endl;
+    resultFile << endl << "MRMR select: " << endl;
     for(int i=0; i<top_k; i++){
         int useFtId = fs.useFeatureId(outputFeaturesMRMR[i]);
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
@@ -117,8 +121,8 @@ int main(){
     // CHI
     vector<int> outputFeaturesCHI;
     fs.CHI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesCHI);
-    cout << endl << "CHI select from " << targetColVec.size() << " samples: " << endl;
-    resultFile << endl << "CHI select from " << targetColVec.size() << " samples: " << endl;
+    cout << endl << "CHI select: " << endl;
+    resultFile << endl << "CHI select: " << endl;
     for(unsigned i=0; i<outputFeaturesCHI.size(); i++){
         int useFtId = fs.useFeatureId(outputFeaturesCHI[i]);
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
@@ -129,22 +133,19 @@ int main(){
     vector<int> outputFeaturesFCBF;
     double threshold = 0.01;
     fs.FCBF(fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, threshold, outputFeaturesFCBF);
-    cout << endl << "FCBF select from " << targetColVec.size() << " samples: " << endl;
-    resultFile << endl << "FCBF select from " << targetColVec.size() << " samples: " << endl;
+    cout << endl << "FCBF select: " << endl;
+    resultFile << endl << "FCBF select: " << endl;
     for(unsigned i=0; i<outputFeaturesFCBF.size(); i++){
         int useFtId = fs.useFeatureId(outputFeaturesFCBF[i]);
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
     }
 
-    resultFile.close();
-
     // output labels data to csv file
     ofstream labelsFile(labelsFileName.c_str());
     for(unsigned i=0; i<labels.size(); i++){
         labelsFile << labels[i] << endl;
     }
-    labelsFile.close();
 
     // output discrete data to csv file
     ofstream disctFile(disctFileName.c_str());
@@ -155,12 +156,12 @@ int main(){
         }
         disctFile << endl;
     }
-    disctFile.close();
 
-    free(dataMatrix);
-    free(labelsD);
-    free(outputFeaturesJMI);
-    free(outputFeaturesMRMR);
+    resultFile.close();
+    labelsFile.close();
+    disctFile.close();
+    delete [] dataMatrix;
+    delete [] labelsD;
 
     return 0;
 }

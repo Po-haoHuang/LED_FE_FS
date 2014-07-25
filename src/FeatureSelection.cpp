@@ -46,7 +46,6 @@ bool FeatureSelection::init(string FE_fileName)
     // read attribute name
     csvSplit(attrTitle, ',', attrNameVec);
     attrNameVec.pop_back(); // remove redundant value
-    cout << "feature number: " << numOfFeatures() << endl;
 
     // read data by line
     featureData.reserve(1024);
@@ -62,7 +61,6 @@ bool FeatureSelection::init(string FE_fileName)
         }
         featureData.push_back(lineValue);
     }
-    cout << "total lines: " << featureData.size() << endl;
     inFile.close();
 
     // record using features' id (exclude undesired attributes)
@@ -104,6 +102,17 @@ bool FeatureSelection::getAttrCol(string attrName, vector<double> &colVec)
     return false;
 }
 
+bool FeatureSelection::getAttrCol(unsigned attrId, vector<double> &colVec)
+{
+    if(attrId < numOfFeatures()){
+        for(unsigned j=0; j<numOfSamples(); j++){
+            colVec.push_back(featureData[j][attrId]);
+        }
+        return true;
+    }
+    return false;
+}
+
 void FeatureSelection::csvSplit(string s, const char delimiter, vector<string> &value)
 {
     size_t start=0;
@@ -122,11 +131,9 @@ void FeatureSelection::excludeAttr(string attrName)
 {
     for(unsigned i=0; i<useFeatureId_.size(); i++){
         if(getAttrName(useFeatureId_[i]).find(attrName)!=string::npos){  // if attribute name match
-            cout << "exclude " << getAttrName(useFeatureId_[i]) << endl;
             useFeatureId_[i]=-1;  // exclude
         }
     }
-
     // remove unused feature id
     vector<int> useFeatureIdReplace;  // temporary use only
     for(unsigned i=0; i<useFeatureId_.size(); i++){
@@ -135,16 +142,15 @@ void FeatureSelection::excludeAttr(string attrName)
     useFeatureId_.swap(useFeatureIdReplace);
 }
 
-void FeatureSelection::excludeZeros()
+void FeatureSelection::excludeZeroColumn()
 {
     for(unsigned i=0; i<useFeatureId_.size(); i++){
         vector<double> colVec;
-        getAttrCol(getAttrName(useFeatureId_[i]), colVec);  // exclude zero columns
+        getAttrCol(useFeatureId_[i], colVec);  // exclude zero columns
         if(*max_element(colVec.begin(), colVec.end()) == 0){
             useFeatureId_[i]=-1;
         }
     }
-
     // remove unused feature id
     vector<int> useFeatureIdReplace;  // temporary use only
     for(unsigned i=0; i<useFeatureId_.size(); i++){

@@ -20,18 +20,20 @@ public:
     // data access
     vector<vector<double> > &allFeatureData(){return featureData;}
     bool getAttrCol(string attrName, vector<double> &colVec);
+    bool getAttrCol(unsigned attrId, vector<double> &colVec);
 
-    // data size
+    // data info
     unsigned numOfFeatures(){return attrNameVec.size();}
     unsigned numOfUsedFeatures(){return useFeatureId_.size();}
     unsigned numOfSamples(){return featureData.size();}
-
     string getAttrName(int attrId){return attrNameVec[attrId];}
-    int idOfAttr(string attrName);
     string attrTitle();
+    int idOfAttr(string attrName);
     int useFeatureId(int i){return useFeatureId_[i];}
+
+    // feature excluding
     void excludeAttr(string attrName);
-    void excludeZeros();
+    void excludeZeroColumn();
 
     // discretization method
     bool disct_manual(vector<double> &inFeatureData, vector<int> &discreteData, vector<double>& cutPoints);
@@ -39,8 +41,8 @@ public:
     bool disct_ew_cycle(vector<vector<int> >& discreteData, int partitionNum);
 
     // selection algorithm
-    double* JMI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double *outputFeatures);
-    double* MRMR(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix,double *classColumn, double *outputFeatures);
+    void JMI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
+    void MRMR(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix,double *classColumn, vector<int> &outputId);
     void CHI(int k, int noOfSamples, int noOfFeatures,double *featureMatrix, double *classColumn, vector<int> &outputId);;
     void FCBF(int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double threshold, vector<int> &outputId);
 

@@ -19,9 +19,11 @@ using std::endl;
 using std::vector;
 using std::swap;
 
-double* FeatureSelection::JMI(int k, int noOfSamples, int noOfFeatures,double *featureMatrix,
-                              double *classColumn, double *outputFeatures)
+void FeatureSelection::JMI(int k, int noOfSamples, int noOfFeatures,double *featureMatrix,
+                              double *classColumn, vector<int> &outputId)
 {
+    double *outputFeatures = (double*)calloc(k, sizeof(double));
+
     /*holds the class MI values*/
     double *classMI = (double *)calloc(noOfFeatures,sizeof(double));
 
@@ -124,12 +126,16 @@ double* FeatureSelection::JMI(int k, int noOfSamples, int noOfFeatures,double *f
     mergedVector = NULL;
     selectedFeatures = NULL;
 
-    return outputFeatures;
+    for(int i=0; i<k; i++){
+        outputId.push_back(outputFeatures[i]);
+    }
+    free(outputFeatures);
 }
 
-double* FeatureSelection::MRMR(int k, int noOfSamples, int noOfFeatures, double *featureMatrix,
-                               double *classColumn, double *outputFeatures)
+void FeatureSelection::MRMR(int k, int noOfSamples, int noOfFeatures, double *featureMatrix,
+                               double *classColumn, vector<int> &outputId)
 {
+    double *outputFeatures = (double*)calloc(k, sizeof(double));
     double **feature2D = (double**) checkedCalloc(noOfFeatures,sizeof(double*));
     /*holds the class MI values*/
     double *classMI = (double *)checkedCalloc(noOfFeatures,sizeof(double));
@@ -226,7 +232,10 @@ double* FeatureSelection::MRMR(int k, int noOfSamples, int noOfFeatures, double 
     featureMIMatrix = NULL;
     selectedFeatures = NULL;
 
-    return outputFeatures;
+    for(int i=0; i<k; i++){
+        outputId.push_back(outputFeatures[i]);
+    }
+    free(outputFeatures);
 }
 
 void FeatureSelection::CHI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputFeatures)
@@ -254,8 +263,8 @@ void FeatureSelection::CHI(int top_k, int noOfSamples, int noOfFeatures, double 
     vector<int> select(classScore.size(), 1); // initializing with 1 means selected
     for(unsigned i=0; i<classScore.size(); i++){
         for(unsigned j=i+1; j<classScore.size(); j++){
-            vector<double> f1(featureMatrix + i*noOfSamples, featureMatrix + (i+1)*noOfSamples);
-            vector<double> f2(featureMatrix + j*noOfSamples, featureMatrix + (j+1)*noOfSamples);
+            vector<double> f1(featureMatrix + classScoreIndex[i]*noOfSamples, featureMatrix + (classScoreIndex[i]+1)*noOfSamples);
+            vector<double> f2(featureMatrix + classScoreIndex[j]*noOfSamples, featureMatrix + (classScoreIndex[j]+1)*noOfSamples);
             double mi = chi2f(f1,f2);
             if(mi > classScore[j]){
                 select[j] = 0;  // excluded
@@ -330,13 +339,11 @@ double FeatureSelection::chi2f(vector<double> &feature, vector<double> &label)
     return chi;
 }
 
-
-
 void FeatureSelection::FCBF(int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double threshold, vector<int> &outputId)
 {
     vector<double> classScore;
     vector<int> classScoreIndex;
-    for(unsigned i=0; i<noOfFeatures; i++) {
+    for(int i=0; i<noOfFeatures; i++) {
         double score = SU(featureMatrix + i*noOfSamples, classColumn, noOfSamples);
         classScore.push_back(score);
         classScoreIndex.push_back(i);
@@ -350,18 +357,27 @@ void FeatureSelection::FCBF(int noOfSamples, int noOfFeatures, double *featureMa
             }
         }
     }
+    // find threshold
+    int thresholdPos = -1;
+    for(unsigned i=0; i<classScore.size(); i++){
+        if(classScore[i]<threshold){
+            thresholdPos = i;
+            break;
+        }
+    }
+
     // Compute mutual info. If MI(f1,f2) > MI(f1,class), exclude it.
     vector<int> select(classScore.size(), 1); // initializing with 1 means selected
-    for(unsigned i=0; i<classScore.size(); i++) {
-        for(unsigned j=i+1; j<classScore.size(); j++) {
-            double score = SU(featureMatrix + i*noOfSamples, featureMatrix + j*noOfSamples, noOfSamples);
+    for(int i=0; i<thresholdPos; i++) {
+        for(int j=i+1; j<thresholdPos; j++) {
+            double score = SU(featureMatrix + classScoreIndex[i]*noOfSamples, featureMatrix + classScoreIndex[j]*noOfSamples, noOfSamples);
             if(score > classScore[j]) {
                 select[j] = 0;  // excluded
             }
         }
     }
 
-    for(unsigned i=0; i<classScore.size(); i++) {
+    for(int i=0; i<thresholdPos; i++) {
         if(select[i]==1) {
             outputId.push_back(classScoreIndex[i]);
         }
