@@ -21,7 +21,7 @@ bool Linear_Regression::useLinearRegression(arma::mat& data,
 	tempPara.shed_row(tempPara.n_rows-1);
 	uvec temp = sort_index(tempPara,"d");
 	#ifdef Detail_Output
-	cout<<lr.Parameters();
+	cout<<tempPara;
 	#endif
 	for(int i = 0;i < data.n_rows ;i++)
 		result.push_back(temp[i]);

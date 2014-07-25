@@ -26,10 +26,5 @@ bool Regression::doLinearRegression(int lamda,vector<int >& result){
 
 bool Regression::doLarsRegression(int lamda1 ,int lamda2,vector<int >& result){
 	Lars_Regression lsr;
-	return lsr.useLarsRegression(input_mod,response_mod,lamda1,lamda2,result);
+	lsr.useLarsRegression(input_mod,response_mod,lamda1,lamda2,result);
 }
-
-
-
-
-
