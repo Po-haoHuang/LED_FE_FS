@@ -46,7 +46,7 @@ bool FeatureSelection::init(string FE_fileName)
     // read attribute name
     csvSplit(attrTitle, ',', attrNameVec);
     attrNameVec.pop_back(); // remove redundant value
-    cout << "feature number: " << featureNumber() << endl;
+    cout << "feature number: " << numOfFeatures() << endl;
 
     // read data by line
     featureData.reserve(1024);
@@ -63,8 +63,12 @@ bool FeatureSelection::init(string FE_fileName)
         featureData.push_back(lineValue);
     }
     cout << "total lines: " << featureData.size() << endl;
-
     inFile.close();
+
+    // record using features' id (exclude undesired attributes)
+    for(unsigned i=0; i<numOfFeatures(); i++){
+        useFeatureId_.push_back(i);  // initialize: use all feature id
+    }
     return true;
 }
 
@@ -79,7 +83,7 @@ string FeatureSelection::attrTitle()
 
 int FeatureSelection::idOfAttr(string attrName)
 {
-    for(unsigned col=0; col<featureNumber(); col++){
+    for(unsigned col=0; col<numOfFeatures(); col++){
         if(attrNameVec[col].find(attrName) != string::npos){ // match
             return col;
         }
@@ -89,7 +93,7 @@ int FeatureSelection::idOfAttr(string attrName)
 
 bool FeatureSelection::getAttrCol(string attrName, vector<double> &colVec)
 {
-    for(unsigned col=0; col<featureNumber(); col++){
+    for(unsigned col=0; col<numOfFeatures(); col++){
         if(attrNameVec[col].find(attrName) != string::npos){ // match
             for(unsigned j=0; j<featureData.size(); j++){
                 colVec.push_back(featureData[j][col]);
@@ -112,4 +116,39 @@ void FeatureSelection::csvSplit(string s, const char delimiter, vector<string> &
     	start=end+1;
     	end = s.find_first_of(delimiter, start);
     }
+}
+
+void FeatureSelection::excludeAttr(string attrName)
+{
+    for(unsigned i=0; i<useFeatureId_.size(); i++){
+        if(getAttrName(useFeatureId_[i]).find(attrName)!=string::npos){  // if attribute name match
+            cout << "exclude " << getAttrName(useFeatureId_[i]) << endl;
+            useFeatureId_[i]=-1;  // exclude
+        }
+    }
+
+    // remove unused feature id
+    vector<int> useFeatureIdReplace;  // temporary use only
+    for(unsigned i=0; i<useFeatureId_.size(); i++){
+        if(useFeatureId_[i]!=-1) useFeatureIdReplace.push_back(useFeatureId_[i]);
+    }
+    useFeatureId_.swap(useFeatureIdReplace);
+}
+
+void FeatureSelection::excludeZeros()
+{
+    for(unsigned i=0; i<useFeatureId_.size(); i++){
+        vector<double> colVec;
+        getAttrCol(getAttrName(useFeatureId_[i]), colVec);  // exclude zero columns
+        if(*max_element(colVec.begin(), colVec.end()) == 0){
+            useFeatureId_[i]=-1;
+        }
+    }
+
+    // remove unused feature id
+    vector<int> useFeatureIdReplace;  // temporary use only
+    for(unsigned i=0; i<useFeatureId_.size(); i++){
+        if(useFeatureId_[i]!=-1) useFeatureIdReplace.push_back(useFeatureId_[i]);
+    }
+    useFeatureId_.swap(useFeatureIdReplace);
 }

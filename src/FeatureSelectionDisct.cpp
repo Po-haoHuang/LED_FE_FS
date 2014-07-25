@@ -22,7 +22,7 @@ bool FeatureSelection::disct_ew(vector<vector<int> >& discreteData, int partitio
     vector<vector<double> > &inFeatureData = *inFeatureDataPtr;
 
     if(partitionNum<=1){
-        vector<int> dataLine(featureNumber(),1);
+        vector<int> dataLine(numOfFeatures(),1);
         for(unsigned i=0; i<inFeatureData.size(); i++){
             discreteData.push_back(dataLine);
         }
@@ -30,11 +30,11 @@ bool FeatureSelection::disct_ew(vector<vector<int> >& discreteData, int partitio
         return true;
     }
 
-    vector<double> attrMax(featureNumber(),-DBL_MAX);
-    vector<double> attrMin(featureNumber(),DBL_MAX);
-    vector<double> interval(featureNumber());
+    vector<double> attrMax(numOfFeatures(),-DBL_MAX);
+    vector<double> attrMin(numOfFeatures(),DBL_MAX);
+    vector<double> interval(numOfFeatures());
     for(unsigned i=0; i<inFeatureData.size(); i++){
-        for(unsigned j=0; j<featureNumber(); j++){
+        for(unsigned j=0; j<numOfFeatures(); j++){
             if(inFeatureData[i][j] > attrMax[j])
                 attrMax[j] = inFeatureData[i][j];
             if(inFeatureData[i][j] < attrMin[j])
@@ -42,14 +42,14 @@ bool FeatureSelection::disct_ew(vector<vector<int> >& discreteData, int partitio
         }
     }
 
-    for(unsigned i=0; i<featureNumber(); i++){
+    for(unsigned i=0; i<numOfFeatures(); i++){
         interval[i] = (attrMax[i] - attrMin[i])/partitionNum;
     }
 
     vector<int> discreteLineValue;
     for(unsigned i=0; i<inFeatureData.size(); i++){
         discreteLineValue.clear();
-        for(unsigned j=0; j<featureNumber(); j++){
+        for(unsigned j=0; j<numOfFeatures(); j++){
             int level;
             if(interval[j]==0){
                 level = 1;
@@ -62,8 +62,20 @@ bool FeatureSelection::disct_ew(vector<vector<int> >& discreteData, int partitio
         }
         discreteData.push_back(discreteLineValue);
     }
-    if(inDataPtr==NULL)
+    if(inDataPtr==NULL){
+        vector<vector<int> > selectedData;
+        for(unsigned row=0; row<numOfSamples(); row++){
+            vector<int> oneSample;
+            for(unsigned col=0; col<numOfUsedFeatures(); col++){
+                oneSample.push_back(discreteData[row][useFeatureId_[col]]);
+            }
+            selectedData.push_back(oneSample);
+        }
+        selectedData.swap(discreteData);
+        cout << "discreteData ft size: " << discreteData[0].size() << endl;
+        cout << "discreteData size: " << discreteData.size() << endl;
         cout << "done." << endl;
+    }
     return true;
 }
 
@@ -84,7 +96,6 @@ bool FeatureSelection::disct_ew_cycle(vector<vector<int> >& discreteData, int pa
             cycleFeatureData.clear();
             cycleDiscreteData.clear();
         }
-
     }
     cout << " done." << endl;
     return true;

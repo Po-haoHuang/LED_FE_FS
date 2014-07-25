@@ -6,10 +6,13 @@
 /* MIToolbox includes */
 #include "../include/FEAST/MutualInformation.h"
 #include "../include/FEAST/ArrayOperations.h"
+#include "../include/FEAST/Entropy.h"
 
 #include <vector>
 #include <algorithm>
 #include <iostream>
+
+#include "../include/MatrixOp.h"
 
 using std::cout;
 using std::endl;
@@ -127,210 +130,106 @@ double* FeatureSelection::JMI(int k, int noOfSamples, int noOfFeatures,double *f
 double* FeatureSelection::MRMR(int k, int noOfSamples, int noOfFeatures, double *featureMatrix,
                                double *classColumn, double *outputFeatures)
 {
-  double **feature2D = (double**) checkedCalloc(noOfFeatures,sizeof(double*));
-  /*holds the class MI values*/
-  double *classMI = (double *)checkedCalloc(noOfFeatures,sizeof(double));
-  int *selectedFeatures = (int *)checkedCalloc(noOfFeatures,sizeof(int));
-  /*holds the intra feature MI values*/
-  int sizeOfMatrix = k*noOfFeatures;
-  double *featureMIMatrix = (double *)checkedCalloc(sizeOfMatrix,sizeof(double));
+    double **feature2D = (double**) checkedCalloc(noOfFeatures,sizeof(double*));
+    /*holds the class MI values*/
+    double *classMI = (double *)checkedCalloc(noOfFeatures,sizeof(double));
+    int *selectedFeatures = (int *)checkedCalloc(noOfFeatures,sizeof(int));
+    /*holds the intra feature MI values*/
+    int sizeOfMatrix = k*noOfFeatures;
+    double *featureMIMatrix = (double *)checkedCalloc(sizeOfMatrix,sizeof(double));
 
-  double maxMI = 0.0;
-  int maxMICounter = -1;
+    double maxMI = 0.0;
+    int maxMICounter = -1;
 
-  /*init variables*/
+    /*init variables*/
 
-  double score, currentScore, totalFeatureMI;
-  int currentHighestFeature;
+    double score, currentScore, totalFeatureMI;
+    int currentHighestFeature;
 
-  int arrayPosition, i, j, x;
+    int arrayPosition, i, j, x;
 
-  for(j = 0; j < noOfFeatures; j++)
-  {
-    feature2D[j] = featureMatrix + (int)j*noOfSamples;
-  }
+    for(j = 0; j < noOfFeatures; j++) {
+        feature2D[j] = featureMatrix + (int)j*noOfSamples;
+    }
 
-  for (i = 0; i < sizeOfMatrix;i++)
-  {
-    featureMIMatrix[i] = -1;
-  }/*for featureMIMatrix - blank to -1*/
+    for (i = 0; i < sizeOfMatrix; i++) {
+        featureMIMatrix[i] = -1;
+    }/*for featureMIMatrix - blank to -1*/
 
 
-  for (i = 0; i < noOfFeatures;i++)
-  {
-    classMI[i] = calculateMutualInformation(feature2D[i], classColumn, noOfSamples);
-    if (classMI[i] > maxMI)
-    {
-      maxMI = classMI[i];
-      maxMICounter = i;
-    }/*if bigger than current maximum*/
-  }/*for noOfFeatures - filling classMI*/
+    for (i = 0; i < noOfFeatures; i++) {
+        classMI[i] = calculateMutualInformation(feature2D[i], classColumn, noOfSamples);
+        if (classMI[i] > maxMI) {
+            maxMI = classMI[i];
+            maxMICounter = i;
+        }/*if bigger than current maximum*/
+    }/*for noOfFeatures - filling classMI*/
 
-  selectedFeatures[maxMICounter] = 1;
-  outputFeatures[0] = maxMICounter;
+    selectedFeatures[maxMICounter] = 1;
+    outputFeatures[0] = maxMICounter;
 
-  /*************
-  ** Now we have populated the classMI array, and selected the highest
-  ** MI feature as the first output feature
-  ** Now we move into the mRMR-D algorithm
-  *************/
+    /*************
+    ** Now we have populated the classMI array, and selected the highest
+    ** MI feature as the first output feature
+    ** Now we move into the mRMR-D algorithm
+    *************/
 
-  for (i = 1; i < k; i++)
-  {
-    /****************************************************
-    ** to ensure it selects some features
-    **if this is zero then it will not pick features where the redundancy is greater than the
-    **relevance
-    ****************************************************/
-    score = -DBL_MAX;
-    currentHighestFeature = 0;
-    currentScore = 0.0;
-    totalFeatureMI = 0.0;
-
-    for (j = 0; j < noOfFeatures; j++)
-    {
-      /*if we haven't selected j*/
-      if (selectedFeatures[j] == 0)
-      {
-        currentScore = classMI[j];
+    for (i = 1; i < k; i++) {
+        /****************************************************
+        ** to ensure it selects some features
+        **if this is zero then it will not pick features where the redundancy is greater than the
+        **relevance
+        ****************************************************/
+        score = -DBL_MAX;
+        currentHighestFeature = 0;
+        currentScore = 0.0;
         totalFeatureMI = 0.0;
 
-        for (x = 0; x < i; x++)
-        {
-          arrayPosition = x*noOfFeatures + j;
-          if (featureMIMatrix[arrayPosition] == -1)
-          {
-            /*work out intra MI*/
+        for (j = 0; j < noOfFeatures; j++) {
+            /*if we haven't selected j*/
+            if (selectedFeatures[j] == 0) {
+                currentScore = classMI[j];
+                totalFeatureMI = 0.0;
 
-            /*double calculateMutualInformation(double *firstVector, double *secondVector, int vectorLength);*/
-            featureMIMatrix[arrayPosition] = calculateMutualInformation(feature2D[(int) outputFeatures[x]], feature2D[j], noOfSamples);
-          }
+                for (x = 0; x < i; x++) {
+                    arrayPosition = x*noOfFeatures + j;
+                    if (featureMIMatrix[arrayPosition] == -1) {
+                        /*work out intra MI*/
 
-          totalFeatureMI += featureMIMatrix[arrayPosition];
-        }/*for the number of already selected features*/
+                        /*double calculateMutualInformation(double *firstVector, double *secondVector, int vectorLength);*/
+                        featureMIMatrix[arrayPosition] = calculateMutualInformation(feature2D[(int) outputFeatures[x]], feature2D[j], noOfSamples);
+                    }
 
-        currentScore -= (totalFeatureMI/i);
-        if (currentScore > score)
-		{
-		  score = currentScore;
-		  currentHighestFeature = j;
-		}
-	  }/*if j is unselected*/
-	}/*for number of features*/
+                    totalFeatureMI += featureMIMatrix[arrayPosition];
+                }/*for the number of already selected features*/
 
-    selectedFeatures[currentHighestFeature] = 1;
-    outputFeatures[i] = currentHighestFeature;
+                currentScore -= (totalFeatureMI/i);
+                if (currentScore > score) {
+                    score = currentScore;
+                    currentHighestFeature = j;
+                }
+            }/*if j is unselected*/
+        }/*for number of features*/
 
-  }/*for the number of features to select*/
+        selectedFeatures[currentHighestFeature] = 1;
+        outputFeatures[i] = currentHighestFeature;
 
-  FREE_FUNC(classMI);
-  FREE_FUNC(feature2D);
-  FREE_FUNC(featureMIMatrix);
-  FREE_FUNC(selectedFeatures);
+    }/*for the number of features to select*/
 
-  classMI = NULL;
-  feature2D = NULL;
-  featureMIMatrix = NULL;
-  selectedFeatures = NULL;
+    FREE_FUNC(classMI);
+    FREE_FUNC(feature2D);
+    FREE_FUNC(featureMIMatrix);
+    FREE_FUNC(selectedFeatures);
 
-  return outputFeatures;
+    classMI = NULL;
+    feature2D = NULL;
+    featureMIMatrix = NULL;
+    selectedFeatures = NULL;
+
+    return outputFeatures;
 }
 
-
-// element-wise matrix operation
-void elemMul(vector<double> &result, vector<double> &v1, vector<double> &v2)
-{
-    result = vector<double>(v1.size(),0);
-    for(unsigned i=0; i<v1.size(); i++){
-        result[i] = v1[i]*v2[i];
-    }
-}
-
-void elemAdd(vector<double> &result, vector<double> &v1, vector<double> &v2)
-{
-    result = vector<double>(v1.size(),0);
-    for(unsigned i=0; i<v1.size(); i++){
-        result[i] = v1[i]+v2[i];
-    }
-}
-
-void elemSub(vector<double> &result, vector<double> &v1, vector<double> &v2)
-{
-    result = vector<double>(v1.size(),0);
-    for(unsigned i=0; i<v1.size(); i++){
-        result[i] = v1[i]-v2[i];
-    }
-}
-
-void elemDiv(vector<double> &result, vector<double> &v1, vector<double> &v2)
-{
-    result = vector<double>(v1.size(),0);
-    for(unsigned i=0; i<v1.size(); i++){
-        result[i] = v1[i]/v2[i];
-    }
-}
-
-void elemDividedByConst(vector<double> &result, vector<double> &v, double c)
-{
-    result = vector<double>(v.size(),0);
-    for(unsigned i=0; i<v.size(); i++){
-        result[i] = v[i]/c;
-    }
-}
-
-void elemSquare(vector<double> &result, vector<double> &v)
-{
-    result = vector<double>(v.size(),0);
-    for(unsigned i=0; i<v.size(); i++){
-        result[i] = v[i]*v[i];
-    }
-}
-
-void matrixColSum(vector<double> &result, vector<double> &matrix, unsigned numOfCol)
-{
-    result = vector<double>(numOfCol,0);
-    for(unsigned i=0; i<numOfCol; i++){
-        for(unsigned j=0; j<matrix.size()/numOfCol; j++){
-            result[i] += matrix[i+j*numOfCol];
-        }
-    }
-}
-
-void matrixRowSum(vector<double> &result, vector<double> &matrix, unsigned numOfRow)
-{
-    result = vector<double>(numOfRow,0);
-    for(unsigned i=0; i<numOfRow; i++){
-        for(unsigned j=0; j<matrix.size()/numOfRow; j++){
-            result[i] += matrix[i*matrix.size()/numOfRow + j];
-        }
-    }
-}
-
-void matrixRowRepeat(vector<double> &v, unsigned times)
-{
-    vector<double> origVec;
-    for(unsigned i=0; i<v.size(); i++){
-        origVec.push_back(v[i]);
-    }
-    v = vector<double>(origVec.size()*times);
-    for(unsigned i=0; i<v.size(); i++){
-        v[i] = origVec[i%origVec.size()];
-    }
-}
-
-void matrixColRepeat(vector<double> &v, unsigned times)
-{
-    vector<double> origVec;
-    for(unsigned i=0; i<v.size(); i++){
-        origVec.push_back(v[i]);
-    }
-    v = vector<double>(origVec.size()*times);
-    for(unsigned i=0; i<v.size(); i++){
-        v[i] = origVec[i/times];
-    }
-}
-
-double* FeatureSelection::CHI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double *outputFeatures, int *outputFeatureNum)
+void FeatureSelection::CHI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputFeatures)
 {
     vector<double> label(classColumn, classColumn + noOfSamples);
     vector<double> classScore;
@@ -363,14 +262,11 @@ double* FeatureSelection::CHI(int top_k, int noOfSamples, int noOfFeatures, doub
             }
         }
     }
-    int outputCnt = 0;
     for(unsigned i=0; i<classScore.size(); i++){
         if(select[i]==1){
-            outputFeatures[outputCnt++] = classScoreIndex[i]+1;
+            outputFeatures.push_back(classScoreIndex[i]);
         }
     }
-    *outputFeatureNum = outputCnt;
-    return outputFeatures;
 }
 
 // return the score of column data ( 966 x 1)
@@ -434,3 +330,49 @@ double FeatureSelection::chi2f(vector<double> &feature, vector<double> &label)
     return chi;
 }
 
+
+
+void FeatureSelection::FCBF(int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double threshold, vector<int> &outputId)
+{
+    vector<double> classScore;
+    vector<int> classScoreIndex;
+    for(unsigned i=0; i<noOfFeatures; i++) {
+        double score = SU(featureMatrix + i*noOfSamples, classColumn, noOfSamples);
+        classScore.push_back(score);
+        classScoreIndex.push_back(i);
+    }
+    // bubble sort (descent)
+    for(unsigned i=0; i<classScore.size(); i++) {
+        for(unsigned j=0; j<classScore.size()-i-1; j++) {
+            if(classScore[j] < classScore[j+1]) {
+                swap(classScore[j], classScore[j+1]);
+                swap(classScoreIndex[j], classScoreIndex[j+1]);
+            }
+        }
+    }
+    // Compute mutual info. If MI(f1,f2) > MI(f1,class), exclude it.
+    vector<int> select(classScore.size(), 1); // initializing with 1 means selected
+    for(unsigned i=0; i<classScore.size(); i++) {
+        for(unsigned j=i+1; j<classScore.size(); j++) {
+            double score = SU(featureMatrix + i*noOfSamples, featureMatrix + j*noOfSamples, noOfSamples);
+            if(score > classScore[j]) {
+                select[j] = 0;  // excluded
+            }
+        }
+    }
+
+    for(unsigned i=0; i<classScore.size(); i++) {
+        if(select[i]==1) {
+            outputId.push_back(classScoreIndex[i]);
+        }
+    }
+}
+
+double FeatureSelection::SU(double *dataVector1, double *dataVector2, int vectorLength)
+{
+    double hX = calculateEntropy(dataVector1, vectorLength);
+    double hY = calculateEntropy(dataVector2, vectorLength);
+    double iXY = calculateMutualInformation(dataVector1, dataVector2, vectorLength);
+    double score = (2 * iXY) / (hX + hY);
+    return score;
+}
