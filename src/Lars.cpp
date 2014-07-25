@@ -25,4 +25,5 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	uvec temp = sort_index(beta,"d");
 	for(int i = 0;i < data.n_rows ;i++)
 		result.push_back(temp[i]);
+	return 0;
 }

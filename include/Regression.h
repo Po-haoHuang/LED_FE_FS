@@ -26,6 +26,7 @@ class Regression{
 	private:
 		mat input_mod;
 		vec response_mod;
+
 		
 
 

@@ -9,6 +9,9 @@ Regression::~Regression(){
 	
 }
 bool Regression::init(vector<vector<double > > input,vector<double > response ){
+
+	//convert vector<vector> to mat,vector to vec
+	
 	response_mod = vec(response);
 	vector<double> temp;
 	temp.reserve(input.size()*input[0].size());
@@ -16,6 +19,14 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 		temp.insert(temp.end(), input[i].begin(), input[i].end());
 	input_mod = mat(temp);
 	input_mod.reshape(input[0].size(),input.size());
+	//nornalisation
+	response_mod -= mean(response_mod);
+	response_mod /= stddev(response_mod);
+	for(int i = 0;i < input_mod.n_rows;i++){
+		input_mod.row(i) -= mean(input_mod.row(i));
+		input_mod.row(i) /= stddev(input_mod.row(i));
+	}
+
 	return 0;
 	
 }
