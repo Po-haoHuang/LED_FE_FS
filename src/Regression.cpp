@@ -27,8 +27,8 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 		input_mod.row(i) /= stddev(input_mod.row(i));
 	}
 	#ifdef Output_Normalize
-	data::save(ouputnormal.csv,input_mod);
-	data::save(ouputnormalres.csv,response_mod);
+	data::Save("ouputnormal.csv",input_mod,true);
+	data::Save("ouputnormalres.csv",response_mod,true);
 	#endif
 
 	return 0;
