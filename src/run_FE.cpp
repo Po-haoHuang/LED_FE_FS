@@ -20,7 +20,7 @@
 //Variable for feature extraction
 unsigned attrNum;
 unsigned dataSize;
-const unsigned featureNum = 12;
+const unsigned featureNum = 10;
 unsigned fileNum;
 unsigned segNum;
 vector<FileData*> fileDataVector;
@@ -40,8 +40,9 @@ void GenParaFeatureNameSet_seg();
 
 
 //Feature_name list
-const char featureName[][30] ={"peak(not implement)","peak(not implement)",
-"mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};
+/*const char featureName[][30] ={"peak(not implement)","peak(not implement)",
+"mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};*/
+const char featureName[][30] ={"mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};
 
 //type for segmentation 1:no segmentation  2:segmentation
 typedef enum {disable, enable}segmentPara;
@@ -177,10 +178,7 @@ void runFeatureExtraction(){
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
 			cout<<"Computing done."<<endl;
-			//Generate the correspnding nametags for FE output currently not used
-			/*GenParaFeatureNameSet();
-			cout<<"Generating nametags done."<<endl;*/
-			
+
 			cout<<"Output processing..."<<endl;
 			//output
 			fprintf(fout,"%s,%s,%s,","Id","Original_ID","Cycle");
@@ -273,9 +271,6 @@ void runFeatureExtraction(){
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
 			cout<<"Computing done."<<endl;
-			//Generate the correspnding nametags for FE output currently not used
-			/*GenParaFeatureNameSet_seg();
-			cout<<"Generating nametags done."<<endl;*/
 
 			cout<<"Output processing..."<<endl;
 			
@@ -334,7 +329,7 @@ void runFeatureExtraction(){
 
 double *FeatureExtraction(double* cleanData){
 	
-	unsigned length = dataSize;//not implement yet
+	unsigned length = dataSize;
 
 	static double f[featureNum];
 	double tempData[dataSize];
@@ -344,7 +339,7 @@ double *FeatureExtraction(double* cleanData){
 	for(unsigned i = 0;i < length;i++)
 		tempData[i] = pow(cleanData[i], 2);		
 		
-	f[0] = 0;//peak in matlab not implement
+/* 	f[0] = 0;//peak in matlab not implement
 	f[1] = 0;	
 	//three para for gsl func (data_array,element size(#double),#elements)	
 	f[2] = gsl_stats_mean (cleanData, 1, length);
@@ -359,7 +354,22 @@ double *FeatureExtraction(double* cleanData){
 	//iqr
 	f[10] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
 			- gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.25);
-	f[11] = gsl_stats_sd (cleanData, 1, length);//std
+	f[11] = gsl_stats_sd (cleanData, 1, length);//std */
+
+	//three para for gsl func (data_array,element size(#double),#elements)	
+	f[0] = gsl_stats_mean (cleanData, 1, length);
+	f[1] = gsl_stats_variance (cleanData, 1, length);
+	f[2] = gsl_stats_skew (cleanData, 1, length);
+	f[3] = gsl_stats_kurtosis (cleanData, 1, length);
+	f[4] = sqrt (gsl_stats_mean (tempData, 1, length));//rms
+	f[5] = gsl_stats_max (cleanData, 1, length);
+	f[6] = gsl_stats_min (cleanData, 1, length);
+	f[7] = f[7] - f[8];//range
+	gsl_sort (cleanData, 1, length);//sort before iqr
+	//iqr
+	f[8] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
+			- gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.25);
+	f[9] = gsl_stats_sd (cleanData, 1, length);//std
 	for(unsigned i = 0;i < featureNum;i++){//set 0 if nan
 		if(isnan(f[i]))
 			f[i] = 0;
@@ -368,39 +378,11 @@ double *FeatureExtraction(double* cleanData){
 	
 	
 }
-/*
-void GenParaFeatureNameSet(){
-	ParaFeatureNameSet.resize(fileNum);
-	for(unsigned k = 0;k < fileNum;k++)
-		ParaFeatureNameSet[k].resize(featureNum);
-	for(unsigned k = 0;k < fileNum;k++)
-		for(unsigned i = 0;i < featureNum;i++)
-			ParaFeatureNameSet[k][i].resize(attrNum);
-	string tempStr;
-	char buffer[50];
-	for(unsigned k = 0;k < fileNum;k++){
-		for(unsigned i = 0;i < featureNum;i++){
-			for(unsigned j = 0;j < attrNum;j++){
-				tempStr.clear();
-				tempStr = "File_";
-				sprintf(buffer,"%d",k);
-				tempStr += buffer;
-				tempStr += "_Attr_";
-				sprintf(buffer,"%d",j);
-				tempStr += buffer;
-				tempStr += "_";
-				tempStr += featureName[i];
-				ParaFeatureNameSet[k][i][j] = tempStr;
 
-			}
-		}
-	}
-}
-*/
 
 double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
 	
-	unsigned length = chunkSize;//not implement yet
+	unsigned length = chunkSize;
 
 	static double f[featureNum];
 	double tempData[chunkSize];
@@ -410,7 +392,7 @@ double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
 	for(unsigned i = 0;i < length;i++)
 		tempData[i] = pow(cleanData[i], 2);		
 		
-	f[0] = 0;//peak in matlab not implement
+/* 	f[0] = 0;//peak in matlab not implement
 	f[1] = 0;	
 	//three para for gsl func (data_array,element size(#double),#elements)	
 	f[2] = gsl_stats_mean (cleanData, 1, length);
@@ -425,7 +407,24 @@ double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
 	//iqr
 	f[10] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
 			- gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.25);
-	f[11] = gsl_stats_sd (cleanData, 1, length);//std
+	f[11] = gsl_stats_sd (cleanData, 1, length);//std */
+	
+
+	//three para for gsl func (data_array,element size(#double),#elements)	
+	f[0] = gsl_stats_mean (cleanData, 1, length);
+	f[1] = gsl_stats_variance (cleanData, 1, length);
+	f[2] = gsl_stats_skew (cleanData, 1, length);
+	f[3] = gsl_stats_kurtosis (cleanData, 1, length);
+	f[4] = sqrt (gsl_stats_mean (tempData, 1, length));//rms
+	f[5] = gsl_stats_max (cleanData, 1, length);
+	f[6] = gsl_stats_min (cleanData, 1, length);
+	f[7] = f[7] - f[8];//range
+	gsl_sort (cleanData, 1, length);//sort before iqr
+	//iqr
+	f[8] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
+			- gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.25);
+	f[9] = gsl_stats_sd (cleanData, 1, length);//std
+	
 	for(unsigned i = 0;i < featureNum;i++){//set 0 if nan
 		if(isnan(f[i]))
 			f[i] = 0;
@@ -434,39 +433,4 @@ double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
 	return f;
 	
 }
-/*
-void GenParaFeatureNameSet_seg(){
-	ParaFeatureNameSet.resize(fileNum);
-	for(unsigned k = 0;k < fileNum;k++)
-		ParaFeatureNameSet[k].resize(featureNum*segNum);
-	for(unsigned k = 0;k < fileNum;k++)
-		for(unsigned i = 0;i < featureNum*segNum;i++)
-			ParaFeatureNameSet[k][i].resize(attrNum);
-	string tempStr;
-	char buffer[50];
-	for(unsigned k = 0;k < fileNum;k++){
-		for(unsigned m = 0;m < segNum;m++ ){
 
-			for(unsigned i = 0;i < featureNum;i++){
-
-				for(unsigned j = 0;j < attrNum;j++){
-					tempStr.clear();
-					tempStr = "File_";
-					sprintf(buffer,"%d",k);
-					tempStr += buffer;
-					tempStr += "_Seg_";
-					sprintf(buffer,"%d",m+1);
-					tempStr += buffer;
-					tempStr += "_Attr_";
-					sprintf(buffer,"%d",j);
-					tempStr += buffer;
-					tempStr += "_";
-					tempStr += featureName[i];
-					ParaFeatureNameSet[k][i+m*featureNum][j] = tempStr;
-				}
-
-			}
-		}
-	}
-}
-*/
