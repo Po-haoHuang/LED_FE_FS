@@ -16,6 +16,15 @@ const string disctFileName = "FS_disct.csv";
 const string labelsFileName = "FS_labels.csv";
 const double manual_cut_points[] = {5,15,20};
 
+struct ScoreElem{
+    double score;
+    int id;
+    ScoreElem(): score(0), id(0){}
+    ScoreElem(double sc, int i): score(sc), id(i){}
+    bool operator< (const ScoreElem &y) const { return this->score < y.score;}
+};
+
+
 int main(){
 
     // output result to file
@@ -95,9 +104,13 @@ int main(){
         labelsD[i] = static_cast<double>(labels[i]);
     }
 
+    // general setting
     int top_k = 15;
+    vector<vector<int> > all_select_MI;
+    vector<vector<int> > all_select_Regs;
+    vector<vector<int> > all_select;
 
-    // JMI
+    // 1. MI - JMI
     vector<int> outputFeaturesJMI;
     fs.JMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesJMI);
     cout  << "JMI select: " << endl;
@@ -107,8 +120,10 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << "," << fs.getAttrName(useFtId) << endl;
     }
+    all_select_MI.push_back(outputFeaturesJMI);
+    all_select.push_back(outputFeaturesJMI);
 
-    // MRMR
+    // 2. MI - MRMR
     vector<int> outputFeaturesMRMR;
     fs.MRMR(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesMRMR);
     cout << endl<< "MRMR select: " << endl;
@@ -118,8 +133,10 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
     }
+    all_select_MI.push_back(outputFeaturesMRMR);
+    all_select.push_back(outputFeaturesMRMR);
 
-    // CHI
+    // 3. MI - CHI
     vector<int> outputFeaturesCHI;
     fs.CHI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, outputFeaturesCHI);
     cout << endl << "CHI select: " << endl;
@@ -129,8 +146,10 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
     }
+    all_select_MI.push_back(outputFeaturesCHI);
+    all_select.push_back(outputFeaturesCHI);
 
-    // FCBF
+    // 4. MI - FCBF
     vector<int> outputFeaturesFCBF;
     double threshold = 0.01;
     fs.FCBF(fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, labelsD, threshold, outputFeaturesFCBF);
@@ -141,6 +160,8 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
     }
+    all_select_MI.push_back(outputFeaturesFCBF);
+    all_select.push_back(outputFeaturesFCBF);
 
     // Regression
     // usage of linear regression and ridge regression(set lambda = 1 or 2 or 3)
@@ -149,7 +170,7 @@ int main(){
     Regression regs;
 	regs.init(selectedDataMatrix, targetColVec);
 
-    // 1. Least Square
+    // 5. Regs - Least Square
     vector<int> regs_result1;
 	regs.doLinearRegression(0,regs_result1);
     cout << endl << "Least Square select: " << endl;
@@ -159,8 +180,10 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
 	}
+	all_select_Regs.push_back(regs_result1);
+    all_select.push_back(regs_result1);
 
-	// 2. Ridge
+	// 6. Regs - Ridge
     vector<int> regs_result2;
     int lambda2 = 1; // (1,2,3)
 	regs.doLinearRegression(lambda2,regs_result2);
@@ -171,8 +194,10 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
 	}
+	all_select_Regs.push_back(regs_result2);
+    all_select.push_back(regs_result2);
 
-    // 3. LASSO
+    // 7. Regs - LASSO
     vector<int> regs_result3;
     int lambda3 = 1; // (1,2,3)
 	regs.doLarsRegression(lambda3, 0, regs_result3);
@@ -183,8 +208,10 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
 	}
+	all_select_Regs.push_back(regs_result3);
+    all_select.push_back(regs_result3);
 
-    // 4. Elastic net
+    // 8. Regs - Elastic net
     vector<int> regs_result4;
     int lambda41 = 1; // (1,2,3)
     int lambda42 = 2; // (1,2,3)
@@ -196,6 +223,81 @@ int main(){
         cout << i+1 << ": " << fs.getAttrName(useFtId) << endl;
         resultFile << i+1 << ","<< fs.getAttrName(useFtId) << endl;
 	}
+	all_select_Regs.push_back(regs_result4);
+	all_select.push_back(regs_result4);
+
+    // MI final score
+    vector<ScoreElem> scoreVector_MI(fs.numOfFeatures(), ScoreElem());
+    for(unsigned i=0; i<all_select_MI.size(); i++){
+        for(unsigned curRank=0; curRank<all_select_MI[i].size(); curRank++){
+            int id = fs.useFeatureId(all_select_MI[i][curRank]);
+            scoreVector_MI[id].id = id;
+            scoreVector_MI[id].score += fs.numOfUsedFeatures()-curRank;
+        }
+    }
+    sort(scoreVector_MI.begin(), scoreVector_MI.end());
+    reverse(scoreVector_MI.begin(), scoreVector_MI.end());  // descent order
+
+    cout << fixed << setprecision(2);
+    cout << endl << "Final score (MI): " << endl;
+    resultFile << fixed << setprecision(2);
+    resultFile << endl << "Final score (MI): " << endl;
+    for(unsigned i=0; i<scoreVector_MI.size(); i++){
+        double relative_score = scoreVector_MI[i].score/fs.numOfUsedFeatures()/all_select_MI.size();
+        if(relative_score>0){
+            cout << i+1 << ": " << relative_score*100 << "% ";
+            cout << fs.getAttrName(scoreVector_MI[i].id) << endl;
+            resultFile << i+1 << "," << relative_score*100 << "%,";
+            resultFile << fs.getAttrName(scoreVector_MI[i].id) << endl;
+        }
+    }
+
+    // Regression final score
+    vector<ScoreElem> scoreVector_Regs(fs.numOfFeatures(), ScoreElem());
+    for(unsigned i=0; i<all_select_Regs.size(); i++){
+        for(unsigned curRank=0; curRank<all_select_Regs[i].size(); curRank++){
+            int id = fs.useFeatureId(all_select_Regs[i][curRank]);
+            scoreVector_Regs[id].id = id;
+            scoreVector_Regs[id].score += fs.numOfUsedFeatures()-curRank;
+        }
+    }
+    sort(scoreVector_Regs.begin(), scoreVector_Regs.end());
+    reverse(scoreVector_Regs.begin(), scoreVector_Regs.end());  // descent order
+
+    cout << fixed << setprecision(2);
+    cout << endl << "Final score (Regression): " << endl;
+    resultFile << fixed << setprecision(2);
+    resultFile << endl << "Final score (Regression): " << endl;
+    for(unsigned i=0; i<scoreVector_Regs.size(); i++){
+        double relative_score = scoreVector_Regs[i].score/fs.numOfUsedFeatures()/all_select_Regs.size();
+        if(relative_score>0){
+            cout << i+1 << ": " << relative_score*100 << "% ";
+            cout << fs.getAttrName(scoreVector_Regs[i].id) << endl;
+            resultFile << i+1 << "," << relative_score*100 << "%,";
+            resultFile << fs.getAttrName(scoreVector_Regs[i].id) << endl;
+        }
+    }
+
+    // output selectedDataMatrix data to csv file
+    ofstream selectedDataFile("FS_selectedDataMatrix.csv");
+    for(unsigned row=0; row<fs.numOfUsedFeatures(); row++){
+        selectedDataFile << fs.getAttrName(fs.useFeatureId(row)) << ",";
+    }
+    selectedDataFile << endl;
+    for(unsigned row=0; row<selectedDataMatrix.size(); row++){
+        for(unsigned col=0; col<selectedDataMatrix[row].size(); col++){
+            selectedDataFile << selectedDataMatrix[row][col] << ",";
+        }
+        selectedDataFile << endl;
+    }
+    selectedDataFile.close();
+
+    // output targetColVec data to csv file
+    ofstream targetColVecFile("FS_targetColVec.csv");
+    for(unsigned row=0; row<targetColVec.size(); row++){
+        targetColVecFile << targetColVec[row] << endl;
+    }
+    targetColVecFile.close();
 
     // output labels data to csv file
     ofstream labelsFile(labelsFileName.c_str());
