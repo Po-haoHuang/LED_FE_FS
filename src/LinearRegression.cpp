@@ -22,6 +22,7 @@ bool Linear_Regression::useLinearRegression(arma::mat& data,
 	uvec temp = sort_index(tempPara,"d");
 	#ifdef Detail_Output
 	cout<<tempPara;
+	data::Save("LinearCof.csv",tempPara,true);
 	#endif
 	for(int i = 0;i < data.n_rows ;i++)
 		result.push_back(temp[i]);
