@@ -26,6 +26,10 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 		input_mod.row(i) -= mean(input_mod.row(i));
 		input_mod.row(i) /= stddev(input_mod.row(i));
 	}
+	#ifdef Output_Normalize
+	data::save(ouputnormal.csv,input_mod);
+	data::save(ouputnormalres.csv,response_mod);
+	#endif
 
 	return 0;
 	

@@ -28,8 +28,6 @@ vector<vector<double> > rowData;
 
 using namespace std;
 
-
-
 //Function declaration
 //For FE
 double *FeatureExtraction(double* cleanData);
@@ -120,9 +118,6 @@ int main(int argc, char *argv[]){
 	//start FE
 	fileNum = fileDataVector.size();
 	attrNum = fileDataVector[0]->attrSize();
-
-	
-
 	
 	//run FE
 	runFeatureExtraction();
