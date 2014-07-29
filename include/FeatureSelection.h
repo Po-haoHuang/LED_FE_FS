@@ -10,6 +10,14 @@ using std::string;
 using std::vector;
 using std::ostream;
 
+struct ScoreElem{
+    double score;
+    int id;
+    ScoreElem(): score(0), id(0){}
+    ScoreElem(double sc, int i): score(sc), id(i){}
+    bool operator< (const ScoreElem &y) const { return this->score < y.score;}
+};
+
 class FeatureSelection{
 public:
     // constructor
@@ -43,7 +51,13 @@ public:
     // selection algorithm
     void JMI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
     void MRMR(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix,double *classColumn, vector<int> &outputId);
-    void CHI(int k, int noOfSamples, int noOfFeatures,double *featureMatrix, double *classColumn, vector<int> &outputId);;
+    void CMIM(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
+    void DISR(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
+    void CHI(int top_k, int noOfSamples, int noOfFeatures,double *featureMatrix, double *classColumn, vector<int> &outputId);
+    void CondMI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
+    void ICAP(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
+    void MIM(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
+
     void FCBF(int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double threshold, vector<int> &outputId);
 
 private:
