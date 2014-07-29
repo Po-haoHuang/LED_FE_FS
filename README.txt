@@ -1,3 +1,43 @@
+================================================================================
+0. Introduction
+================================================================================
+Feature Extraction & Feature Selection
+
+
+================================================================================
+1. Program Usage 
+================================================================================
+
+FE_no_GUI.exe dir(cyclelist.csv) dir(rowdata) Cyclebegin(num) Cycleend(num) segmentnum
+
+dir(cyclelist.csv) 絕對相對路徑皆可
+dir(rowdata)	   絕對相對路徑皆可
+Cyclebegin(num)    起始cycle number
+Cycleend(num)      結束cycle number
+segmentnum         等份數
+
+共5個參數
+--------------------------------------------------------------------------------
+
+FS_no_GUI.exe input_file target_feature top_k disct_method fcbf_thrd ridge_lambda lasso_lambda els_lambda1 els_lambda2
+
+input_file				FE處理後的檔案(Output_noSeg.csv, Output_seg1.csv, Output_seg2.csv)
+target_feature			目標特徵("dP_Filter (X1)_max")
+top_k					演算法篩選的個數(15)
+disct_method			指定離散化方式("ew", "ew_cycle", "5,15,20")
+fcbf_thrd				MI-FCBF演算法之threshold (0.01)
+ridge_lambda			Regression-RIDGE演算法之lambda(1, 2, 3)	
+lasso_lambda			Regression-LASSO演算法之lambda(1, 2, 3)
+els_lambda1				Regression-ElasticNet演算法之lambda1(1, 2, 3)
+els_lambda2				Regression-ElasticNet演算法之lambda2(1, 2, 3)
+
+共9個參數
+
+
+================================================================================
+2. Build from Soucre Code
+================================================================================
+
 FeatureExtraction:
 
 1.gsl 1.15 32bit  https://code.google.com/p/oscats/downloads/list
