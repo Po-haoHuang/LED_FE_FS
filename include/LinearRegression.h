@@ -1,7 +1,7 @@
 #ifndef Linear_Regression_H //Linear Regression
 #define Linear_Regression_H
 
-
+//include from mlpack
 #include <mlpack/core.hpp>
 #include "mlpack/methods/linear_regression/linear_regression.hpp"
 
@@ -18,7 +18,7 @@ public:
 	virtual ~Linear_Regression();
 	bool useLinearRegression(arma::mat& data,
 							 arma::vec& responses,
-							 double lamda,
+							 double lambda,
 							 vector<int>& result);
 
 private:

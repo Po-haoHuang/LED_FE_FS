@@ -9,16 +9,19 @@ Linear_Regression::~Linear_Regression(){
 
 bool Linear_Regression::useLinearRegression(arma::mat& data,
 								  			arma::vec& responses,
-								  			double lamda,
+								  			double lambda,
   						  					vector<int>& result){
 
-
+	//check if x , y matches
 	if (responses.n_elem != data.n_cols)
 		Log::Fatal << "Number of responses must be equal to number of rows of X!"
 		<< endl;
-	lr = LinearRegression(data,responses,lamda);
+	//usage of linear regression(Lambda = 0)
+	//and ridge regression(set lambda = 1 or 2 or 3)
+	lr = LinearRegression(data,responses,lambda);
 	vec tempPara = lr.Parameters();
-	tempPara.shed_row(tempPara.n_rows-1);
+	tempPara.shed_row(0);//remove the B0 of linear regression(constant beta 0)
+	//sort the beta coefficient
 	uvec temp = sort_index(tempPara,"d");
 	#ifdef Detail_Output
 	cout<<tempPara;

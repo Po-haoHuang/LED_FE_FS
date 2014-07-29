@@ -16,8 +16,8 @@ public:
 	virtual ~Lars_Regression();
 	bool useLarsRegression(arma::mat& data,
 							 arma::vec& responses,
-							 double lamda1,
-							 double lamda2,
+							 double lambda1,
+							 double lambda2,
 							 vector<int>& result);
 private:
 

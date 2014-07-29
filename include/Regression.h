@@ -19,19 +19,13 @@ class Regression{
 		Regression();
 		virtual ~Regression();
 		bool init(vector<vector<double > > input,vector<double > response );
-		bool doLinearRegression(int lamda ,vector<int >& result);
-		bool doLarsRegression(int lamda1 ,int lamda2,vector<int >& result);
+		bool doLinearRegression(int lambda ,vector<int >& result);
+		bool doLarsRegression(int lambda1 ,int lambda2,vector<int >& result);
 		
 
 	private:
 		mat input_mod;
 		vec response_mod;
-
-		
-
-
-
-
 };
 
 
