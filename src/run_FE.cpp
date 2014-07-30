@@ -198,20 +198,6 @@ void runFeatureExtraction(){
 			break;
 			
 		case enable:{//segmentation enabled
-			/*dataSize = fileDataVector[0]->dataVector.size();
-
-			for(unsigned k = 1;k < fileNum;k++)//Get minimum datasize of all selected files
-				dataSize = fileDataVector[k]->dataVector.size() > dataSize?
-				dataSize : fileDataVector[k]->dataVector.size();
-
-			//check if segNum is valid
-			if(segNum > dataSize || segNum == 0){
-            	cerr<<"Segmentation number error."<<dataSize<<endl<<
-				"Please enter a new Segmentation number:(1 ~ max_datasize)";
-				return;
-				
-			}*/
-			
 
 			//Initialization
 			totalResult.clear();
@@ -339,24 +325,7 @@ double *FeatureExtraction(double* cleanData){
 	
 	//tempData = cleanData^2;
 	for(unsigned i = 0;i < length;i++)
-		tempData[i] = pow(cleanData[i], 2);		
-		
-/* 	f[0] = 0;//peak in matlab not implement
-	f[1] = 0;	
-	//three para for gsl func (data_array,element size(#double),#elements)	
-	f[2] = gsl_stats_mean (cleanData, 1, length);
-	f[3] = gsl_stats_variance (cleanData, 1, length);
-	f[4] = gsl_stats_skew (cleanData, 1, length);
-	f[5] = gsl_stats_kurtosis (cleanData, 1, length);
-	f[6] = sqrt (gsl_stats_mean (tempData, 1, length));//rms
-	f[7] = gsl_stats_max (cleanData, 1, length);
-	f[8] = gsl_stats_min (cleanData, 1, length);
-	f[9] = f[7] - f[8];//range
-	gsl_sort (cleanData, 1, length);//sort before iqr
-	//iqr
-	f[10] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
-			- gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.25);
-	f[11] = gsl_stats_sd (cleanData, 1, length);//std */
+		tempData[i] = pow(cleanData[i], 2);
 
 	//three para for gsl func (data_array,element size(#double),#elements)	
 	f[0] = gsl_stats_mean (cleanData, 1, length);
@@ -392,25 +361,7 @@ double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
 	
 	//tempData = cleanData^2;
 	for(unsigned i = 0;i < length;i++)
-		tempData[i] = pow(cleanData[i], 2);		
-		
-/* 	f[0] = 0;//peak in matlab not implement
-	f[1] = 0;	
-	//three para for gsl func (data_array,element size(#double),#elements)	
-	f[2] = gsl_stats_mean (cleanData, 1, length);
-	f[3] = gsl_stats_variance (cleanData, 1, length);
-	f[4] = gsl_stats_skew (cleanData, 1, length);
-	f[5] = gsl_stats_kurtosis (cleanData, 1, length);
-	f[6] = sqrt (gsl_stats_mean (tempData, 1, length));//rms
-	f[7] = gsl_stats_max (cleanData, 1, length);
-	f[8] = gsl_stats_min (cleanData, 1, length);
-	f[9] = f[7] - f[8];//range
-	gsl_sort (cleanData, 1, length);//sort before iqr
-	//iqr
-	f[10] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
-			- gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.25);
-	f[11] = gsl_stats_sd (cleanData, 1, length);//std */
-	
+		tempData[i] = pow(cleanData[i], 2);
 
 	//three para for gsl func (data_array,element size(#double),#elements)	
 	f[0] = gsl_stats_mean (cleanData, 1, length);
