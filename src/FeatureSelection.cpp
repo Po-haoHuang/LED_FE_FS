@@ -5,12 +5,11 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cfloat>
+#include <iomanip>
 
 #include "../include/FeatureSelection.h"
 
 using namespace std;
-
-const unsigned LINE_BUFFER_SIZE = 4096;
 
 FeatureSelection::FeatureSelection()
 {
@@ -35,26 +34,25 @@ bool FeatureSelection::init(string FE_fileName)
     cout << "Successful" << endl;
 
     // read attribute title
-    char lineBuffer[LINE_BUFFER_SIZE];
-    inFile.getline(lineBuffer, LINE_BUFFER_SIZE);
-    string attrTitle = lineBuffer;
-    unsigned thirdCommaPos = attrTitle.find(",");  // delete id, fid and cycle info
-    thirdCommaPos = attrTitle.find(",",thirdCommaPos+1);
-    thirdCommaPos = attrTitle.find(",",thirdCommaPos+1);
-    attrTitle = attrTitle.substr(thirdCommaPos+1);
+    string lineBuffer;
+    getline(inFile, lineBuffer);
+    unsigned thirdCommaPos = lineBuffer.find(",");  // delete id, fid and cycle info
+    thirdCommaPos = lineBuffer.find(",",thirdCommaPos+1);
+    thirdCommaPos = lineBuffer.find(",",thirdCommaPos+1);
+    lineBuffer = lineBuffer.substr(thirdCommaPos+1);
 
     // read attribute name
-    csvSplit(attrTitle, ',', attrNameVec);
+    csvSplit(lineBuffer, ',', attrNameVec);
     attrNameVec.pop_back(); // remove redundant value
 
     // read data by line
     featureData.reserve(1024);
     vector<double> lineValue;
     vector<string> lineStrValue;
-    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)){
+    while(getline(inFile, lineBuffer)){
         lineValue.clear();
         lineStrValue.clear();
-        csvSplit(string(lineBuffer), ',', lineStrValue);
+        csvSplit(lineBuffer, ',', lineStrValue);
         featureDataCycle.push_back(atof(lineStrValue[2].c_str()));
         for(unsigned i=3; i<lineStrValue.size(); i++){
             lineValue.push_back(atof(lineStrValue[i].c_str()));
@@ -159,4 +157,34 @@ void FeatureSelection::excludeZeroColumn()
         if(useFeatureId_[i]!=-1) useFeatureIdReplace.push_back(useFeatureId_[i]);
     }
     useFeatureId_.swap(useFeatureIdReplace);
+}
+
+void FeatureSelection::score_and_rank(vector<vector<int> > &dataVec, ofstream &fout, string typeName)
+{
+    vector<ScoreElem> scoreVector(numOfFeatures(), ScoreElem());
+    for(unsigned i=0; i<dataVec.size(); i++){
+        for(unsigned curRank=0; curRank<dataVec[i].size(); curRank++){
+            int id = useFeatureId(dataVec[i][curRank]);
+            scoreVector[id].id = id;
+            scoreVector[id].score += numOfUsedFeatures()-curRank;
+        }
+    }
+    sort(scoreVector.begin(), scoreVector.end());
+    reverse(scoreVector.begin(), scoreVector.end());  // to descent order
+
+    cout << fixed << setprecision(2);
+    cout << "Final score - " << typeName << ":" << endl;
+    fout << fixed << setprecision(2);
+    fout << "Final score - " << typeName << ":"  << endl;
+    for(unsigned i=0; i<scoreVector.size(); i++){
+        double relative_score = scoreVector[i].score/numOfUsedFeatures()/dataVec.size();
+        if(relative_score>0){
+            cout << i+1 << ": " << relative_score*100 << "% ";
+            cout << getAttrName(scoreVector[i].id) << endl;
+            fout << i+1 << "," << relative_score*100 << "%,";
+            fout << getAttrName(scoreVector[i].id) << endl;
+        }
+    }
+    cout << endl;
+    fout << endl;
 }

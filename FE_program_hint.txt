@@ -1,9 +1,0 @@
-FE_no_GUI.exe dir(cyclelist.csv) dir(rowdata) Cyclebegin(num) Cycleend(num) segmentnum
-
-dir(cyclelist.csv) 絕對相對路徑皆可
-dir(rowdata)	   絕對相對路徑皆可
-Cyclebegin(num)    起始cycle number
-Cycleend(num)      結束cycle number
-segmentnum         等份數
-
-共五個參數

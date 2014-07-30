@@ -350,7 +350,7 @@ void FeatureSelection::CMIM(int k, int noOfSamples, int noOfFeatures, double *fe
     int *lastUsedFeature = (int *)checkedCalloc(noOfFeatures,sizeof(int));
 
     double score, conditionalInfo;
-    int iMinus, currentFeature;
+    int currentFeature;
 
     double maxMI = 0.0;
     int maxMICounter = -1;
@@ -382,7 +382,6 @@ void FeatureSelection::CMIM(int k, int noOfSamples, int noOfFeatures, double *fe
 
     for (i = 1; i < k; i++) {
         score = 0.0;
-        iMinus = i-1;
 
         for (j = 0; j < noOfFeatures; j++) {
             while ((classMI[j] > score) && (lastUsedFeature[j] < i)) {
@@ -433,7 +432,7 @@ void FeatureSelection::DISR(int k, int noOfSamples, int noOfFeatures, double *fe
 
     double **feature2D = (double**) checkedCalloc(noOfFeatures,sizeof(double*));
 
-    double score, currentScore, totalFeatureMI;
+    double score, currentScore;
     int currentHighestFeature;
 
     double *mergedVector = (double *) checkedCalloc(noOfSamples,sizeof(double));
@@ -477,13 +476,11 @@ void FeatureSelection::DISR(int k, int noOfSamples, int noOfFeatures, double *fe
         score = 0.0;
         currentHighestFeature = 0;
         currentScore = 0.0;
-        totalFeatureMI = 0.0;
 
         for (j = 0; j < noOfFeatures; j++) {
             /*if we haven't selected j*/
             if (selectedFeatures[j] == 0) {
                 currentScore = 0.0;
-                totalFeatureMI = 0.0;
 
                 for (x = 0; x < i; x++) {
                     arrayPosition = x*noOfFeatures + j;
@@ -550,15 +547,12 @@ void FeatureSelection::CondMI(int k, int noOfSamples, int noOfFeatures, double *
 
     double **feature2D = (double**) checkedCalloc(noOfFeatures,sizeof(double*));
 
-    double score, currentScore, totalFeatureMI;
+    double score, currentScore;
     int currentHighestFeature;
 
     double *conditionVector = (double *) checkedCalloc(noOfSamples,sizeof(double));
 
-    int arrayPosition;
-    double mi, tripEntropy;
-
-    int i,j,x;
+    int i,j;
 
     for(j = 0; j < noOfFeatures; j++) {
         feature2D[j] = featureMatrix + (int)j*noOfSamples;
@@ -595,13 +589,11 @@ void FeatureSelection::CondMI(int k, int noOfSamples, int noOfFeatures, double *
         score = 0.0;
         currentHighestFeature = -1;
         currentScore = 0.0;
-        totalFeatureMI = 0.0;
 
         for (j = 0; j < noOfFeatures; j++) {
             /*if we haven't selected j*/
             if (selectedFeatures[j] == 0) {
                 currentScore = 0.0;
-                totalFeatureMI = 0.0;
 
                 /*double calculateConditionalMutualInformation(double *firstVector, double *targetVector, double *conditionVector, int vectorLength);*/
                 currentScore = calculateConditionalMutualInformation(feature2D[j],classColumn,conditionVector,noOfSamples);
