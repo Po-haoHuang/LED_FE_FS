@@ -121,7 +121,6 @@ int main(int argc, char *argv[]){
 	
 	//run FE
 	runFeatureExtraction();
-	system("pause");
 	return 0;
 }
 
@@ -271,11 +270,13 @@ void runFeatureExtraction(){
 			
 			//output
 			string f1,f2;
+			char itoatemp[50] ;
 			f1 = "Output_seg";
-			f1 += segNum;
+			itoa(segNum,itoatemp,10);
+			f1 += itoatemp;
 			f2 = f1;
-			f2 += "_2";
-			f1 += "_1";
+			f2 += "_2.csv";
+			f1 += "_1.csv";
 			FILE* fout1 = fopen(f1.c_str(),"w+");
 			FILE* fout2 = fopen(f2.c_str(),"w+");
 			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
