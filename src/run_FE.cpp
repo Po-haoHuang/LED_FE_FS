@@ -270,8 +270,14 @@ void runFeatureExtraction(){
 			cout<<"Output processing..."<<endl;
 			
 			//output
-			FILE* fout1 = fopen("Output_seg1.csv","w+");
-			FILE* fout2 = fopen("Output_seg2.csv","w+");
+			string f1,f2;
+			f1 = "Output_seg";
+			f1 += segNum;
+			f2 = f1;
+			f2 += "_2";
+			f1 += "_1";
+			FILE* fout1 = fopen(f1.c_str(),"w+");
+			FILE* fout2 = fopen(f2.c_str(),"w+");
 			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
