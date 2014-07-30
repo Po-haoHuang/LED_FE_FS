@@ -47,6 +47,21 @@ void process_argv(string argvStr, int &partitionNum, int &disctMethod, vector<do
     }
 }
 
+string get_result_file_name(int argc, char *argv[])
+{
+    string finalName;
+    string inFileName = argv[1];
+    if(inFileName.find_last_of("/\\")==string::npos) inFileName = inFileName.substr(0, inFileName.find("."));
+    else inFileName = inFileName.substr(inFileName.find_last_of("/\\")+1,
+                                        inFileName.find(".") - inFileName.find_last_of("/\\")-1);
+    finalName += string("FS_result_") + inFileName;
+    for(int i=2; i<argc; i++){
+        finalName += string("_") + string(argv[i]);
+    }
+    finalName += ".csv";
+    return finalName;
+}
+
 int main(int argc, char *argv[])
 {
     if(argc!=10){
@@ -68,7 +83,7 @@ int main(int argc, char *argv[])
     process_argv(argv[4], partitionNum, disctMethod, manual_cut_points);
 
     // output filename
-    const string resultFileName = "FS_result.csv";
+    const string resultFileName = get_result_file_name(argc, argv);
     const string disctFileName = "FS_disct.csv";
     const string labelsFileName = "FS_labels.csv";
     const string selectedDataMatrixFileName = "FS_selectedDataMatrix.csv";
@@ -77,13 +92,16 @@ int main(int argc, char *argv[])
     // output result to file
     ofstream resultFile(resultFileName.c_str());
     if(!resultFile){
+        cout << resultFileName << endl;
         cout << "Error! resultFile failed. Please turn off the opened file." << endl;
         return 1;
     }
 
     // main data class
     FeatureSelection fs;
-    fs.init(featureDataSetFileName);
+    if(!fs.init(featureDataSetFileName)){
+        return 1;
+    }
     cout << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features" << endl << endl;
     resultFile << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features" << endl << endl;
 
@@ -195,18 +213,21 @@ int main(int argc, char *argv[])
     // 1. Regs - Least Square
     vector<int> regs_result1;
 	regs.doLinearRegression(0,regs_result1);
+	regs_result1.erase(regs_result1.begin()+top_k, regs_result1.end());
     output_select_result(fs, "Least Square", regs_result1, resultFile);
 
 	// 2. Regs - Ridge
     vector<int> regs_result2;
     int lambda2 = atoi(argv[6]); // (1,2,3)
 	regs.doLinearRegression(lambda2,regs_result2);
+	regs_result2.erase(regs_result2.begin()+top_k, regs_result2.end());
     output_select_result(fs, "Ridge", regs_result2, resultFile);
 
     // 3. Regs - LASSO
     vector<int> regs_result3;
     int lambda3 = atoi(argv[7]); // (1,2,3)
 	regs.doLarsRegression(lambda3, 0, regs_result3);
+	regs_result3.erase(regs_result3.begin()+top_k, regs_result3.end());
     output_select_result(fs, "LASSO", regs_result3, resultFile);
 
     // 4. Regs - Elastic net
@@ -214,6 +235,7 @@ int main(int argc, char *argv[])
     int lambda41 = atoi(argv[8]); // (1,2,3)
     int lambda42 = atoi(argv[9]); // (1,2,3)
 	regs.doLarsRegression(lambda41, lambda42, regs_result4);
+	regs_result4.erase(regs_result4.begin()+top_k, regs_result4.end());
     output_select_result(fs, "Elastic net", regs_result4, resultFile);
 	#endif
 
@@ -257,6 +279,7 @@ int main(int argc, char *argv[])
     fs.score_and_rank(all_select_Regs, resultFile, "Regression");
     fs.score_and_rank(all_select, resultFile, "All");
 
+    #ifdef FS_DEBUG
     // output selectedDataMatrix data to csv file
     ofstream selectedDataFile(selectedDataMatrixFileName.c_str());
     for(unsigned row=0; row<fs.numOfUsedFeatures(); row++){
@@ -271,7 +294,9 @@ int main(int argc, char *argv[])
     }
     selectedDataFile.close();
     #endif
+    #endif
 
+    #ifdef FS_DEBUG
     // output targetColVec data to csv file
     ofstream targetColVecFile(targetColVecFileName.c_str());
     for(unsigned row=0; row<targetColVec.size(); row++){
@@ -296,6 +321,7 @@ int main(int argc, char *argv[])
         disctFile << endl;
     }
     disctFile.close();
+    #endif // FS_DEBUG
 
     delete [] dataMatrix;
     resultFile.close();

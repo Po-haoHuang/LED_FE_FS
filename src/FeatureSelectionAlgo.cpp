@@ -127,7 +127,7 @@ void FeatureSelection::JMI(int k, int noOfSamples, int noOfFeatures,double *feat
     selectedFeatures = NULL;
 
     for(int i=0; i<k; i++) {
-        outputId.push_back(outputFeatures[i]);
+        if(outputFeatures[i]>=0) outputId.push_back(outputFeatures[i]);
     }
     free(outputFeatures);
 }
@@ -233,7 +233,7 @@ void FeatureSelection::MRMR(int k, int noOfSamples, int noOfFeatures, double *fe
     selectedFeatures = NULL;
 
     for(int i=0; i<k; i++) {
-        outputId.push_back(outputFeatures[i]);
+        if(outputFeatures[i]>=0) outputId.push_back(outputFeatures[i]);
     }
     free(outputFeatures);
 }
@@ -410,7 +410,7 @@ void FeatureSelection::CMIM(int k, int noOfSamples, int noOfFeatures, double *fe
     feature2D = NULL;
 
     for(int i=0; i<k; i++) {
-        outputId.push_back(outputFeatures[i]);
+        if(outputFeatures[i]>=0) outputId.push_back(outputFeatures[i]);
     }
     delete [] outputFeatures;
 }/*CMIM(int,int,int,double[][],double[],double[])*/
@@ -524,7 +524,7 @@ void FeatureSelection::DISR(int k, int noOfSamples, int noOfFeatures, double *fe
     selectedFeatures = NULL;
 
     for(int i=0; i<k; i++) {
-        outputId.push_back(outputFeatures[i]);
+        if(outputFeatures[i]>=0) outputId.push_back(outputFeatures[i]);
     }
     delete [] outputFeatures;
 }/*DISR(int,int,int,double[][],double[],double[])*/
@@ -627,7 +627,7 @@ void FeatureSelection::CondMI(int k, int noOfSamples, int noOfFeatures, double *
     selectedFeatures = NULL;
 
     for(int i=0; i<k; i++) {
-        outputId.push_back(outputFeatures[i]);
+        if(outputFeatures[i]>=0) outputId.push_back(outputFeatures[i]);
     }
     delete [] outputFeatures;
 }/*CondMI(int,int,int,double[][],double[],double[])*/
@@ -748,7 +748,7 @@ void FeatureSelection::ICAP(int k, int noOfSamples, int noOfFeatures, double *fe
     selectedFeatures = NULL;
 
     for(int i=0; i<k; i++) {
-        outputId.push_back(outputFeatures[i]);
+        if(outputFeatures[i]>=0) outputId.push_back(outputFeatures[i]);
     }
     delete [] outputFeatures;
 }/*ICAP(int,int,int,double[][],double[],double[])*/
@@ -823,7 +823,7 @@ void FeatureSelection::MIM(int k, int noOfSamples, int noOfFeatures, double *fea
     selectedFeatures = NULL;
 
     for(int i=0; i<k; i++) {
-        outputId.push_back(outputFeatures[i]);
+        if(outputFeatures[i]>=0) outputId.push_back(outputFeatures[i]);
     }
     delete [] outputFeatures;
 }/*MIM(int,int,int,double[][],double[],double[])*/

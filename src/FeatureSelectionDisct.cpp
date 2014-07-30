@@ -95,7 +95,7 @@ bool FeatureSelection::disct_ew_cycle(vector<vector<double> >& discreteData, int
             cycleDiscreteData.clear();
         }
     }
-        // only output the selected features
+    // only output the selected features
     vector<vector<double> > selectedData;
     for(unsigned row=0; row<numOfSamples(); row++){
         vector<double> oneSample;
