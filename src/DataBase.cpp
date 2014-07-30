@@ -11,7 +11,7 @@
 using namespace std;
 
 
-const unsigned int LINE_BUFFER_SIZE = 1024;
+const unsigned int LINE_BUFFER_SIZE = 65536;
 const unsigned int MAX_FILE_LIST_SIZE = 512;
 const unsigned int MAX_CYCLE_INFO_ARRAY_LENGTH = 256;
 
