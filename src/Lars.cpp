@@ -23,7 +23,7 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	LARS lars(false, lambda1, lambda2);
 	lars.Regress(data, responses, beta, true );
 	
-	cof = conv_to< std::vector<double> >::from(sort(beta));
+	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));
 	#ifdef Detail_Output
 	cout<<beta;
 	data::Save("LarsCof.csv",beta,true);
