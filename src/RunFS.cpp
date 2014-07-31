@@ -97,19 +97,38 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // log the parameters
+    resultFile << "Feature Selection Result" << endl;
+    resultFile << "Use file:," << featureDataSetFileName << endl;
+    resultFile << "target:," << targetColName << endl;
+    resultFile << "top_k:," << top_k << endl;
+    resultFile << "target discretize method:," << argv[4] << endl;
+    resultFile << "FCBF threshold:," << argv[5] << endl;
+    resultFile << "RIDGE lambda:," << argv[6] << endl;
+    resultFile << "LASSO lambda:," << argv[7] << endl;
+    resultFile << "ELS lambda 1:," << argv[8] << endl;
+    resultFile << "ELS lambda 2:," << argv[9] << endl;
+    resultFile << endl;
+
     // main data class
-    FeatureSelection fs;
-    if(!fs.init(featureDataSetFileName)){
+    FeatureSelection fs(featureDataSetFileName);
+    if(!fs.valid()){
         return 1;
     }
-    cout << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features" << endl << endl;
-    resultFile << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features" << endl << endl;
 
     // exclude some attributes
     fs.excludeAttr("dP_Filter");
     //fs.excludeAttr("skewness");
     //fs.excludeAttr("kurtosis");
+    fs.excludeAttr("Cp2Mg_1.source (F120)");
     fs.excludeZeroColumn();
+
+    cout << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features. ";
+    cout << "Use " << fs.numOfUsedFeatures() << " features for calculation." << endl;
+    resultFile << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features. ";
+    resultFile << "Use " << fs.numOfUsedFeatures() << " features for calculation." << endl;
+
+    /// Discretize
 
     // EW_discrete for discreteData
     vector<vector<double> > discreteData;
@@ -136,16 +155,7 @@ int main(int argc, char *argv[])
         fs.disct_col_ew_cycle(targetColVec, labels, partitionNum);
         break;
     }
-
-    // print the attributes in use
-    cout << "use " << fs.numOfUsedFeatures() << " features for calculation: " << endl;
-    resultFile << "use " << fs.numOfUsedFeatures() << " features for calculation: " << endl;
-    for(unsigned i=0; i<fs.numOfUsedFeatures(); i++){
-        cout << i+1 << ": " << fs.getAttrName(fs.useFeatureId(i)) << endl;
-        resultFile << i+1 << ", " << fs.getAttrName(fs.useFeatureId(i)) << endl;
-    }
-    cout << endl;
-    resultFile << endl;
+    resultFile << fs.sout.str() << endl;
 
     // change EW-discrete data to input matrix 1-D column array
     int matrixCounter=0;
@@ -156,51 +166,36 @@ int main(int argc, char *argv[])
         }
     }
 
+    /// Algorithm
+    vector<vector<int> > mi_result(9,vector<int>());
+
     // 1. MI - JMI
-    vector<int> outputFeaturesJMI;
-    fs.JMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesJMI);
-    output_select_result(fs, "JMI", outputFeaturesJMI, resultFile);
+    fs.JMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[0]);
 
     // 2. MI - MRMR
-    vector<int> outputFeaturesMRMR;
-    fs.MRMR(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesMRMR);
-    output_select_result(fs, "MRMR", outputFeaturesMRMR, resultFile);
+    fs.MRMR(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[1]);
 
     // 3. MI - CMIM
-    vector<int> outputFeaturesCMIM;
-    fs.CMIM(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesCMIM);
-    output_select_result(fs, "CMIM", outputFeaturesCMIM, resultFile);
+    fs.CMIM(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[2]);
 
     // 4. MI - DISR
-    vector<int> outputFeaturesDISR;
-    fs.DISR(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesDISR);
-    output_select_result(fs, "DISR", outputFeaturesDISR, resultFile);
+    fs.DISR(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[3]);
 
     // 5. MI - CondMI
-    vector<int> outputFeaturesCondMI;
-    fs.CondMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesCondMI);
-    output_select_result(fs, "CondMI", outputFeaturesCondMI, resultFile);
+    fs.CondMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[4]);
 
     // 6. MI - ICAP
-    vector<int> outputFeaturesICAP;
-    fs.ICAP(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesICAP);
-    output_select_result(fs, "ICAP", outputFeaturesICAP, resultFile);
+    fs.ICAP(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[5]);
 
     // 7. MI - MIM
-    vector<int> outputFeaturesMIM;
-    fs.MIM(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesMIM);
-    output_select_result(fs, "MIM", outputFeaturesMIM, resultFile);
+    fs.MIM(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[6]);
 
     // 8. MI - CHI
-    vector<int> outputFeaturesCHI;
-    fs.CHI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], outputFeaturesCHI);
-    output_select_result(fs, "CHI", outputFeaturesCHI, resultFile);
+    fs.CHI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_result[7]);
 
     // 9. MI - FCBF
-    vector<int> outputFeaturesFCBF;
     double threshold = atof(argv[5]);
-    fs.FCBF(fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], threshold, outputFeaturesFCBF);
-    output_select_result(fs, "FCBF", outputFeaturesFCBF, resultFile);
+    fs.FCBF(fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], threshold, mi_result[8]);
 
     #ifdef FS_Regs
     // Regression
@@ -209,77 +204,38 @@ int main(int argc, char *argv[])
     fs.allSelectedData(selectedDataMatrix);
     Regression regs;
 	regs.init(selectedDataMatrix, targetColVec);
+    vector<vector<int> > regs_result(4, vector<int>());
+    vector<vector<double> > regs_score(4, vector<double>());
 
     // 1. Regs - Least Square
-    vector<int> regs_result1;
-	regs.doLinearRegression(0,regs_result1);
-	regs_result1.erase(regs_result1.begin()+top_k, regs_result1.end());
-    output_select_result(fs, "Least Square", regs_result1, resultFile);
+	regs.doLinearRegression(0,regs_result[0],regs_score[0]);
+	regs_result[0].erase(regs_result[0].begin()+top_k, regs_result[0].end());
 
 	// 2. Regs - Ridge
-    vector<int> regs_result2;
     int lambda2 = atoi(argv[6]); // (1,2,3)
-	regs.doLinearRegression(lambda2,regs_result2);
-	regs_result2.erase(regs_result2.begin()+top_k, regs_result2.end());
-    output_select_result(fs, "Ridge", regs_result2, resultFile);
+	regs.doLinearRegression(lambda2,regs_result[1], regs_score[1]);
+	regs_result[1].erase(regs_result[1].begin()+top_k, regs_result[1].end());
 
     // 3. Regs - LASSO
-    vector<int> regs_result3;
     int lambda3 = atoi(argv[7]); // (1,2,3)
-	regs.doLarsRegression(lambda3, 0, regs_result3);
-	regs_result3.erase(regs_result3.begin()+top_k, regs_result3.end());
-    output_select_result(fs, "LASSO", regs_result3, resultFile);
+	regs.doLarsRegression(lambda3, 0, regs_result[2], regs_score[2]);
+	regs_result[2].erase(regs_result[2].begin()+top_k, regs_result[2].end());
 
     // 4. Regs - Elastic net
-    vector<int> regs_result4;
     int lambda41 = atoi(argv[8]); // (1,2,3)
     int lambda42 = atoi(argv[9]); // (1,2,3)
-	regs.doLarsRegression(lambda41, lambda42, regs_result4);
-	regs_result4.erase(regs_result4.begin()+top_k, regs_result4.end());
-    output_select_result(fs, "Elastic net", regs_result4, resultFile);
-	#endif
+	regs.doLarsRegression(lambda41, lambda42, regs_result[3], regs_score[3]);
+	regs_result[3].erase(regs_result[3].begin()+top_k, regs_result[3].end());
+    #endif
 
-    // final score ranking
-    vector<vector<int> > all_select_MI;
-    vector<vector<int> > all_select_Regs;
-    vector<vector<int> > all_select;
+	/// Result
 
-    all_select_MI.push_back(outputFeaturesJMI);
-    all_select_MI.push_back(outputFeaturesMRMR);
-    all_select_MI.push_back(outputFeaturesCMIM);
-    all_select_MI.push_back(outputFeaturesDISR);
-    all_select_MI.push_back(outputFeaturesCondMI);
-    all_select_MI.push_back(outputFeaturesICAP);
-    all_select_MI.push_back(outputFeaturesMIM);
-    all_select_MI.push_back(outputFeaturesCHI);
-    all_select_MI.push_back(outputFeaturesFCBF);
-
-    fs.score_and_rank(all_select_MI, resultFile, "MI");
+    fs.score_and_rank(mi_result, resultFile, "MI");
 
     #ifdef FS_Regs
-    all_select_Regs.push_back(regs_result1);
-    all_select_Regs.push_back(regs_result2);
-	all_select_Regs.push_back(regs_result3);
-    all_select_Regs.push_back(regs_result4);
-
-    all_select.push_back(outputFeaturesJMI);
-    all_select.push_back(outputFeaturesMRMR);
-    all_select.push_back(outputFeaturesCMIM);
-    all_select.push_back(outputFeaturesDISR);
-    all_select.push_back(outputFeaturesCondMI);
-    all_select.push_back(outputFeaturesICAP);
-    all_select.push_back(outputFeaturesMIM);
-    all_select.push_back(outputFeaturesCHI);
-    all_select.push_back(outputFeaturesFCBF);
-    all_select.push_back(regs_result1);
-    all_select.push_back(regs_result2);
-    all_select.push_back(regs_result3);
-    all_select.push_back(regs_result4);
-
-    fs.score_and_rank(all_select_Regs, resultFile, "Regression");
-    fs.score_and_rank(all_select, resultFile, "All");
-
+    fs.score_and_rank(regs_result, resultFile, "Regression");
     #ifdef FS_DEBUG
+
     // output selectedDataMatrix data to csv file
     ofstream selectedDataFile(selectedDataMatrixFileName.c_str());
     for(unsigned row=0; row<fs.numOfUsedFeatures(); row++){
@@ -295,6 +251,39 @@ int main(int argc, char *argv[])
     selectedDataFile.close();
     #endif
     #endif
+
+    // print the attributes in use
+    cout << "Use " << fs.numOfUsedFeatures() << " Features: " << endl;
+    resultFile << "Use " << fs.numOfUsedFeatures() << " Features: " << endl;
+    for(unsigned i=0; i<fs.numOfUsedFeatures(); i++){
+        cout << i+1 << ": " << fs.getAttrName(fs.useFeatureId(i)) << endl;
+        resultFile << i+1 << ", " << fs.getAttrName(fs.useFeatureId(i)) << endl;
+    }
+    cout << endl;
+    resultFile << endl;
+
+    output_select_result(fs, "JMI", mi_result[0], resultFile);
+    output_select_result(fs, "MRMR", mi_result[1], resultFile);
+    output_select_result(fs, "CMIM", mi_result[2], resultFile);
+    output_select_result(fs, "DISR", mi_result[3], resultFile);
+    output_select_result(fs, "CondMI", mi_result[4], resultFile);
+    output_select_result(fs, "ICAP", mi_result[5], resultFile);
+    output_select_result(fs, "MIM", mi_result[6], resultFile);
+    output_select_result(fs, "CHI", mi_result[7], resultFile);
+    output_select_result(fs, "FCBF", mi_result[8], resultFile);
+
+    output_select_result(fs, "Least Square", regs_result[0], resultFile);
+    for(unsigned i=0; i<regs_score[0].size(); i++)
+        resultFile << regs_score[0][i] << endl;
+    output_select_result(fs, "Ridge", regs_result[1], resultFile);
+    for(unsigned i=0; i<regs_score[1].size(); i++)
+        resultFile << regs_score[1][i] << endl;
+    output_select_result(fs, "LASSO", regs_result[2], resultFile);
+    for(unsigned i=0; i<regs_score[2].size(); i++)
+        resultFile << regs_score[2][i] << endl;
+    output_select_result(fs, "Elastic net", regs_result[3], resultFile);
+    for(unsigned i=0; i<regs_score[3].size(); i++)
+        resultFile << regs_score[3][i] << endl;
 
     #ifdef FS_DEBUG
     // output targetColVec data to csv file
@@ -313,6 +302,11 @@ int main(int argc, char *argv[])
 
     // output discrete data to csv file
     ofstream disctFile(disctFileName.c_str());
+    for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
+        disctFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
+    }
+    disctFile << endl;
+
     for(unsigned i=0; i<discreteData.size(); i++){
         for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
             disctFile << discreteData[i][ftid];

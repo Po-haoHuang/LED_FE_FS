@@ -11,25 +11,21 @@
 
 using namespace std;
 
-FeatureSelection::FeatureSelection()
-{
-    //ctor
-}
-
 FeatureSelection::~FeatureSelection()
 {
     //dtor
 }
 
-bool FeatureSelection::init(string FE_fileName)
+FeatureSelection::FeatureSelection(string FE_fileName)
 {
+
     cout << "Loading file \"" << FE_fileName << "\": ";
 
     // open file
     ifstream inFile((FE_fileName).c_str(), ios::in);
     if(!inFile) {
         cout << "Error: Cannot open file." << endl;
-        return false;
+        valid_ = false;
     }
     cout << "Successful" << endl;
 
@@ -65,7 +61,7 @@ bool FeatureSelection::init(string FE_fileName)
     for(unsigned i=0; i<numOfFeatures(); i++){
         useFeatureId_.push_back(i);  // initialize: use all feature id
     }
-    return true;
+    valid_ = true;
 }
 
 void FeatureSelection::allSelectedData(vector<vector<double> > &s)
