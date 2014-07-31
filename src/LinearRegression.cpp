@@ -22,7 +22,7 @@ bool Linear_Regression::useLinearRegression(arma::mat& data,
 	lr = LinearRegression(data,responses,lambda);
 	vec tempPara = lr.Parameters();
 	tempPara.shed_row(0);//remove the B0 of linear regression(constant beta 0)
-	cof = conv_to< std::vector<double> >::from(sort(tempPara));
+	cof = conv_to< std::vector<double> >::from(sort(tempPara,"d"));
 	//sort the beta coefficient
 	uvec temp = sort_index(tempPara,"d");
 	#ifdef Detail_Output
