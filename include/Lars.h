@@ -18,7 +18,8 @@ public:
 							 arma::vec& responses,
 							 double lambda1,
 							 double lambda2,
-							 vector<int>& result);
+							 vector<int>& result,
+							 vector<double>& cof);
 private:
 
 

@@ -10,7 +10,8 @@ Linear_Regression::~Linear_Regression(){
 bool Linear_Regression::useLinearRegression(arma::mat& data,
 								  			arma::vec& responses,
 								  			double lambda,
-  						  					vector<int>& result){
+  						  					vector<int>& result,
+											vector<double>& cof){
 
 	//check if x , y matches
 	if (responses.n_elem != data.n_cols)
@@ -21,6 +22,7 @@ bool Linear_Regression::useLinearRegression(arma::mat& data,
 	lr = LinearRegression(data,responses,lambda);
 	vec tempPara = lr.Parameters();
 	tempPara.shed_row(0);//remove the B0 of linear regression(constant beta 0)
+	cof = conv_to< std::vector<double> >::from(tempPara);
 	//sort the beta coefficient
 	uvec temp = sort_index(tempPara,"d");
 	#ifdef Detail_Output

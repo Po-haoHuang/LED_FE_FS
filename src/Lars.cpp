@@ -10,7 +10,8 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 					   arma::vec& responses,
 					   double lambda1,
 					   double lambda2,
-					   vector<int>& result){
+					   vector<int>& result,
+					   vector<double>& cof){
 	vec beta;
 	// Make sure x , y matches
 	if (responses.n_elem != data.n_cols)
@@ -21,6 +22,8 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	and elastic net(lambda1 = 1 or 2 or 3 lambda2 =1 or 2 or 3)*/
 	LARS lars(false, lambda1, lambda2);
 	lars.Regress(data, responses, beta, true );
+	
+	cof = conv_to< std::vector<double> >::from(beta);
 	#ifdef Detail_Output
 	cout<<beta;
 	data::Save("LarsCof.csv",beta,true);
