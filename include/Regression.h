@@ -19,8 +19,8 @@ class Regression{
 		Regression();
 		virtual ~Regression();
 		bool init(vector<vector<double > > input,vector<double > response );
-		bool doLinearRegression(int lambda ,vector<int >& result);
-		bool doLarsRegression(int lambda1 ,int lambda2,vector<int >& result);
+		bool doLinearRegression(int lambda ,vector<int >& result, vector<double > &cof);
+		bool doLarsRegression(int lambda1 ,int lambda2,vector<int >& result,vector<double >& cof);
 		
 
 	private:

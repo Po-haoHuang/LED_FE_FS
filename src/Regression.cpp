@@ -35,12 +35,16 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 	return 0;
 	
 }
-bool Regression::doLinearRegression(int lambda,vector<int >& result){
+bool Regression::doLinearRegression(int lambda ,
+									vector<int >& result,
+									vector<double > &cof){
 	Linear_Regression lr;
-	lr.useLinearRegression(input_mod,response_mod,lambda,result);
+	lr.useLinearRegression(input_mod,response_mod,lambda,result,cof);
 }
 
-bool Regression::doLarsRegression(int lambda1 ,int lambda2,vector<int >& result){
+bool Regression::doLarsRegression(int lambda1 ,
+								int lambda2,vector<int >& result,
+								vector<double > &cof){
 	Lars_Regression lsr;
-	lsr.useLarsRegression(input_mod,response_mod,lambda1,lambda2,result);
+	lsr.useLarsRegression(input_mod,response_mod,lambda1,lambda2,result,cof);
 }

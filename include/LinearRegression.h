@@ -19,7 +19,8 @@ public:
 	bool useLinearRegression(arma::mat& data,
 							 arma::vec& responses,
 							 double lambda,
-							 vector<int>& result);
+							 vector<int>& result,
+							 vector<double>& cof);
 
 private:
 	// Regress.
