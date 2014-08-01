@@ -4,12 +4,14 @@
 #include <string>
 #include <vector>
 #include <ostream>
+#include <sstream>
 
 
 using std::string;
 using std::vector;
 using std::ostream;
 using std::ofstream;
+using std::stringstream;
 
 struct ScoreElem{
     double score;
@@ -22,15 +24,16 @@ struct ScoreElem{
 class FeatureSelection{
 public:
     // constructor
-    FeatureSelection();
+    FeatureSelection(string FE_fileName);
     virtual ~FeatureSelection();
-    bool init(string FE_fileName);
+    bool valid(){return valid_;}
 
     // data access
     vector<vector<double> > &allFeatureData(){return featureData;}
     void allSelectedData(vector<vector<double> > &storage);
     bool getAttrCol(string attrName, vector<double> &colVec);
     bool getAttrCol(unsigned attrId, vector<double> &colVec);
+    stringstream sout;
 
     // data info
     unsigned numOfFeatures(){return attrNameVec.size();}
@@ -68,6 +71,7 @@ public:
     void csvSplit(string s, const char delimiter, vector<string> &value);
 
 private:
+    bool valid_;
     vector<vector<double> > featureData;  // contains all feature data
     vector<int> useFeatureId_; // used
     vector<double> featureDataCycle;

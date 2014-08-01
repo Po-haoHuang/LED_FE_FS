@@ -95,7 +95,7 @@ bool FeatureSelection::disct_ew_cycle(vector<vector<double> >& discreteData, int
             cycleDiscreteData.clear();
         }
     }
-        // only output the selected features
+    // only output the selected features
     vector<vector<double> > selectedData;
     for(unsigned row=0; row<numOfSamples(); row++){
         vector<double> oneSample;
@@ -147,18 +147,36 @@ bool FeatureSelection::disct_col_manual(vector<double> &inFeatureData, vector<do
 
 void FeatureSelection::disct_col_ew_cycle(vector<double> &inFeatureData, vector<double> &outDisctData, int partitionNum)
 {
-    double attrMax = -DBL_MAX;
-    double attrMin = DBL_MAX;
+    vector<double> cycleFeatureData;
+    vector<double> cycleDiscreteData;
     for(unsigned i=0; i<inFeatureData.size(); i++){
-        if(inFeatureData[i] > attrMax)
-            attrMax = inFeatureData[i];
-        if(inFeatureData[i] < attrMin)
-            attrMin = inFeatureData[i];
+        cycleFeatureData.push_back(inFeatureData[i]);
+        // when reading last element or cycles not equal, it's the end of cycleDiscreteData
+        if(i==inFeatureData.size()-1 || featureDataCycle[i]!=featureDataCycle[i+1]){
+            double attrMax = -DBL_MAX;
+            double attrMin = DBL_MAX;
+            for(unsigned i=0; i<cycleFeatureData.size(); i++){
+                if(cycleFeatureData[i] > attrMax)
+                    attrMax = cycleFeatureData[i];
+                if(cycleFeatureData[i] < attrMin)
+                    attrMin = cycleFeatureData[i];
+            }
+            double interval = (attrMax - attrMin)/partitionNum;
+            vector<double> cutPoints;
+            sout << "cycle " << featureDataCycle[i] << " cut points:,";
+            for(int i=1; i<partitionNum; i++){
+                sout << attrMin + i*interval << ",";
+                cutPoints.push_back(attrMin + i*interval);
+            }
+            sout << endl;
+            vector<double> cycleDisctData;
+            disct_col_manual(cycleFeatureData, cycleDisctData, cutPoints);
+
+            for(unsigned ci=0; ci<cycleDisctData.size(); ci++){
+                outDisctData.push_back(cycleDisctData[ci]);
+            }
+            cycleFeatureData.clear();
+            cycleDiscreteData.clear();
+        }
     }
-    double interval = (attrMax - attrMin)/partitionNum;
-    vector<double> cutPoints;
-    for(int i=1; i<partitionNum; i++){
-        cutPoints.push_back(attrMin + i*interval);
-    }
-    disct_col_manual(inFeatureData, outDisctData, cutPoints);
 }
