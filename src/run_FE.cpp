@@ -250,6 +250,29 @@ void runFeatureExtraction(){
 				if( (k-1)!=0 && ((k-1)%100)==0 )
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
+			
+			//Computing non-segmented DP_filter
+			singleResult.clear();
+			singleResult.resize(featureNum);
+			
+			for(unsigned k = 0;k < fileNum;k++){
+				//Initialization for a new file
+				rowData = fileDataVector[k]->dataVector;
+				dataSize = fileDataVector[k]->dataVector.size();
+				temp.clear();
+				temp.resize(dataSize);
+
+				
+				for(unsigned i = 0;i < dataSize;i++)
+					temp[i] = rowData[i][0];
+	 			temp_array = &temp[0];
+				tempResult = FeatureExtraction(temp_array);
+				for(unsigned i = 0;i < featureNum;i++){
+					singleResult[i].push_back(tempResult[i]);
+				}
+			}
+
+			
 			cout<<"Computing done."<<endl;
 
 			cout<<"Output processing..."<<endl;
@@ -266,7 +289,9 @@ void runFeatureExtraction(){
 			FILE* fout1 = fopen(f1.c_str(),"w+");
 			FILE* fout2 = fopen(f2.c_str(),"w+");
 			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
-			for(unsigned j = 0;j < attrNum;j++){
+			for(int i = 0;i < featureNum;i++)
+				fprintf(fout1,"%s%s,",fileDataVector[0]->attrTypeVector[1].c_str(),featureName[i]);
+			for(unsigned j = 1;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
                     for(unsigned k = 0;k < segNum;k++){
 						fprintf(fout1,"%s%s%d_%s,",fileDataVector[0]->attrTypeVector[j+1].c_str(),"_Seg_",k,featureName[i]);
@@ -277,8 +302,13 @@ void runFeatureExtraction(){
 			for(unsigned k = 0;k < fileNum;k++){
 				fprintf(fout1,"%d,%d,%d,",fileDataVector[k]->id,
 				fileDataVector[k]->fid,fileDataVector[k]->nCycle);
+				
 				for(unsigned j = 0;j < attrNum;j++){
 					for(unsigned i = 0;i < featureNum;i++){
+						if(j == 0){
+							fprintf(fout1,"%lf,",singleResult[i][k]);
+							continue;
+						}
 						for(unsigned l = 0;l < segNum;l++)
 							fprintf(fout1,"%lf,",totalResult[k][l*featureNum+i][j]);
 					}
@@ -335,7 +365,7 @@ double *FeatureExtraction(double* cleanData){
 	f[4] = sqrt (gsl_stats_mean (tempData, 1, length));//rms
 	f[5] = gsl_stats_max (cleanData, 1, length);
 	f[6] = gsl_stats_min (cleanData, 1, length);
-	f[7] = f[7] - f[8];//range
+	f[7] = f[5] - f[6];//range
 	gsl_sort (cleanData, 1, length);//sort before iqr
 	//iqr
 	f[8] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
@@ -371,7 +401,7 @@ double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
 	f[4] = sqrt (gsl_stats_mean (tempData, 1, length));//rms
 	f[5] = gsl_stats_max (cleanData, 1, length);
 	f[6] = gsl_stats_min (cleanData, 1, length);
-	f[7] = f[7] - f[8];//range
+	f[7] = f[5] - f[6];//range
 	gsl_sort (cleanData, 1, length);//sort before iqr
 	//iqr
 	f[8] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
