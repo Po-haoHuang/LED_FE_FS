@@ -40,6 +40,14 @@ FeatureSelection::FeatureSelection(string FE_fileName)
     // read attribute name
     csvSplit(lineBuffer, ',', attrNameVec);
     attrNameVec.pop_back(); // remove redundant value
+    for(unsigned i=0; i<attrNameVec.size(); i++){
+        string attrName = attrNameVec[i];
+        string typeName = attrName.substr(0, attrName.rfind('_'));
+        if(find(typeNameVec.begin(), typeNameVec.end(), typeName) == typeNameVec.end()){
+            typeNameVec.push_back(typeName);
+            cout << "Identify type: " << typeName << endl;
+        }
+    }
 
     // read data by line
     featureData.reserve(1024);
@@ -63,6 +71,7 @@ FeatureSelection::FeatureSelection(string FE_fileName)
     }
     valid_ = true;
 }
+
 
 void FeatureSelection::allSelectedData(vector<vector<double> > &s)
 {
@@ -107,6 +116,14 @@ bool FeatureSelection::getAttrCol(unsigned attrId, vector<double> &colVec)
         return true;
     }
     return false;
+}
+
+string FeatureSelection::stringOut()
+{
+    string str = sout.str();
+    sout.str("");
+    sout.clear();
+    return str;
 }
 
 void FeatureSelection::csvSplit(string s, const char delimiter, vector<string> &value)
@@ -155,32 +172,114 @@ void FeatureSelection::excludeZeroColumn()
     useFeatureId_.swap(useFeatureIdReplace);
 }
 
-void FeatureSelection::score_and_rank(vector<vector<int> > &dataVec, ofstream &fout, string typeName)
+void FeatureSelection::score_and_rank_mi(vector<vector<int> > &mi_rank)
 {
     vector<ScoreElem> scoreVector(numOfFeatures(), ScoreElem());
-    for(unsigned i=0; i<dataVec.size(); i++){
-        for(unsigned curRank=0; curRank<dataVec[i].size(); curRank++){
-            int id = useFeatureId(dataVec[i][curRank]);
+    vector<ScoreElem> tScoreVector(numOfTypes(), ScoreElem());
+    for(unsigned i=0; i<mi_rank.size(); i++){
+        for(unsigned curRank=0; curRank<mi_rank[i].size(); curRank++){
+            int id = useFeatureId(mi_rank[i][curRank]);
             scoreVector[id].id = id;
-            scoreVector[id].score += numOfUsedFeatures()-curRank;
+            scoreVector[id].score += numOfUsedFeatures()-curRank;  // MI score
         }
     }
     sort(scoreVector.begin(), scoreVector.end());
     reverse(scoreVector.begin(), scoreVector.end());  // to descent order
 
     cout << fixed << setprecision(2);
-    cout << "Final score - " << typeName << ":" << endl;
-    fout << fixed << setprecision(2);
-    fout << "Final score - " << typeName << ":"  << endl;
+    cout << "Final score - MI:" << endl;
+    sout << fixed << setprecision(2);
+    sout << "Final score - MI:" << endl;
+    double totalScore = 0.0;
     for(unsigned i=0; i<scoreVector.size(); i++){
-        double relative_score = scoreVector[i].score/numOfUsedFeatures()/dataVec.size();
+        double relative_score = scoreVector[i].score/numOfUsedFeatures()/mi_rank.size();
         if(relative_score>0){
             cout << i+1 << ": " << relative_score*100 << "% ";
             cout << getAttrName(scoreVector[i].id) << endl;
-            fout << i+1 << "," << relative_score*100 << "%,";
-            fout << getAttrName(scoreVector[i].id) << endl;
+            sout << i+1 << "," << relative_score*100 << "%,";
+            sout << getAttrName(scoreVector[i].id) << endl;
+            // counting the portion of each type
+            for(unsigned ti=0; ti<typeNameVec.size(); ti++){
+                if(getAttrName(scoreVector[i].id).find(typeNameVec[ti])!=string::npos){
+                    tScoreVector[ti].id = ti;
+                    tScoreVector[ti].score += relative_score;
+                    totalScore += relative_score;
+                }
+            }
         }
     }
+
+    cout << endl << "Type Analysis - MI:" << endl;
+    sout << endl << "Type Analysis - MI:" << endl;
+    sort(tScoreVector.begin(), tScoreVector.end());
+    reverse(tScoreVector.begin(), tScoreVector.end());  // to descent order
+    for(unsigned i=0; i<tScoreVector.size(); i++){
+        double tScore = tScoreVector[i].score/totalScore;
+        if(tScore>0){
+            cout << i+1 << ": " << tScore*100 << "% ";
+            cout << typeNameVec[tScoreVector[i].id] << endl;
+            sout << i+1 << "," << tScore*100 << "%,";
+            sout << typeNameVec[tScoreVector[i].id] << endl;
+        }
+    }
+
     cout << endl;
-    fout << endl;
+    sout << endl;
+}
+
+void FeatureSelection::score_and_rank_regs(vector<vector<int> > &regs_rank, vector<vector<double> > &regs_scores, double threshold)
+{
+    vector<ScoreElem> scoreVector(numOfFeatures(), ScoreElem());
+    vector<ScoreElem> tScoreVector(numOfTypes(), ScoreElem());
+    for(unsigned i=0; i<regs_rank.size(); i++){
+        for(unsigned curRank=0; curRank<regs_rank[i].size(); curRank++){
+            if(regs_scores[i][curRank] > threshold){
+                int id = useFeatureId(regs_rank[i][curRank]);
+                scoreVector[id].id = id;
+                scoreVector[id].score += regs_scores[i][curRank];  // Regs score
+            }
+        }
+    }
+    sort(scoreVector.begin(), scoreVector.end());
+    reverse(scoreVector.begin(), scoreVector.end());  // convert to descent order
+
+    cout << fixed << setprecision(2);
+    cout << "Final score - Regression:" << endl;
+    sout << fixed << setprecision(2);
+    sout << "Final score - Regression:" << endl;
+    double totalScore = 0.0;
+    for(unsigned i=0; i<scoreVector.size(); i++){
+        double relative_score = scoreVector[i].score / scoreVector[0].score;
+        if(relative_score>0){
+            cout << i+1 << ": " << relative_score*100 << "% ";
+            cout << getAttrName(scoreVector[i].id) << endl;
+            sout << i+1 << "," << relative_score*100 << "%,";
+            sout << getAttrName(scoreVector[i].id) << endl;
+            // counting the portion of each type
+            for(unsigned ti=0; ti<typeNameVec.size(); ti++){
+                if(getAttrName(scoreVector[i].id).find(typeNameVec[ti])!=string::npos){
+                    tScoreVector[ti].id = ti;
+                    tScoreVector[ti].score += relative_score;
+                    totalScore += relative_score;
+                }
+            }
+        }
+    }
+
+    cout << endl << "Type Analysis - Regs:" << endl;
+    sout << endl << "Type Analysis - Regs:" << endl;
+    sort(tScoreVector.begin(), tScoreVector.end());
+    reverse(tScoreVector.begin(), tScoreVector.end());  // to descent order
+    for(unsigned i=0; i<tScoreVector.size(); i++){
+        double tScore = tScoreVector[i].score/totalScore;
+        if(tScore>0){
+            cout << i+1 << ": " << tScore*100 << "% ";
+            cout << typeNameVec[tScoreVector[i].id] << endl;
+            sout << i+1 << "," << tScore*100 << "%,";
+            sout << typeNameVec[tScoreVector[i].id] << endl;
+        }
+    }
+
+    cout << endl;
+    sout << endl;
 }

@@ -33,15 +33,16 @@ public:
     void allSelectedData(vector<vector<double> > &storage);
     bool getAttrCol(string attrName, vector<double> &colVec);
     bool getAttrCol(unsigned attrId, vector<double> &colVec);
-    stringstream sout;
 
     // data info
     unsigned numOfFeatures(){return attrNameVec.size();}
     unsigned numOfUsedFeatures(){return useFeatureId_.size();}
+    unsigned numOfTypes(){return typeNameVec.size();}
     unsigned numOfSamples(){return featureData.size();}
     int attrId(string attrName);
     int useFeatureId(int i){return useFeatureId_[i];}
     string getAttrName(int attrId){return attrNameVec[attrId];}
+    string stringOut();
 
     // feature excluding
     void excludeAttr(string attrName);
@@ -65,17 +66,21 @@ public:
     void FCBF(int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double threshold, vector<int> &outputId);
 
     // score and rank
-    void score_and_rank(vector<vector<int> > &dataVec, ofstream &fout, string typeName);
+    void score_and_rank_mi(vector<vector<int> > &mi_rank);
+    void score_and_rank_regs(vector<vector<int> > &regs_rank, vector<vector<double> > &regs_scores, double threshold);
 
     // CSV parser
     void csvSplit(string s, const char delimiter, vector<string> &value);
 
 private:
     bool valid_;
+    stringstream sout;
     vector<vector<double> > featureData;  // contains all feature data
     vector<int> useFeatureId_; // used
     vector<double> featureDataCycle;
     vector<string> attrNameVec;
+    vector<string> typeNameVec;
+
     double chi2f(vector<double> &feature, vector<double> &label);  // for CHI
     double SU(double *dataVector1, double *dataVector2, int vectorLength);  // for FCBF
 };
