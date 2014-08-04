@@ -65,8 +65,14 @@ int main(int argc, char *argv[]){
 	cycleListFileName = argv[1];
 	dataDir = argv[2];
 	//Set cycle range
+	if(atoi(argv[3])!='\0')
 	cycleBegin = atoi(argv[3]);
+	else
+	cerr << "Cyclr brgin number error!";
+	if(atoi(argv[4])!='\0')
 	cycleEnd = atoi(argv[4]);
+	else
+	cerr << "Cycle end number error!";
 	//set Segmentation number 
 	segNum = atoi(argv[5]);
 	if (segNum == 1)
@@ -279,7 +285,7 @@ void runFeatureExtraction(){
 			FILE* fout2 = fopen(f2.c_str(),"w+");
 			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(int i = 0;i < featureNum;i++)
-				fprintf(fout1,"%s%s,",fileDataVector[0]->attrTypeVector[1].c_str(),featureName[i]);
+				fprintf(fout1,"%s_%s,",fileDataVector[0]->attrTypeVector[1].c_str(),featureName[i]);
 			for(unsigned j = 1;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
                     for(unsigned k = 0;k < segNum;k++){
