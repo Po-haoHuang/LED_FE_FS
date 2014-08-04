@@ -21,6 +21,7 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	/*usage of LARS: Lasso regression(lambda1 = 1 or 2 or 3 lambda2 =0)
 	and elastic net(lambda1 = 1 or 2 or 3 lambda2 =1 or 2 or 3)*/
 	LARS lars(false, lambda1, lambda2);
+	//Construct LARS model
 	lars.Regress(data, responses, beta, true );
 	
 	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));
@@ -30,7 +31,7 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	#endif
 	//sort the beta coefficient
 	uvec temp = sort_index(beta,"d");
-	for(int i = 0;i < data.n_rows ;i++)
+	for(unsigned i = 0;i < data.n_rows ;i++)
 		result.push_back(temp[i]);
 		
 	return 0;

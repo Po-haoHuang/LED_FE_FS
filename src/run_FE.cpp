@@ -36,16 +36,12 @@ double *FeatureExtraction(unsigned chunkSize,double* cleanData);
 
 
 //Feature_name list
-/*const char featureName[][30] ={"peak(not implement)","peak(not implement)",
-"mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};*/
 const char featureName[][30] ={"mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};
 
 //type for segmentation 1:no segmentation  2:segmentation
 typedef enum {disable, enable}segmentPara;
 segmentPara seg = disable;
 
-//ParaFeatureNameSet
-vector<vector<vector<string> > > ParaFeatureNameSet;
 
 int main(int argc, char *argv[]){
 	string cycleListFileName,dataDir;
@@ -100,7 +96,6 @@ int main(int argc, char *argv[]){
     }
 
     // get all file data
-
     bool getAllFileSuccessful = db.getAllFileDataPtr(fileDataVector);
 
     if(getAllFileSuccessful){
@@ -140,7 +135,6 @@ void runFeatureExtraction(){
 			totalResult.clear();
 			singleResult.resize(featureNum);
 			FILE* fout = fopen("Output_noSeg.csv","w+");
-
 			
 			/*Call FE by file,attribute and data size
 			EX: calculate 12 features of first attribute of first file
@@ -170,7 +164,6 @@ void runFeatureExtraction(){
 					cout<<"Computing "<<k<<" files."<<endl;
 			}
 			cout<<"Computing done."<<endl;
-
 			cout<<"Output processing..."<<endl;
 			//output
 			fprintf(fout,"%s,%s,%s,","Id","Original_ID","Cycle");
@@ -269,10 +262,8 @@ void runFeatureExtraction(){
 					singleResult[i].push_back(tempResult[i]);
 				}
 			}
-
 			
 			cout<<"Computing done."<<endl;
-
 			cout<<"Output processing..."<<endl;
 			
 			//output
@@ -338,15 +329,12 @@ void runFeatureExtraction(){
 			cout<<"Output done."<<endl;
 		}
 			break;
-		
 	}
-
 }
 
 double *FeatureExtraction(unsigned chunkSize,double* cleanData){
 	
 	unsigned length = chunkSize;
-
 	static double f[featureNum];
 	double tempData[chunkSize];
 	
@@ -374,7 +362,6 @@ double *FeatureExtraction(unsigned chunkSize,double* cleanData){
 		if(isnan(f[i]))
 			f[i] = 0;
 	}
-
 	return f;
 	
 }

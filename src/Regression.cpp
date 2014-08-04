@@ -16,14 +16,14 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 	//and initialize a mat, reshape to 2-D
 	vector<double> temp;
 	temp.reserve(input.size()*input[0].size());
-	for(int i = 0;i < input.size();i++)
+	for(unsigned i = 0;i < input.size();i++)
 		temp.insert(temp.end(), input[i].begin(), input[i].end());
 	input_mod = mat(temp);
 	input_mod.reshape(input[0].size(),input.size());
 	//normalization
 	response_mod -= mean(response_mod);
 	response_mod /= stddev(response_mod);
-	for(int i = 0;i < input_mod.n_rows;i++){
+	for(unsigned i = 0;i < input_mod.n_rows;i++){
 		input_mod.row(i) -= mean(input_mod.row(i));
 		input_mod.row(i) /= stddev(input_mod.row(i));
 	}
