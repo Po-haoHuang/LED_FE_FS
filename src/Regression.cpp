@@ -29,7 +29,7 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 	}
 	#ifdef Output_Normalize
 	data::Save("ouputnormal.csv",input_mod,true);
-	data::Save("ouputnormalres.csv",response_mod,true);
+	data::Save("ouputnormalres.csv",response_mod,true,false);
 	#endif
 
 	return 0;
