@@ -30,11 +30,9 @@ using namespace std;
 
 //Function declaration
 //For FE
-double *FeatureExtraction(double* cleanData);
 void runFeatureExtraction();
-void GenParaFeatureNameSet();
-double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData);
-void GenParaFeatureNameSet_seg();
+double *FeatureExtraction(unsigned chunkSize,double* cleanData);
+
 
 
 //Feature_name list
@@ -162,7 +160,7 @@ void runFeatureExtraction(){
 					for(unsigned i = 0;i < dataSize;i++)
 						temp[i] = rowData[i][j];
 	 				temp_array = &temp[0];
-					tempResult = FeatureExtraction(temp_array);
+					tempResult = FeatureExtraction(dataSize,temp_array);
 					for(unsigned i = 0;i < featureNum;i++){
 						singleResult[i].push_back(tempResult[i]);
 					}
@@ -239,7 +237,7 @@ void runFeatureExtraction(){
 						}
 
 						temp_array = &temp[0];
-						tempResult = FeatureExtraction_seg(tempSize,temp_array);
+						tempResult = FeatureExtraction(tempSize,temp_array);
 
 						for(unsigned i = 0+l*featureNum;i < 0+l*featureNum+featureNum;i++){
 							singleResult[i].push_back(tempResult[i-l*featureNum]);
@@ -266,7 +264,7 @@ void runFeatureExtraction(){
 				for(unsigned i = 0;i < dataSize;i++)
 					temp[i] = rowData[i][0];
 	 			temp_array = &temp[0];
-				tempResult = FeatureExtraction(temp_array);
+				tempResult = FeatureExtraction(dataSize,temp_array);
 				for(unsigned i = 0;i < featureNum;i++){
 					singleResult[i].push_back(tempResult[i]);
 				}
@@ -345,43 +343,7 @@ void runFeatureExtraction(){
 
 }
 
-double *FeatureExtraction(double* cleanData){
-	
-	unsigned length = dataSize;
-
-	static double f[featureNum];
-	double tempData[dataSize];
-	
-	
-	//tempData = cleanData^2;
-	for(unsigned i = 0;i < length;i++)
-		tempData[i] = pow(cleanData[i], 2);
-
-	//three para for gsl func (data_array,element size(#double),#elements)	
-	f[0] = gsl_stats_mean (cleanData, 1, length);
-	f[1] = gsl_stats_variance (cleanData, 1, length);
-	f[2] = gsl_stats_skew (cleanData, 1, length);
-	f[3] = gsl_stats_kurtosis (cleanData, 1, length);
-	f[4] = sqrt (gsl_stats_mean (tempData, 1, length));//rms
-	f[5] = gsl_stats_max (cleanData, 1, length);
-	f[6] = gsl_stats_min (cleanData, 1, length);
-	f[7] = f[5] - f[6];//range
-	gsl_sort (cleanData, 1, length);//sort before iqr
-	//iqr
-	f[8] = gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.75)
-			- gsl_stats_quantile_from_sorted_data (cleanData,1, length, 0.25);
-	f[9] = gsl_stats_sd (cleanData, 1, length);//std
-	for(unsigned i = 0;i < featureNum;i++){//set 0 if nan
-		if(isnan(f[i]))
-			f[i] = 0;
-	}
-	return f;
-	
-	
-}
-
-
-double *FeatureExtraction_seg(unsigned chunkSize,double* cleanData){
+double *FeatureExtraction(unsigned chunkSize,double* cleanData){
 	
 	unsigned length = chunkSize;
 
