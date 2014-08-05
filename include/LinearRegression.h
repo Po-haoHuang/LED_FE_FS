@@ -21,7 +21,6 @@ public:
 							 double lambda,
 							 vector<int>& result,
 							 vector<double>& cof);
-
 private:
 	// Regress.
 	LinearRegression lr;

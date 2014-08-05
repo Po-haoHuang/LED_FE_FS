@@ -40,6 +40,7 @@ bool Regression::doLinearRegression(int lambda ,
 									vector<double > &cof){
 	Linear_Regression lr;
 	lr.useLinearRegression(input_mod,response_mod,lambda,result,cof);
+	return 0;
 }
 
 bool Regression::doLarsRegression(int lambda1 ,
@@ -47,4 +48,5 @@ bool Regression::doLarsRegression(int lambda1 ,
 								vector<double > &cof){
 	Lars_Regression lsr;
 	lsr.useLarsRegression(input_mod,response_mod,lambda1,lambda2,result,cof);
+	return 0;
 }

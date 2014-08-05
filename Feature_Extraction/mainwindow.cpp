@@ -30,6 +30,7 @@ void MainWindow::on_pushButton_clicked()
 }
 
 void MainWindow::open_dialog(){
+    //when click start ,run no_gui app and show success/fail
     Dialog d;
     string temp,temp1;
     string exe_command = "FE_no_GUI.exe ";
@@ -64,7 +65,7 @@ void MainWindow::open_dialog(){
 
 void MainWindow::on_pushButton_2_clicked()
 {
-
+    //when clicked get input file dir from file dialog
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
                                                              ""
                                                              ,tr("CSV (*.csv)"));
@@ -74,7 +75,7 @@ void MainWindow::on_pushButton_2_clicked()
 
 void MainWindow::on_pushButton_3_clicked()
 {
-
+    //when clicked get input file dir from file dialog
     QString path = QFileDialog::getExistingDirectory (this, tr("Directory"), "");
     path.toLocal8Bit().constData();
     ui->label_7->setText(path);

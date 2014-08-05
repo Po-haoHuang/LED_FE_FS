@@ -21,7 +21,5 @@ public:
 							 vector<int>& result,
 							 vector<double>& cof);
 private:
-
-
 };
 #endif// LR

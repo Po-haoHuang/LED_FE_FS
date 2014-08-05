@@ -24,13 +24,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_2_clicked()
 {
-
+    //when clicked get input file dir from file dialog
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
                                                              ""
                                                              ,tr("CSV (*.csv)"));
     ui->label_5->setText(fileName);
+    //read from file to add variable option in combo box to be selected
     string tempAttr,tempName;
-
     ifstream is;
     filebuf *fb = is.rdbuf();
     fb->open (fileName.toLocal8Bit().constData(),ios::in);
@@ -56,6 +56,7 @@ void MainWindow::on_pushButton_clicked()
 }
 
 void MainWindow::open_dialog(){
+    //when click start ,run no_gui app and show success/fail
     Dialog d;
     string temp,temp1;
     string exe_command = "FS_no_gui.exe \"";
@@ -103,5 +104,4 @@ void MainWindow::on_comboBox_2_activated(const QString &arg1)
     else {
         ui->label_12->setText(QApplication::translate("comboBox_2","ew_cycle number:", 0));
     }
-
 }

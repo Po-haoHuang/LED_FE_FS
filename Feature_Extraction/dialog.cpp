@@ -13,7 +13,7 @@ Dialog::~Dialog()
 {
     delete ui;
 }
-
+//change label of dialog fail or success
 void Dialog::changeLabel(QString q){
     ui->label->setText(q);
 }
