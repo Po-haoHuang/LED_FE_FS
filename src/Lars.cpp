@@ -25,10 +25,6 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	lars.Regress(data, responses, beta, true );
 	
 	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));
-	#ifdef Detail_Output
-	cout<<beta;
-	data::Save("LarsCof.csv",beta,true);
-	#endif
 	//sort the beta coefficient
 	uvec temp = sort_index(beta,"d");
 	for(unsigned i = 0;i < data.n_rows ;i++)

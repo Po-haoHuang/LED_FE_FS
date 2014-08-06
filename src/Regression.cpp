@@ -37,12 +37,6 @@ bool Regression::init(vector<vector<double > > input,
 		temp = conv_to< std::vector<double> >::from(input_mod.row(i));
 		normal.push_back(temp);
 	}
-	
-	#ifdef Output_Normalize
-	data::Save("ouputnormal.csv",input_mod,true);
-	data::Save("ouputnormalres.csv",response_mod,true,false);
-	#endif
-
 	return 0;
 	
 }
