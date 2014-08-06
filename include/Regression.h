@@ -18,11 +18,16 @@ class Regression{
 	public:
 		Regression();
 		virtual ~Regression();
-		bool init(vector<vector<double > > input,vector<double > response );
-		bool doLinearRegression(int lambda ,vector<int >& result, vector<double > &cof);
-		bool doLarsRegression(int lambda1 ,int lambda2,vector<int >& result,vector<double >& cof);
-		
-
+		bool init(vector<vector<double > > input,
+				  vector<double > response,
+				  vector<vector<double > >& normal);
+		bool doLinearRegression(int lambda ,
+								vector<int >& result,
+								vector<double > &cof);
+		bool doLarsRegression(int lambda1,
+							  int lambda2,
+							  vector<int >& result,
+							  vector<double >& cof);
 	private:
 		mat input_mod;
 		vec response_mod;

@@ -8,7 +8,9 @@ Regression::Regression(){
 Regression::~Regression(){
 	
 }
-bool Regression::init(vector<vector<double > > input,vector<double > response ){
+bool Regression::init(vector<vector<double > > input,
+					  vector<double > response,
+					  vector<vector<double > >& normal){
 
 	//convert vector to vec
 	response_mod = vec(response);
@@ -27,6 +29,15 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 		input_mod.row(i) -= mean(input_mod.row(i));
 		input_mod.row(i) /= stddev(input_mod.row(i));
 	}
+	temp.clear();
+	temp = conv_to< std::vector<double> >::from(response_mod);
+	normal.push_back(temp);
+	for(unsigned i = 0;i < input_mod.n_rows;i++){
+		temp.clear();
+		temp = conv_to< std::vector<double> >::from(input_mod.row(i));
+		normal.push_back(temp);
+	}
+	
 	#ifdef Output_Normalize
 	data::Save("ouputnormal.csv",input_mod,true);
 	data::Save("ouputnormalres.csv",response_mod,true,false);
@@ -35,18 +46,22 @@ bool Regression::init(vector<vector<double > > input,vector<double > response ){
 	return 0;
 	
 }
-bool Regression::doLinearRegression(int lambda ,
-									vector<int >& result,
-									vector<double > &cof){
-	Linear_Regression lr;
-	lr.useLinearRegression(input_mod,response_mod,lambda,result,cof);
-	return 0;
-}
+bool Regression::doLinearRegression(int lambda,
+						vector<int >& result,
+						vector<double > &cof){
+							Linear_Regression lr;
+							lr.useLinearRegression(input_mod,response_mod,lambda,result,cof);
+							return 0;
+							
+						}
+						
+bool Regression::doLarsRegression(int lambda1,
+					  			  int lambda2,
+								  vector<int >& result,
+					  			  vector<double >& cof){
+						Lars_Regression lsr;
+						lsr.useLarsRegression(input_mod,response_mod,lambda1,lambda2,result,cof);
+						return 0;
+					  	
+					  }
 
-bool Regression::doLarsRegression(int lambda1 ,
-								int lambda2,vector<int >& result,
-								vector<double > &cof){
-	Lars_Regression lsr;
-	lsr.useLarsRegression(input_mod,response_mod,lambda1,lambda2,result,cof);
-	return 0;
-}
