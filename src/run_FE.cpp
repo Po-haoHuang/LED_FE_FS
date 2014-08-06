@@ -67,12 +67,18 @@ int main(int argc, char *argv[]){
 	//Set cycle range
 	if(atoi(argv[3])!='\0')
 	cycleBegin = atoi(argv[3]);
-	else
+	else{
 	cerr << "Cyclr brgin number error!";
+	system("pause");
+	return 1;
+	}
 	if(atoi(argv[4])!='\0')
 	cycleEnd = atoi(argv[4]);
-	else
+	else{
 	cerr << "Cycle end number error!";
+	system("pause");
+	return 1;
+	}
 	//set Segmentation number 
 	segNum = atoi(argv[5]);
 	if (segNum == 1)
@@ -88,7 +94,7 @@ int main(int argc, char *argv[]){
     db.init(dataDir, cycleListFileName);   // use filtered files directory as working directory
 
     if(!db.valid()){
-        cout << "Database initializing failed." << endl;
+        cerr << "Database initializing failed." << endl;
         system("pause");
         return 1;
     }
@@ -96,7 +102,7 @@ int main(int argc, char *argv[]){
     bool extractSuccess = db.extract(cycleBegin, cycleEnd); // start extracting file data
 
     if(!extractSuccess){
-        cout << "Extracting failed." << endl;
+        cerr << "Extracting failed." << endl;
         system("pause");
         return 1;
     }
@@ -108,7 +114,7 @@ int main(int argc, char *argv[]){
         cout << endl << "There are " << fileDataVector.size() << " files extracted:";
 
     }else{
-        cout << "No file extracted." << endl;
+        cerr << "No file extracted." << endl;
         system("pause");
 		return 1;
     }
