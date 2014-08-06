@@ -66,8 +66,8 @@ public:
     void FCBF(int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, double threshold, vector<int> &outputId);
 
     // score and rank
-    void score_and_rank_mi(vector<vector<int> > &mi_rank);
-    void score_and_rank_regs(vector<vector<int> > &regs_rank, vector<vector<double> > &regs_scores, double threshold);
+    void score_and_rank_mi(vector<vector<int> > &mi_rank, unsigned print_n, ostream &fout);
+    void score_and_rank_regs(vector<vector<int> > &regs_rank, vector<vector<double> > &regs_coeff, double threshold, unsigned print_n, ostream &fout);
 
     // CSV parser
     void csvSplit(string s, const char delimiter, vector<string> &value);

@@ -14,7 +14,9 @@ bool FeatureSelection::disct_ew(vector<vector<double> >& discreteData, int parti
     vector<vector<double> > *inFeatureDataPtr;
     if(inDataPtr==NULL){
         inFeatureDataPtr = &(this->featureData);
+        #ifdef DEBUG_INFO
         cout << "Start disct_ew ... ";
+        #endif
     }else{
         inFeatureDataPtr = inDataPtr;
     }
@@ -25,7 +27,9 @@ bool FeatureSelection::disct_ew(vector<vector<double> >& discreteData, int parti
         for(unsigned i=0; i<inFeatureData.size(); i++){
             discreteData.push_back(dataLine);
         }
+        #ifdef DEBUG_INFO
         cout << "done." << endl;
+        #endif
         return true;
     }
 
@@ -72,21 +76,27 @@ bool FeatureSelection::disct_ew(vector<vector<double> >& discreteData, int parti
             selectedData.push_back(oneSample);
         }
         selectedData.swap(discreteData);
+        #ifdef DEBUG_INFO
         cout << "done." << endl;
+        #endif
     }
     return true;
 }
 
 bool FeatureSelection::disct_ew_cycle(vector<vector<double> >& discreteData, int partitionNum)
 {
+    #ifdef DEBUG_INFO
     cout << "Start cycle_disct_ew ... containing cycle: ";
+    #endif
     vector<vector<double> > cycleFeatureData;
     vector<vector<double> > cycleDiscreteData;
     for(unsigned i=0; i<featureData.size(); i++){
         cycleFeatureData.push_back(featureData[i]);
         // when reading last element or cycles not equal, it's the end of cycleDiscreteData
         if(i==featureData.size()-1 || featureDataCycle[i]!=featureDataCycle[i+1]){
+            #ifdef DEBUG_INFO
             cout << featureDataCycle[i] << " ";
+            #endif
             disct_ew(cycleDiscreteData, partitionNum, &cycleFeatureData);
             for(unsigned ci=0; ci<cycleDiscreteData.size(); ci++){
                 discreteData.push_back(cycleDiscreteData[ci]);
@@ -105,7 +115,9 @@ bool FeatureSelection::disct_ew_cycle(vector<vector<double> >& discreteData, int
         selectedData.push_back(oneSample);
     }
     selectedData.swap(discreteData);
+    #ifdef DEBUG_INFO
     cout << "done." << endl;
+    #endif
     return true;
 }
 

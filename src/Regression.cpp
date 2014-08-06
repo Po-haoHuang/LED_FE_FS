@@ -2,11 +2,11 @@
 #include"../include/LinearRegression.h"
 #include"../include/Lars.h"
 Regression::Regression(){
-	
+
 }
 
 Regression::~Regression(){
-	
+
 }
 bool Regression::init(vector<vector<double > > input,
 					  vector<double > response,
@@ -37,14 +37,9 @@ bool Regression::init(vector<vector<double > > input,
 		temp = conv_to< std::vector<double> >::from(input_mod.row(i));
 		normal.push_back(temp);
 	}
-	
-	#ifdef Output_Normalize
-	data::Save("ouputnormal.csv",input_mod,true);
-	data::Save("ouputnormalres.csv",response_mod,true,false);
-	#endif
 
 	return 0;
-	
+
 }
 bool Regression::doLinearRegression(int lambda,
 						vector<int >& result,
@@ -52,9 +47,9 @@ bool Regression::doLinearRegression(int lambda,
 							Linear_Regression lr;
 							lr.useLinearRegression(input_mod,response_mod,lambda,result,cof);
 							return 0;
-							
+
 						}
-						
+
 bool Regression::doLarsRegression(int lambda1,
 					  			  int lambda2,
 								  vector<int >& result,
@@ -62,6 +57,6 @@ bool Regression::doLarsRegression(int lambda1,
 						Lars_Regression lsr;
 						lsr.useLarsRegression(input_mod,response_mod,lambda1,lambda2,result,cof);
 						return 0;
-					  	
+
 					  }
 
