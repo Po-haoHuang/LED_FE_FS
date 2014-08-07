@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
     const string featureDataSetFileName = argv[1];
     const string targetColName = argv[2];
     const unsigned print_n = atoi(argv[9]);
+    const bool disctByCycle = atoi(argv[10]);
     const int top_k = atoi(argv[11]);
 
     // set cut points (defined in the head of file)
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
     ofstream resultFile(resultFileName.c_str());
 
     // log the parameters
-    resultFile << "Feature Selection Result - ver. 2014.08.06" << endl;
+    resultFile << "Feature Selection Result - ver. 2014.08.07" << endl;
     resultFile << "Use file:," << featureDataSetFileName << endl;
     resultFile << "target:," << targetColName << endl;
     resultFile << "target discretize method:," << argv[3] << endl;
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
     resultFile << "ELS lambda 1:," << argv[7] << endl;
     resultFile << "ELS lambda 2:," << argv[8] << endl;
     resultFile << "print_n:," << argv[9] << endl;
-    resultFile << "score method:," << argv[10] << endl;
+    resultFile << "discretize by cycle:," << argv[10] << endl;
     resultFile << "top_k:," << argv[11] << endl;
     resultFile << endl;
 
@@ -114,6 +115,8 @@ int main(int argc, char *argv[])
 
     // exclude some attributes
     fs.excludeAttr("dP_Filter");
+    fs.excludeAttr("C5");
+    fs.excludeAttr("C6");
     //fs.excludeAttr("std");
     //fs.excludeAttr("skewness");
     //fs.excludeAttr("kurtosis");
@@ -128,8 +131,11 @@ int main(int argc, char *argv[])
 
     // EW_discrete for discreteData
     vector<vector<double> > discreteData;
-    //fs.disct_ew(discreteData,partitionNum);
-    fs.disct_ew_cycle(discreteData,partitionNum);
+
+    if(disctByCycle)
+        fs.disct_ew(discreteData,partitionNum);
+    else
+        fs.disct_ew_cycle(discreteData,partitionNum);
 
     // choose target column (dp_filter_max)
     vector<double> targetColVec;
@@ -273,12 +279,12 @@ int main(int argc, char *argv[])
     // output normalized data to csv file
     ofstream normFile(normDataFileName.c_str());
     normFile << "id,";
-    normFile << targetColName << ",";  // feature title
+    normFile << targetColName << ",";  // print feature title
     for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
         normFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
     }
     normFile << endl;
-    for(unsigned i=0; i<normalizedColVec.front().size(); i++){  // value
+    for(unsigned i=0; i<normalizedColVec.front().size(); i++){  // print value
         normFile << i+1 << ",";
         for(unsigned j=0; j<normalizedColVec.size(); j++){
             normFile << normalizedColVec[j][i] << ",";

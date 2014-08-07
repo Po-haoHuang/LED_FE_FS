@@ -217,7 +217,7 @@ void FeatureSelection::score_and_rank_mi(vector<vector<int> > &mi_rank, unsigned
     reverse(tScoreVector.begin(), tScoreVector.end());  // to descent order
     for(unsigned i=0; i<tScoreVector.size(); i++){
         double tScore = tScoreVector[i].score/totalScore;
-        if(printCnt++ < print_n){
+        if(printCnt++ < print_n  && tScore>0){
             cout << i+1 << ": " << tScore*100 << "% ";
             cout << typeNameVec[tScoreVector[i].id] << endl;
             fout << i+1 << "," << tScore*100 << "%,";
@@ -279,7 +279,7 @@ void FeatureSelection::score_and_rank_regs(vector<vector<int> > &regs_rank, vect
     reverse(tScoreVector.begin(), tScoreVector.end());  // to descent order
     for(unsigned i=0; i<tScoreVector.size(); i++){
         double tScore = tScoreVector[i].score/totalScore;
-        if(printCnt++ < print_n){
+        if(printCnt++ < print_n && tScore>0){
             cout << i+1 << ": " << tScore*100 << "% ";
             cout << typeNameVec[tScoreVector[i].id] << endl;
             fout << i+1 << "," << tScore*100 << "%,";
