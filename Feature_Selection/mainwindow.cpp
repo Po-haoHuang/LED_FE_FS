@@ -39,12 +39,14 @@ void MainWindow::on_FS_ChooseFile_clicked()
     getline(temp,tempName, ',');
     getline(temp,tempName, ',');
     getline(temp,tempName, ',');
-    for(int i = 0;i < 84; i++){
+    ui->FS_FeaturnameBox->clear();
+    while(1){
         getline(temp,tempName, ',');
         if(tempName.c_str()==NULL||tempName=="")
             break;
         ui->FS_FeaturnameBox->addItem(QApplication::translate("FS_FeaturnameBox",tempName.c_str(), 0));
     }
+    fb->close();
 
 }
 
@@ -64,7 +66,7 @@ void MainWindow::open_dialog(){
     exe_command += "\" \"";
     exe_command += ui->FS_FeaturnameBox->currentText().toLocal8Bit().constData();
     exe_command += "\" ";
-    exe_command += ui->lineEdit->text().toLocal8Bit().constData();
+    exe_command += ui->comboBox_6->currentText().toLocal8Bit().constData();
     exe_command += " ";
     if(ui->FS_DMethodBox->currentText().toLocal8Bit() == "Equal Width(Cycle)"){
         exe_command += "\"ew_cycle=";

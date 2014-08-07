@@ -148,21 +148,11 @@
      </property>
     </item>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>180</y>
-      <width>113</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>170</y>
+      <x>760</x>
+      <y>230</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -178,13 +168,13 @@
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>210</y>
+      <y>230</y>
       <width>111</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lasso λ:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Lasso (λ):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -194,13 +184,13 @@
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>250</y>
+      <y>270</y>
       <width>121</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elastic Net λ&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elastic Net (λ&lt;span style=&quot; vertical-align:sub;&quot;&gt;1&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -210,13 +200,13 @@
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>290</y>
+      <y>310</y>
       <width>121</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elastic Net λ&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Elastic Net (λ&lt;span style=&quot; vertical-align:sub;&quot;&gt;2&lt;/span&gt;):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -226,7 +216,7 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>310</y>
+      <y>330</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -276,14 +266,14 @@
    <widget class="QLabel" name="label_13">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>170</y>
+      <x>520</x>
+      <y>190</y>
       <width>111</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ridge λ:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Ridge (λ):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -293,7 +283,7 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>220</y>
+      <y>200</y>
       <width>113</width>
       <height>22</height>
      </rect>
@@ -303,7 +293,7 @@
     <property name="geometry">
      <rect>
       <x>760</x>
-      <y>210</y>
+      <y>190</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -644,8 +634,8 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>220</y>
-      <width>41</width>
+      <y>200</y>
+      <width>51</width>
       <height>22</height>
      </rect>
     </property>
@@ -669,8 +659,8 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>260</y>
-      <width>41</width>
+      <y>240</y>
+      <width>51</width>
       <height>22</height>
      </rect>
     </property>
@@ -694,8 +684,8 @@
     <property name="geometry">
      <rect>
       <x>640</x>
-      <y>300</y>
-      <width>41</width>
+      <y>280</y>
+      <width>51</width>
       <height>22</height>
      </rect>
     </property>
@@ -718,9 +708,9 @@
    <widget class="QComboBox" name="comboBox_4">
     <property name="geometry">
      <rect>
-      <x>840</x>
-      <y>180</y>
-      <width>41</width>
+      <x>640</x>
+      <y>320</y>
+      <width>51</width>
       <height>22</height>
      </rect>
     </property>
@@ -740,6 +730,208 @@
      </property>
     </item>
    </widget>
+   <widget class="QComboBox" name="comboBox_6">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>240</y>
+      <width>51</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <item>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>11</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>12</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>13</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>14</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>15</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>270</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scoring Method:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_7">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>280</y>
+      <width>101</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <item>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>490</x>
+      <y>160</y>
+      <width>501</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_20">
+    <property name="geometry">
+     <rect>
+      <x>520</x>
+      <y>160</y>
+      <width>131</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selection Parameters:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
    <zorder>FS_inputLable</zorder>
    <zorder>FS_InputFileLabel</zorder>
    <zorder>FS_ChooseFile</zorder>
@@ -747,7 +939,6 @@
    <zorder>label_6</zorder>
    <zorder>label_7</zorder>
    <zorder>FS_DMethodBox</zorder>
-   <zorder>lineEdit</zorder>
    <zorder>label_8</zorder>
    <zorder>label_9</zorder>
    <zorder>label_10</zorder>
@@ -775,6 +966,11 @@
    <zorder>comboBox_3</zorder>
    <zorder>comboBox_4</zorder>
    <zorder>lineEdit_5</zorder>
+   <zorder>comboBox_6</zorder>
+   <zorder>label_17</zorder>
+   <zorder>comboBox_7</zorder>
+   <zorder>line_2</zorder>
+   <zorder>label_20</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
