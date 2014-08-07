@@ -23,12 +23,12 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	LARS lars(false, lambda1, lambda2);
 	//Construct LARS model
 	lars.Regress(data, responses, beta, true );
-	
+
 	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));
 	//sort the beta coefficient
 	uvec temp = sort_index(beta,"d");
 	for(unsigned i = 0;i < data.n_rows ;i++)
 		result.push_back(temp[i]);
-		
+
 	return 0;
 }
