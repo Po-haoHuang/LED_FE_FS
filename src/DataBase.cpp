@@ -263,7 +263,7 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
     vector<double> lineValue;
     while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)){
         char *firstComma = strstr(lineBuffer, ",");
-        fileData.timeStamp.push_back(string(lineBuffer, firstComma-lineBuffer));
+        //fileData.timeStamp.push_back(string(lineBuffer, firstComma-lineBuffer));
         lineValue.clear();
         csvValueSplit(string(firstComma+1), ',', lineValue);
         fileData.dataVector.push_back(lineValue);
