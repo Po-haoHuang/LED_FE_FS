@@ -66,8 +66,7 @@ void MainWindow::open_dialog(){
     exe_command += "\" \"";
     exe_command += ui->FS_FeaturnameBox->currentText().toLocal8Bit().constData();
     exe_command += "\" ";
-    exe_command += ui->comboBox_6->currentText().toLocal8Bit().constData();
-    exe_command += " ";
+
     if(ui->FS_DMethodBox->currentText().toLocal8Bit() == "Equal Width(Cycle)"){
         exe_command += "\"ew_cycle=";
         exe_command += ui->lineEdit_5->text().toLocal8Bit().constData();
@@ -87,6 +86,17 @@ void MainWindow::open_dialog(){
     exe_command += ui->comboBox_3->currentText().toLocal8Bit().constData();
     exe_command += " ";
     exe_command += ui->comboBox_4->currentText().toLocal8Bit().constData();
+    exe_command += " ";
+    exe_command += ui->comboBox_6->currentText().toLocal8Bit().constData();
+    exe_command += " ";
+    exe_command += ui->comboBox_7->currentText().toLocal8Bit().constData();
+    exe_command += " ";
+    exe_command += ui->lineEdit_10->text().toLocal8Bit().constData();
+    cout<<exe_command;
+
+
+
+
 
 
     if(system(exe_command.c_str())==0){

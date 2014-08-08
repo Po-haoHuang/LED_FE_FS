@@ -153,12 +153,12 @@
      <rect>
       <x>760</x>
       <y>230</y>
-      <width>111</width>
+      <width>161</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Top N Feature:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Top N Feature(For Output):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -262,6 +262,9 @@
       <height>22</height>
      </rect>
     </property>
+    <property name="text">
+     <string>3</string>
+    </property>
    </widget>
    <widget class="QLabel" name="label_13">
     <property name="geometry">
@@ -284,9 +287,12 @@
      <rect>
       <x>880</x>
       <y>200</y>
-      <width>113</width>
+      <width>101</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="text">
+     <string>0.01</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_14">
@@ -401,11 +407,14 @@
        <property name="inputMask">
         <string/>
        </property>
+       <property name="text">
+        <string>1-23</string>
+       </property>
        <property name="maxLength">
         <number>32767</number>
        </property>
        <property name="cursorPosition">
-        <number>0</number>
+        <number>4</number>
        </property>
        <property name="dragEnabled">
         <bool>false</bool>
@@ -733,7 +742,7 @@
    <widget class="QComboBox" name="comboBox_6">
     <property name="geometry">
      <rect>
-      <x>880</x>
+      <x>930</x>
       <y>240</y>
       <width>51</width>
       <height>22</height>
@@ -825,7 +834,7 @@
     <property name="geometry">
      <rect>
       <x>760</x>
-      <y>270</y>
+      <y>290</y>
       <width>111</width>
       <height>31</height>
      </rect>
@@ -841,7 +850,7 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>280</y>
+      <y>300</y>
       <width>101</width>
       <height>22</height>
      </rect>
@@ -932,6 +941,35 @@
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
     </property>
    </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>760</x>
+      <y>260</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Top K(For MI):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="lineEdit_10">
+    <property name="geometry">
+     <rect>
+      <x>880</x>
+      <y>270</y>
+      <width>101</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>20</string>
+    </property>
+   </widget>
    <zorder>FS_inputLable</zorder>
    <zorder>FS_InputFileLabel</zorder>
    <zorder>FS_ChooseFile</zorder>
@@ -971,6 +1009,8 @@
    <zorder>comboBox_7</zorder>
    <zorder>line_2</zorder>
    <zorder>label_20</zorder>
+   <zorder>label_21</zorder>
+   <zorder>lineEdit_10</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
