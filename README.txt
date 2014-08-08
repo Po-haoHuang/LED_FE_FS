@@ -19,19 +19,23 @@ segmentnum         等份數
 共5個參數
 --------------------------------------------------------------------------------
 
-FS_no_GUI.exe input_file target_feature top_k disct_method fcbf_thrd ridge_lambda lasso_lambda els_lambda1 els_lambda2
+FS_no_GUI.exe input_file target_feature disct_method fcbf_thrd ridge_lambda lasso_lambda els_lambda1 els_lambda2 print_n score_method top_k
 
-input_file				FE處理後的檔案(Output_noSeg.csv, Output_seg1.csv, Output_seg2.csv)
-target_feature			目標特徵("dP_Filter (X1)_max")
-top_k					演算法篩選的個數(15)
-disct_method			指定離散化方式("ew_cycle=4", "5,15,20")
-fcbf_thrd				MI-FCBF演算法之threshold (0.01)
-ridge_lambda			Regression-RIDGE演算法之lambda(1, 2, 3)	
-lasso_lambda			Regression-LASSO演算法之lambda(1, 2, 3)
-els_lambda1				Regression-ElasticNet演算法之lambda1(1, 2, 3)
-els_lambda2				Regression-ElasticNet演算法之lambda2(1, 2, 3)
+1.  input_file				FE處理後的檔案(Output_noSeg.csv, Output_seg1.csv, Output_seg2.csv)
+2.  target_feature			目標特徵("dP_Filter (X1)_max")
+3.  disct_method			指定離散化方式("ew_cycle=4", "5,15,20")
+4.  fcbf_thrd				MI-FCBF演算法之threshold (0.01)
+5.  ridge_lambda			Regression-RIDGE演算法之lambda(1, 2, 3)	
+6.  lasso_lambda			Regression-LASSO演算法之lambda(1, 2, 3)
+7.  els_lambda1				Regression-ElasticNet演算法之lambda1(1, 2, 3)
+8.  els_lambda2				Regression-ElasticNet演算法之lambda2(1, 2, 3)
+9.  print_n					列印前n名的結果(1~n)
+10. score_method			評分方式(1)
+11. top_k					演算法篩選的個數(15,20,30 ...)
 
-共9個參數
+ex: Output_noSeg.csv "dP_Filter (X1)_max" "ew_cycle=4" 0.01 1 1 1 1 10 1 15
+
+共11個參數
 
 
 ================================================================================

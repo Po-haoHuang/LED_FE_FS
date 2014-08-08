@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
         cout << "Argument setting error." << endl;
         cout << "usage: FS_no_GUI.exe input_file target_feature "
              << "disct_method fcbf_thrd ridge_lambda lasso_lambda els_lambda1 els_lambda2 "
-             << "print_n score_method" << endl;
+             << "print_n score_method top_k" << endl;
         return 1;
     }
 
@@ -114,9 +114,10 @@ int main(int argc, char *argv[])
     }
 
     // exclude some attributes
-    fs.excludeAttr("dP_Filter");
-    fs.excludeAttr("C5");
-    fs.excludeAttr("C6");
+    unsigned sPos = targetColName.find_last_of("_");
+    fs.excludeAttr(targetColName.substr(0,sPos));  // remove all target type
+    //fs.excludeAttr("C5");
+    //fs.excludeAttr("C6");
     //fs.excludeAttr("std");
     //fs.excludeAttr("skewness");
     //fs.excludeAttr("kurtosis");
@@ -133,9 +134,9 @@ int main(int argc, char *argv[])
     vector<vector<double> > discreteData;
 
     if(disctByCycle)
-        fs.disct_ew(discreteData,partitionNum);
-    else
         fs.disct_ew_cycle(discreteData,partitionNum);
+    else
+        fs.disct_ew(discreteData,partitionNum);
 
     // choose target column (dp_filter_max)
     vector<double> targetColVec;
