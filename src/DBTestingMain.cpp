@@ -14,7 +14,7 @@ using namespace std;
 
 
 const string cycleListFileName = "use_file_list.csv";
-const string dataDir = ".\\dp_variable_selection\\";
+const string dataDir = ".\\new_current_num\\";
 
 int main(int argc, char *argv[])
 {
@@ -44,7 +44,11 @@ int main(int argc, char *argv[])
     for(int id=db.beginOfCycle(cycleBegin); id<db.endOfCycle(cycleEnd); id++){
         FileData fd;
         if(db.extractById(id,fd)){
-            cout << "read file id: " << fd.id << " lines: " << fd.dataVector.size() << endl;
+            cout << "read file id: " << fd.id << " lines: " << fd.dataVector.size();
+            cout << " cycle: " << fd.cycle << " nCycle: " << fd.nCycle << endl;
+            for(unsigned j=0; j<fd.attrTypeVector.size(); j++)
+                cout << fd.attrTypeVector[j] << " ";
+            cout << endl;
         }
     }
 

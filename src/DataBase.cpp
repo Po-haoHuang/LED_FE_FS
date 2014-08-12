@@ -123,6 +123,7 @@ bool DataBase::loadListFile()
     inFile.getline(lineBuffer, LINE_BUFFER_SIZE);
 
     // read data (remaining lines)
+    int cycle_cnt = 1;
     while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)) {
 
         CycleData cycleData;  // create a new element
@@ -131,15 +132,19 @@ bool DataBase::loadListFile()
         pch = strtok (lineBuffer,",");
         cycleData.cycle = atof(pch);
         pch = strtok (NULL, ",");
+
         while(pch != NULL) {
             FileData fileData;
             fileData.fid = atof(pch);
             fileData.id = newIdCounter++;
+            fileData.cycle = cycleData.cycle;
+            fileData.nCycle = cycle_cnt;
             this->fileIdVector.push_back(fileData.fid);
             cycleData.fileDataVector.push_back(fileData);
             pch = strtok (NULL, ",");
         }
         mdb.push_back(cycleData); // Add to vector
+        cycle_cnt++;
     }
     inFile.close();
     cout << "recognize " << mdb.size() << " cycles." << endl;
@@ -238,7 +243,13 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
     inFile.getline(lineBuffer, LINE_BUFFER_SIZE);
     pch = strtok (lineBuffer,",");
     while (pch != NULL) {
-        fileData.attrTypeVector.push_back(pch);
+        if(pch[0]=='\"'){
+            string s = pch;
+            s = s.substr(1,s.size()-2);
+            fileData.attrTypeVector.push_back(s);
+        }
+        else
+            fileData.attrTypeVector.push_back(pch);
         pch = strtok (NULL, ",");
     }
 
@@ -283,6 +294,8 @@ bool DataBase::extractById(int id, FileData &fileData)
                 if(singleFileExtract(mdb[c].fileDataVector[i].fileName, fileData)){
                     fileData.id = mdb[c].fileDataVector[i].id;
                     fileData.fid = mdb[c].fileDataVector[i].fid;
+                    fileData.cycle = mdb[c].fileDataVector[i].cycle;
+                    fileData.nCycle = mdb[c].fileDataVector[i].nCycle;
                     return true;
                 }
                 else
