@@ -100,18 +100,6 @@ int main(int argc, char *argv[]){
     }
     cout<<endl;
     runFeatureExtraction(db,argv[3],argv[4]);
-
-    /*for(int id=db.beginOfCycle(cycleBegin); id<db.endOfCycle(cycleEnd); id++){
-        FileData fd;
-        if(db.extractById(id,fd)){
-        	//start FE
-			fileNum = fd.size();
-			attrNum = fd.attrSize();
-			//run FE
-			runFeatureExtraction();
-            cout << "read file id: " << fd.id << " lines: " << fd.dataVector.size() << endl;
-        }
-    }*/
 	return 0;
 }
 
@@ -154,7 +142,7 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			EX: calculate 12 features of first attribute of first file
 			while first call FE.
 			Result:File_1_Attr_1_firstfeature - File_1_Attr_1_lasttfeature*/
-    		for(int id=db.beginOfCycle(atoi(cycleBegin));
+    		for(unsigned id=db.beginOfCycle(atoi(cycleBegin));
 				id<db.endOfCycle(atoi(cycleEnd)); id++){
 				//Initialization for a new file
 				FileData fd;
@@ -204,6 +192,7 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			//Initialization
 			vector<double > originalDP;
 			unsigned tempSize = 0;
+			unsigned dpID = 0;
 			string f1,f2;
 			char itoatemp[50] ;
 			f1 = "Output_seg";
@@ -224,9 +213,13 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			
 			//Pre-Output
 			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
-			for(int i = 0;i < featureNum;i++)
-				fprintf(fout1,"%s_%s,",tempfd.attrTypeVector[1].c_str(),featureName[i]);
-			for(unsigned j = 1;j < attrNum;j++){
+			for(unsigned j = 0;j < attrNum;j++){
+				if(tempfd.attrTypeVector[j+1] == "dP_Filter"){
+					dpID = j;
+					for(unsigned i = 0;i < featureNum;i++)
+						fprintf(fout1,"%s_%s,",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
+					continue;
+				}
 				for(unsigned i = 0;i < featureNum;i++){
                     for(unsigned k = 0;k < segNum;k++){
 						fprintf(fout1,"%s%s%d_%s,",tempfd.attrTypeVector[j+1].c_str(),"_Seg_",k,featureName[i]);
@@ -249,7 +242,7 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			of file while first call FE.
 			Result:File_1_Seg_1_Attr_1_firstfeature - File_1_Seg_1_Attr_1_lasttfeature*/
 
-    		for(int id=db.beginOfCycle(atoi(cycleBegin));
+    		for(unsigned id=db.beginOfCycle(atoi(cycleBegin));
 			id<db.endOfCycle(atoi(cycleEnd)); id++){
 				FileData fd;
         		if(db.extractById(id,fd)){
@@ -268,7 +261,7 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 
 
 					for(unsigned i = 0;i < dataSize;i++)
-						temp[i] = rowData[i][0];
+						temp[i] = rowData[i][dpID];
 	 				temp_array = &temp[0];
 					tempResult = FeatureExtraction(dataSize,temp_array);
 					for(unsigned i = 0;i < featureNum;i++){
@@ -311,7 +304,7 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 
 					for(unsigned j = 0;j < attrNum;j++){
 						for(unsigned i = 0;i < featureNum;i++){
-							if(j == 0){
+							if(j == dpID){
 								fprintf(fout1,"%lf,",originalDP[i]);
 								continue;
 							}
@@ -332,12 +325,6 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 						}
 						fprintf(fout2,"\n");
 					}
-
-
-
-
-
-
 					if( (id)!=0 && (id%100)==0 )
 						cout<<"Computing "<<id<<" files."<<endl;
 				}
