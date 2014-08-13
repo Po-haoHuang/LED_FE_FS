@@ -67,6 +67,7 @@ int main(int argc, char *argv[])
         cout << "usage: FS_no_GUI.exe input_file target_feature "
              << "disct_method fcbf_thrd ridge_lambda lasso_lambda els_lambda1 els_lambda2 "
              << "print_n score_method top_k" << endl;
+        cin.get(); // pause
         return 1;
     }
 
@@ -74,8 +75,8 @@ int main(int argc, char *argv[])
     const string featureDataSetFileName = argv[1];
     const string targetColName = argv[2];
     const unsigned print_n = atoi(argv[9]);
-    const bool disctByCycle = atoi(argv[10]);
-    const int top_k = atoi(argv[11]);
+    bool disctByCycle = ~strcmp(argv[10], "true");
+    unsigned top_k = atoi(argv[11]);
 
     // set cut points (defined in the head of file)
     int partitionNum;
@@ -83,17 +84,19 @@ int main(int argc, char *argv[])
     vector<double> manual_cut_points;
     process_argv(argv[3], partitionNum, disctMethod, manual_cut_points);
 
-    // output filename
+    // filename
     const string resultFileName = gen_filename("FS_Result",argc, argv);
     const string disctDataFileName = gen_filename("FS_DiscretizedData",argc, argv);
+    const string selectedDataFileName = gen_filename("FS_SelectedData",argc, argv);
     const string normDataFileName = gen_filename("FS_NormalizedData",argc, argv);
     const string detailFileName = gen_filename("FS_Details",argc, argv);
+    const string excludeListFileName = "exclude_list.csv";
 
     // output result to file
     ofstream resultFile(resultFileName.c_str());
 
     // log the parameters
-    resultFile << "Feature Selection Result - ver. 2014.08.07" << endl;
+    resultFile << "Feature Selection Result - ver. 2014.08.12" << endl;
     resultFile << "Use file:," << featureDataSetFileName << endl;
     resultFile << "target:," << targetColName << endl;
     resultFile << "target discretize method:," << argv[3] << endl;
@@ -103,25 +106,28 @@ int main(int argc, char *argv[])
     resultFile << "ELS lambda 1:," << argv[7] << endl;
     resultFile << "ELS lambda 2:," << argv[8] << endl;
     resultFile << "print_n:," << argv[9] << endl;
-    resultFile << "discretize by cycle:," << argv[10] << endl;
+    resultFile << "discretize by cycle:," << disctByCycle << endl;
     resultFile << "top_k:," << argv[11] << endl;
     resultFile << endl;
 
-    // main data class
+    /// main data class
     FeatureSelection fs(featureDataSetFileName);
     if(!fs.valid()){
+        cin.get(); // pause
         return 1;
     }
 
-    // exclude some attributes
+    /// exclude undesired attributes
     unsigned sPos = targetColName.find_last_of("_");
-    fs.excludeAttr(targetColName.substr(0,sPos));  // remove all target type
-    //fs.excludeAttr("C5");
-    //fs.excludeAttr("C6");
-    //fs.excludeAttr("std");
-    //fs.excludeAttr("skewness");
-    //fs.excludeAttr("kurtosis");
-    fs.excludeZeroColumn();
+    fs.excludeAttr(targetColName.substr(0,sPos));  // remove all target-related features
+    fs.excludeNonChangeColumn();
+
+    ifstream excludeListFile(excludeListFileName);
+    string exStr;
+    while(getline(excludeListFile, exStr)){
+        fs.excludeAttr(exStr);
+    }
+    excludeListFile.close();
 
     cout << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features. ";
     cout << "Use " << fs.numOfUsedFeatures() << " features for calculation." << endl << endl;
@@ -142,6 +148,7 @@ int main(int argc, char *argv[])
     vector<double> targetColVec;
     if(!fs.getAttrCol(targetColName, targetColVec)){
         cout << "Not found attrName: " << targetColName << endl;
+        cin.get(); // pause
         return 1;
     }
 
@@ -168,8 +175,37 @@ int main(int argc, char *argv[])
         }
     }
 
+    // output discretized data to csv file
+    ofstream disctFile(disctDataFileName.c_str());
+    disctFile << "id,";
+    disctFile << targetColName << ",";  // feature title
+    for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
+        disctFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
+    }
+    disctFile << endl;
+    for(unsigned i=0; i<discreteData.size(); i++){  // value
+        disctFile << i+1 << ",";
+        disctFile << labels[i] << ",";
+        for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
+            disctFile << discreteData[i][ftid];
+            if(ftid!=fs.numOfUsedFeatures()-1) disctFile << ",";
+        }
+        disctFile << endl;
+    }
+    disctFile.close();
+
+    // output the attributes in use
+    ofstream detailFile(detailFileName);
+    detailFile << "Use " << fs.numOfUsedFeatures() << " features: " << endl;
+    for(unsigned i=0; i<fs.numOfUsedFeatures(); i++){
+        detailFile << i+1 << ", " << fs.getAttrName(fs.useFeatureId(i)) << endl;
+    }
+    cout << endl;
+    detailFile << endl;
+
     /// Algorithm
     vector<vector<int> > mi_rank(9,vector<int>());
+    if(top_k > fs.numOfFeatures()) top_k = fs.numOfFeatures();
 
     // 1. MI - JMI
     fs.JMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_rank[0]);
@@ -207,17 +243,36 @@ int main(int argc, char *argv[])
     vector<vector<double> > selectedDataMatrix;
     vector<vector<double> > normalizedColVec;
     fs.allSelectedData(selectedDataMatrix);
+
+    // output selected data to csv file
+    /*ofstream selectedFile(selectedDataFileName.c_str());
+    selectedFile << "id,";
+    selectedFile << targetColName << ",";  // print feature title
+    for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
+        selectedFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
+    }
+    selectedFile << endl;
+    for(unsigned i=0; i<selectedDataMatrix.front().size(); i++){  // print value
+        selectedFile << i+1 << ",";
+        for(unsigned j=0; j<selectedDataMatrix.size(); j++){
+            selectedFile << selectedDataMatrix[i][j] << ",";
+        }
+        selectedFile << endl;
+    }
+    selectedFile.close();*/
+
+
     Regression regs;
 	regs.init(selectedDataMatrix, targetColVec, normalizedColVec);
     vector<vector<int> > regs_rank(4, vector<int>());
     vector<vector<double> > regs_coeff(4, vector<double>());
 
     // 1. Regs - Least Square
-	regs.doLinearRegression(0,regs_rank[0],regs_coeff[0]);
+	//regs.doLinearRegression(0,regs_rank[0],regs_coeff[0]);
 
 	// 2. Regs - Ridge
     int lambda2 = atoi(argv[5]); // (1,2,3)
-	regs.doLinearRegression(lambda2,regs_rank[1], regs_coeff[1]);
+	//regs.doLinearRegression(lambda2,regs_rank[1], regs_coeff[1]);
 
     // 3. Regs - LASSO
     int lambda3 = atoi(argv[6]); // (1,2,3)
@@ -234,15 +289,6 @@ int main(int argc, char *argv[])
     double regs_threshold = 0.1;
     fs.score_and_rank_regs(regs_rank_exclude_LSQ, regs_coeff_exclude_LSQ, regs_threshold, print_n, resultFile);
 
-    // output the attributes in use
-    ofstream detailFile(detailFileName);
-    detailFile << "Use " << fs.numOfUsedFeatures() << " features: " << endl;
-    for(unsigned i=0; i<fs.numOfUsedFeatures(); i++){
-        detailFile << i+1 << ", " << fs.getAttrName(fs.useFeatureId(i)) << endl;
-    }
-    cout << endl;
-    detailFile << endl;
-
     output_select_result(fs, "JMI", mi_rank[0], print_n, resultFile);
     output_select_result(fs, "MRMR", mi_rank[1], print_n, resultFile);
     output_select_result(fs, "CMIM", mi_rank[2], print_n, resultFile);
@@ -257,25 +303,6 @@ int main(int argc, char *argv[])
     output_select_result(fs, "Ridge", regs_rank[1], print_n, resultFile);
     output_select_result(fs, "LASSO", regs_rank[2], print_n, resultFile);
     output_select_result(fs, "Elastic net", regs_rank[3], print_n, resultFile);
-
-    // output discretized data to csv file
-    ofstream disctFile(disctDataFileName.c_str());
-    disctFile << "id,";
-    disctFile << targetColName << ",";  // feature title
-    for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
-        disctFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
-    }
-    disctFile << endl;
-    for(unsigned i=0; i<discreteData.size(); i++){  // value
-        disctFile << i+1 << ",";
-        disctFile << labels[i] << ",";
-        for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
-            disctFile << discreteData[i][ftid];
-            if(ftid!=fs.numOfUsedFeatures()-1) disctFile << ",";
-        }
-        disctFile << endl;
-    }
-    disctFile.close();
 
     // output normalized data to csv file
     ofstream normFile(normDataFileName.c_str());

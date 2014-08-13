@@ -46,7 +46,7 @@ public:
 
     // feature excluding
     void excludeAttr(string attrName);
-    void excludeZeroColumn();
+    void excludeNonChangeColumn();
 
     // discretization method
     bool disct_ew(vector<vector<double> >& discreteData, int partitionNum, vector<vector<double> >*inDataPtr=NULL);

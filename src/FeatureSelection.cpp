@@ -85,7 +85,7 @@ void FeatureSelection::allSelectedData(vector<vector<double> > &s)
 
 int FeatureSelection::attrId(string attrName)
 {
-    for(unsigned col=0; col<numOfFeatures(); col++){
+    for(unsigned col=0; col<attrNameVec.size(); col++){
         if(attrNameVec[col].find(attrName) != string::npos){ // match
             return col;
         }
@@ -95,7 +95,7 @@ int FeatureSelection::attrId(string attrName)
 
 bool FeatureSelection::getAttrCol(string attrName, vector<double> &colVec)
 {
-    for(unsigned col=0; col<numOfFeatures(); col++){
+    for(unsigned col=0; col<attrNameVec.size(); col++){
         if(attrNameVec[col].find(attrName) != string::npos){ // match
             for(unsigned j=0; j<featureData.size(); j++){
                 colVec.push_back(featureData[j][col]);
@@ -154,12 +154,12 @@ void FeatureSelection::excludeAttr(string attrName)
     useFeatureId_.swap(useFeatureIdReplace);
 }
 
-void FeatureSelection::excludeZeroColumn()
+void FeatureSelection::excludeNonChangeColumn()
 {
     for(unsigned i=0; i<useFeatureId_.size(); i++){
         vector<double> colVec;
         getAttrCol(useFeatureId_[i], colVec);  // exclude zero columns
-        if(*max_element(colVec.begin(), colVec.end()) == 0){
+        if(*max_element(colVec.begin(), colVec.end()) == *min_element(colVec.begin(), colVec.end())){
             useFeatureId_[i]=-1;
         }
     }
