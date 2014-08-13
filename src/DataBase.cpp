@@ -257,9 +257,19 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 
     // read data by line, 2 method implement
 
-    #ifdef USE_FAST_CSV
+    #ifndef USE_FAST_CSV
+    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)){
+        char *firstComma = strstr(lineBuffer, ",");
+        vector<double> lineValue;
+        csvValueSplit(string(firstComma+1), ',', lineValue);
+        fileData.dataVector.push_back(lineValue);
+    }
+    #endif
+
     inFile.close();
-    vector<double> lineValue(7);
+
+
+    /*vector<double> lineValue(7);
     csvIO::CSVReader<8> in(dir+fileName);
     in.read_header(csvIO::ignore_extra_column, "DataTime", "dP_Filter (X1)", "Cp2Mg_1.source (F120)", "TMIn_2.press (P156)",
                     "RunHyd1.feed1 (F300)", "FilterConsumption (C6)", "ScrubberConsumption (C5)", "Position (P21)");
@@ -267,19 +277,18 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
     while(in.read_row(DateTime,lineValue[0], lineValue[1], lineValue[2], lineValue[3], lineValue[4], lineValue[5], lineValue[6])) {
         //fileData.timeStamp.push_back(DateTime);
         fileData.dataVector.push_back(lineValue);
-    }
-    #endif
+    }*/
 
-    #ifndef USE_FAST_CSV
-    vector<double> lineValue;
-    while(inFile.getline(lineBuffer, LINE_BUFFER_SIZE)){
-        char *firstComma = strstr(lineBuffer, ",");
-        //fileData.timeStamp.push_back(string(lineBuffer, firstComma-lineBuffer));
-        lineValue.clear();
+    #ifdef USE_FAST_CSV
+    csvIO::LineReader in(dir+fileName);
+    in.next_line(); // discard attribute title
+    char *linePtr;
+    while( linePtr = in.next_line()){
+        char *firstComma = strstr(linePtr, ",");
+        vector<double> lineValue;
         csvValueSplit(string(firstComma+1), ',', lineValue);
         fileData.dataVector.push_back(lineValue);
     }
-    inFile.close();
     #endif
 
     //cout << " read " << fileData.dataVector.size() << " lines" << endl;

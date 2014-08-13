@@ -46,9 +46,6 @@ int main(int argc, char *argv[])
         if(db.extractById(id,fd)){
             cout << "read file id: " << fd.id << " lines: " << fd.dataVector.size();
             cout << " cycle: " << fd.cycle << " nCycle: " << fd.nCycle << endl;
-            for(unsigned j=0; j<fd.attrTypeVector.size(); j++)
-                cout << fd.attrTypeVector[j] << " ";
-            cout << endl;
         }
     }
 
