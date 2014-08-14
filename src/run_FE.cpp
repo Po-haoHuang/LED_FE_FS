@@ -214,7 +214,7 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			//Pre-Output
 			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
-				if(tempfd.attrTypeVector[j+1] == "dP_Filter"){
+				if(tempfd.attrTypeVector[j+1].find("dP_Filter") != string::npos){
 					dpID = j;
 					for(unsigned i = 0;i < featureNum;i++)
 						fprintf(fout1,"%s_%s,",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
