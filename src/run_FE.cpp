@@ -122,9 +122,9 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			//Initialization
 
 			string tempFile;
-			tempFile += "Output_noSeg_";
+			tempFile += "Output_noSeg_C";
 			tempFile += cycleBegin;
-			tempFile +="-";
+			tempFile +="-C";
 			tempFile += cycleEnd;
 			tempFile += ".csv";
 
@@ -166,7 +166,6 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 					//output
 
 					fprintf(fout,"\n");
-					
 
 					fprintf(fout,"%d,%d,%d,",fd.id,fd.fid,fd.nCycle);
 					for(unsigned j = 0;j < attrNum;j++){
@@ -200,21 +199,23 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			f1 += itoatemp;
 			f1 += "_";
 			f2 = f1;
+			f2 += "2_C";
+			f1 += "1_C";
 			f2 += cycleBegin;
-			f2 +="-";
+			f2 += "-C";
 			f2 += cycleEnd;
 			f1 += cycleBegin;
-			f1 +="-";
+			f1 += "-C";
 			f1 += cycleEnd;
-			f2 += "_2.csv";
-			f1 += "_1.csv";
+			f2 += ".csv";
+			f1 += ".csv";
 			FILE* fout1 = fopen(f1.c_str(),"w+");
 			FILE* fout2 = fopen(f2.c_str(),"w+");
 			
 			//Pre-Output
 			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
-				if(tempfd.attrTypeVector[j+1] == "dP_Filter"){
+				if(tempfd.attrTypeVector[j+1].find("dP_Filter") != string::npos){
 					dpID = j;
 					for(unsigned i = 0;i < featureNum;i++)
 						fprintf(fout1,"%s_%s,",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
@@ -329,12 +330,8 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 						cout<<"Computing "<<id<<" files."<<endl;
 				}
 			}
-			
-
-			
 			cout<<"Computing done."<<endl;
 			cout<<"Output processing..."<<endl;
-
 			fclose(fout1);
 			fclose(fout2);
 			cout<<"Output done."<<endl;
