@@ -229,17 +229,25 @@ void FeatureSelection::score_and_rank_mi(vector<vector<int> > &mi_rank, unsigned
     fout << endl;
 }
 
+bool elemZero(ScoreElem x){
+    return x.score==0;
+}
+
 void FeatureSelection::score_and_rank_regs(vector<vector<int> > &regs_rank, vector<vector<double> > &regs_coeff, double threshold, unsigned print_n, ostream &fout)
 {
     vector<ScoreElem> scoreVector(numOfFeatures(), ScoreElem());
     vector<ScoreElem> tScoreVector(numOfTypes(), ScoreElem());
     for(unsigned i=0; i<regs_rank.size(); i++){
         for(unsigned curRank=0; curRank<regs_rank[i].size(); curRank++){
-            if(regs_coeff[i][curRank] > threshold){
-                int id = useFeatureId(regs_rank[i][curRank]);
-                scoreVector[id].id = id;
-                scoreVector[id].score += regs_coeff[i][curRank];  // Regs score
-            }
+            int id = useFeatureId(regs_rank[i][curRank]);
+            scoreVector[id].id = id;
+            // Regs score
+            if(regs_coeff[i][curRank] > 2)
+                scoreVector[id].score += 2;
+            else if(regs_coeff[i][curRank] < -2)
+                scoreVector[id].score += -2;
+            else
+                scoreVector[id].score += regs_coeff[i][curRank];
         }
     }
     sort(scoreVector.begin(), scoreVector.end());
@@ -250,7 +258,7 @@ void FeatureSelection::score_and_rank_regs(vector<vector<int> > &regs_rank, vect
     fout << fixed << setprecision(2);
     fout << "Final score - Regression:" << endl;
     double totalScore = 0.0;
-    unsigned printCnt = 0;
+    int printCnt = 0;
     for(unsigned i=0; i<scoreVector.size(); i++){
         double relative_score = scoreVector[i].score / scoreVector[0].score;
         if(relative_score>0){
@@ -265,11 +273,26 @@ void FeatureSelection::score_and_rank_regs(vector<vector<int> > &regs_rank, vect
                 if(getAttrName(scoreVector[i].id).find(typeNameVec[ti])!=string::npos){
                     tScoreVector[ti].id = ti;
                     tScoreVector[ti].score += relative_score;
-                    if(relative_score<2) totalScore += relative_score;
-                    else totalScore += 2;  // prevent it too big.
+                    totalScore += relative_score;
                 }
             }
         }
+    }
+    cout << "0: -----" << endl;
+    fout << "0,-----" << endl;
+
+    // print top n negative feature
+    vector<ScoreElem>::reverse_iterator ritEnd = find_if(scoreVector.rbegin(), scoreVector.rend(), elemZero);
+    printCnt = 0;
+    for(vector<ScoreElem>::reverse_iterator it=scoreVector.rbegin(); it!=ritEnd; ++it){
+        double relative_score = -it->score / scoreVector.rbegin()->score;
+        if(printCnt++ < print_n){
+            cout << -printCnt << ": " << relative_score*100 << "% ";
+            cout << getAttrName(it->id) << endl;
+            fout << -printCnt << "," << relative_score*100 << "%,";
+            fout << getAttrName(it->id) << endl;
+        }else
+            break;
     }
 
     cout << endl << "Type Analysis - Regression:" << endl;

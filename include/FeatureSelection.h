@@ -69,6 +69,9 @@ public:
     void score_and_rank_mi(vector<vector<int> > &mi_rank, unsigned print_n, ostream &fout);
     void score_and_rank_regs(vector<vector<int> > &regs_rank, vector<vector<double> > &regs_coeff, double threshold, unsigned print_n, ostream &fout);
 
+    // Euclidean Distance
+    double eu_distance(vector<double>& x, vector<double>& y);
+
     // CSV parser
     void csvSplit(string s, const char delimiter, vector<string> &value);
 

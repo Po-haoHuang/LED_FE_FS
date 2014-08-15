@@ -11,6 +11,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 #include "../include/MatrixOp.h"
 
@@ -18,6 +19,17 @@ using std::cout;
 using std::endl;
 using std::vector;
 using std::swap;
+
+double FeatureSelection::eu_distance(vector<double>& x, vector<double>& y)
+{
+    if(x.size() != y.size())
+        return -1;
+    double sum = 0.0;
+    for(unsigned i=0; i<x.size(); i++){
+        sum += pow(x[i]-y[i], 2);
+    }
+    return sqrt(sum);
+}
 
 void FeatureSelection::JMI(int k, int noOfSamples, int noOfFeatures,double *featureMatrix,
                            double *classColumn, vector<int> &outputId)

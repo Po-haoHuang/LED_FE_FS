@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
     ofstream resultFile(resultFileName.c_str());
 
     // log the parameters
-    resultFile << "Feature Selection Result - ver. 2014.08.12" << endl;
+    resultFile << "Feature Selection Result - ver. 2014.08.15" << endl;
     resultFile << "Use file:," << featureDataSetFileName << endl;
     resultFile << "target:," << targetColName << endl;
     resultFile << "target discretize method:," << argv[3] << endl;
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     resultFile << "ELS lambda 1:," << argv[7] << endl;
     resultFile << "ELS lambda 2:," << argv[8] << endl;
     resultFile << "print_n:," << argv[9] << endl;
-    resultFile << "discretize by cycle:," << disctByCycle << endl;
+    resultFile << "discretize by cycle:," << (disctByCycle?"true":"false") << endl;
     resultFile << "top_k:," << argv[11] << endl;
     resultFile << endl;
 
@@ -198,14 +198,14 @@ int main(int argc, char *argv[])
     ofstream detailFile(detailFileName);
     detailFile << "Use " << fs.numOfUsedFeatures() << " features: " << endl;
     for(unsigned i=0; i<fs.numOfUsedFeatures(); i++){
-        detailFile << i+1 << ", " << fs.getAttrName(fs.useFeatureId(i)) << endl;
+        detailFile << i+1 << "," << fs.getAttrName(fs.useFeatureId(i)) << endl;
     }
     cout << endl;
     detailFile << endl;
 
     /// Algorithm
     vector<vector<int> > mi_rank(9,vector<int>());
-    if(top_k > fs.numOfFeatures()) top_k = fs.numOfFeatures();
+    if(top_k > fs.numOfUsedFeatures()) top_k = fs.numOfUsedFeatures();
 
     // 1. MI - JMI
     fs.JMI(top_k, fs.numOfSamples(), fs.numOfUsedFeatures(), dataMatrix, &labels[0], mi_rank[0]);
@@ -244,35 +244,34 @@ int main(int argc, char *argv[])
     vector<vector<double> > normalizedColVec;
     fs.allSelectedData(selectedDataMatrix);
 
-    // output selected data to csv file
-    /*ofstream selectedFile(selectedDataFileName.c_str());
-    selectedFile << "id,";
-    selectedFile << targetColName << ",";  // print feature title
-    for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
-        selectedFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
-    }
-    selectedFile << endl;
-    for(unsigned i=0; i<selectedDataMatrix.front().size(); i++){  // print value
-        selectedFile << i+1 << ",";
-        for(unsigned j=0; j<selectedDataMatrix.size(); j++){
-            selectedFile << selectedDataMatrix[i][j] << ",";
-        }
-        selectedFile << endl;
-    }
-    selectedFile.close();*/
-
 
     Regression regs;
 	regs.init(selectedDataMatrix, targetColVec, normalizedColVec);
     vector<vector<int> > regs_rank(4, vector<int>());
     vector<vector<double> > regs_coeff(4, vector<double>());
 
+    // Distance between target and feature
+    vector<ScoreElem> distanceVec;
+    for(unsigned i=1; i<normalizedColVec.size(); i++){
+        ScoreElem se;
+        se.id = fs.useFeatureId(i-1);
+        se.score = fs.eu_distance(normalizedColVec[0], normalizedColVec[i]) / fs.numOfSamples();
+        distanceVec.push_back(se);
+    }
+    sort(distanceVec.begin(), distanceVec.end());
+    detailFile << "Average distance between target(" << targetColName << ") and feature:" << endl;
+    for(unsigned i=0; i<distanceVec.size(); i++){
+        detailFile << i+1 << "," << fs.getAttrName(distanceVec[i].id) << ",";
+        detailFile << distanceVec[i].score << endl;
+    }
+    detailFile << endl;
+
     // 1. Regs - Least Square
-	//regs.doLinearRegression(0,regs_rank[0],regs_coeff[0]);
+	regs.doLinearRegression(0,regs_rank[0],regs_coeff[0]);
 
 	// 2. Regs - Ridge
     int lambda2 = atoi(argv[5]); // (1,2,3)
-	//regs.doLinearRegression(lambda2,regs_rank[1], regs_coeff[1]);
+	regs.doLinearRegression(lambda2,regs_rank[1], regs_coeff[1]);
 
     // 3. Regs - LASSO
     int lambda3 = atoi(argv[6]); // (1,2,3)
@@ -330,17 +329,17 @@ int main(int argc, char *argv[])
     for(unsigned i=0; i<regs_coeff[0].size(); i++) detailFile << regs_coeff[0][i] << ",";
 
     detailFile << endl << "Ridge rank:,";
-    for(unsigned i=0; i<regs_rank[0].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[1][i])) << ",";
+    for(unsigned i=0; i<regs_rank[1].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[1][i])) << ",";
     detailFile << endl << "Ridge coefficients:,";
     for(unsigned i=0; i<regs_coeff[1].size(); i++) detailFile << regs_coeff[1][i] << ",";
 
     detailFile << endl << "LASSO rank:,";
-    for(unsigned i=0; i<regs_rank[0].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[2][i])) << ",";
+    for(unsigned i=0; i<regs_rank[2].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[2][i])) << ",";
     detailFile << endl << "LASSO coefficients:,";
     for(unsigned i=0; i<regs_coeff[2].size(); i++) detailFile << regs_coeff[2][i] << ",";
 
     detailFile << endl << "Elastic net rank:,";
-    for(unsigned i=0; i<regs_rank[0].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[3][i])) << ",";
+    for(unsigned i=0; i<regs_rank[3].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[3][i])) << ",";
     detailFile << endl << "Elastic net coefficients:,";
     for(unsigned i=0; i<regs_coeff[3].size(); i++) detailFile << regs_coeff[3][i] << ",";
     detailFile << endl;
