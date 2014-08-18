@@ -22,7 +22,12 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 	and elastic net(lambda1 = 1 or 2 or 3 lambda2 =1 or 2 or 3)*/
 	LARS lars(false, lambda1, lambda2);
 	//Construct LARS model
-	lars.Regress(data, responses, beta, true );
+	try{
+        lars.Regress(data, responses, beta, true );
+	}catch(exception& e){
+        cerr << "exception caught: " << e.what() << endl;
+        return 0;
+	}
 
 	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));
 	//sort the beta coefficient

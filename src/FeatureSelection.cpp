@@ -36,7 +36,8 @@ FeatureSelection::FeatureSelection(string FE_fileName)
 
     // read attribute name
     csvSplit(lineBuffer, ',', attrNameVec);
-    attrNameVec.pop_back(); // remove redundant value
+    if(attrNameVec.back().size()==0)
+        attrNameVec.pop_back(); // remove redundant value
     for(unsigned i=0; i<attrNameVec.size(); i++){
         string attrName = attrNameVec[i];
         string typeName = attrName.substr(0, attrName.rfind('_'));
@@ -141,6 +142,7 @@ void FeatureSelection::csvSplit(string s, const char delimiter, vector<string> &
 
 void FeatureSelection::excludeAttr(string attrName)
 {
+    if(attrName.size()==0) return;
     for(unsigned i=0; i<useFeatureId_.size(); i++){
         if(getAttrName(useFeatureId_[i]).find(attrName)!=string::npos){  // if attribute name match
             useFeatureId_[i]=-1;  // exclude
