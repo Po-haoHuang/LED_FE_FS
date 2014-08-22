@@ -31,7 +31,13 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
 
 	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));
 	//sort the beta coefficient
-	uvec temp = sort_index(beta,"d");
+	uvec temp;
+	try{
+		temp = sort_index(beta,"d");
+	}catch(exception& e){
+		cerr << "exception caught: " << e.what() << endl;
+        return 0;
+	}
 	for(unsigned i = 0;i < data.n_rows ;i++)
 		result.push_back(temp[i]);
 

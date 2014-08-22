@@ -27,7 +27,13 @@ bool Linear_Regression::useLinearRegression(arma::mat& data,
 	tempPara.shed_row(0);
 	cof = conv_to< std::vector<double> >::from(sort(tempPara,"d"));
 	//sort the beta coefficient
-	uvec temp = sort_index(tempPara,"d");
+	uvec temp;
+	try{
+		temp = sort_index(tempPara,"d");
+	}catch(exception& e){
+		cerr << "exception caught: " << e.what() << endl;
+        return 0;
+	}
 
 	for(unsigned i = 0;i < data.n_rows ;i++)
 		result.push_back(temp[i]);
