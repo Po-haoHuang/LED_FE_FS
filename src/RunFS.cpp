@@ -133,9 +133,6 @@ int main(int argc, char *argv[])
     }
 
     /// select features to use
-    unsigned sPos = targetColName.find_last_of("_");
-    fs.excludeFeature(targetColName.substr(0,sPos));  // remove all target-related features
-
     ifstream useFeatureListFile(useFeatureListFileName.c_str());
     string useFt;
     while(getline(useFeatureListFile, useFt)){
@@ -149,7 +146,8 @@ int main(int argc, char *argv[])
         fs.excludeFeature(exStr);
     }
     excludeListFile.close();
-
+    unsigned sPos = targetColName.find_last_of("_");
+    fs.excludeFeature(targetColName.substr(0,sPos));  // remove all target-related features
     fs.excludeNonChangeFeature();
 
     cout << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features. ";
@@ -293,28 +291,6 @@ int main(int argc, char *argv[])
     }
     sort(distanceVec.begin(), distanceVec.end());
 
-    /*
-    vector<double> attrCol_dP_Filter;
-    vector<double> attrCol_Position;
-    vector<double> attrCol_RunMO2;
-    vector<double> attrCol_NH3_1;
-    fs.getAttrCol("dP_Filter_max",attrCol_dP_Filter);
-    fs.getAttrCol("Position_max",attrCol_Position);
-    fs.getAttrCol("RunMO2.vent_mean", attrCol_RunMO2);
-    fs.getAttrCol("NH3_1.source_max", attrCol_NH3_1);
-
-    for(unsigned i=0; i<attrCol_Position.size(); i++){
-        attrCol_dP_Filter[i] = (attrCol_dP_Filter[i] - 9.5) /8.5;
-        attrCol_Position[i] = (attrCol_Position[i] - 12) /40;
-        attrCol_RunMO2[i] = (attrCol_RunMO2[i]-1800)/650;
-        attrCol_NH3_1[i] = (attrCol_NH3_1[i]-12000)/10000;
-    }
-    cout << setprecision(6);
-    cout << "1: " << fs.eu_distance(attrCol_dP_Filter, attrCol_Position) / fs.numOfSamples() << endl;
-    cout << "2: " << fs.eu_distance(attrCol_dP_Filter, attrCol_RunMO2) / fs.numOfSamples() << endl;
-    cout << "3: " << fs.eu_distance(attrCol_dP_Filter, attrCol_NH3_1) / fs.numOfSamples() << endl;
-    */
-
     detailFile << "Average distance:,";
     for(unsigned i=0; i<distanceVec.size(); i++){
         detailFile << fs.getAttrName(distanceVec[i].id) << ",";
@@ -327,29 +303,17 @@ int main(int argc, char *argv[])
     detailFile << endl << endl;
 
     // 1. Regs - Least Square
-    #ifdef DEBUG_INFO
-    cout << "Regs - Least Square" << endl;
-    #endif // DEBUG_INFO
 	regs.doLinearRegression(0,regs_rank[0],regs_coeff[0]);
 
 	// 2. Regs - Ridge
-	#ifdef DEBUG_INFO
-	cout << "Regs - Ridge" << endl;
-	#endif // DEBUG_INFO
     int lambda2 = atoi(argv[5]); // (1,2,3)
 	regs.doLinearRegression(lambda2,regs_rank[1], regs_coeff[1]);
 
     // 3. Regs - LASSO
-    #ifdef DEBUG_INFO
-    cout << "Regs - LASSO" << endl;
-    #endif // DEBUG_INFO
     int lambda3 = atoi(argv[6]); // (1,2,3)
 	regs.doLarsRegression(lambda3, 0, regs_rank[2], regs_coeff[2]);
 
     // 4. Regs - Elastic net
-    #ifdef DEBUG_INFO
-    cout << "Regs - Elastic net" << endl;
-    #endif // DEBUG_INFO
     int lambda41 = atoi(argv[7]); // (1,2,3)
     int lambda42 = atoi(argv[8]); // (1,2,3)
 	regs.doLarsRegression(lambda41, lambda42, regs_rank[3], regs_coeff[3]);
@@ -377,27 +341,28 @@ int main(int argc, char *argv[])
 
     resultFile.close();
 
-    // output normalized data to csv file
-    ofstream normFile(normDataFileName.c_str());
-    normFile << "id,";
-    normFile << targetColName << ",";  // print feature title
-    for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
-        normFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
-    }
-    normFile << endl;
-    for(unsigned i=0; i<normalizedColVec.front().size(); i++){  // print value
-        normFile << i+1 << ",";
-        for(unsigned j=0; j<normalizedColVec.size(); j++){
-            normFile << normalizedColVec[j][i] << ",";
-        }
-        normFile << endl;
-    }
-    normFile.close();
-
     // output details info to csv file
     detailFile << fs.stringOut(); // cut points
 
-    detailFile << endl << "Least Square coefficients:,";
+    // linear combination
+	vector<vector<double> > linearComb(3, vector<double>(fs.numOfSamples(), 0.0));
+	for(unsigned ti=0; ti<linearComb.size(); ti++){  // 1~3
+        for(unsigned i=0; i<regs_coeff[ti+1].size(); i++){
+            double coeff = regs_coeff[ti+1][i];
+            int ftId = regs_rank[ti+1][i];
+            for(unsigned j=0; j<fs.numOfSamples(); j++){
+                linearComb[ti][j] += normalizedColVec[ftId+1][j] * coeff;
+            }
+        }
+	}
+	detailFile << endl;
+	detailFile << "Ridge - average distance," << fs.eu_distance(linearComb[0], normalizedColVec[0])/ fs.numOfSamples() << endl;
+    detailFile << "LASSO - average distance," << fs.eu_distance(linearComb[1], normalizedColVec[0])/ fs.numOfSamples() << endl;
+    detailFile << "Elastic net - average distance," << fs.eu_distance(linearComb[2], normalizedColVec[0])/ fs.numOfSamples() << endl;
+    detailFile << endl;
+
+    // coefficients
+    detailFile << "Least Square coefficients:,";
     for(unsigned i=0; i<regs_rank[0].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[0][i])) << ",";
     detailFile << endl << ",";
     for(unsigned i=0; i<regs_coeff[0].size(); i++) detailFile << regs_coeff[0][i] << ",";
@@ -417,8 +382,24 @@ int main(int argc, char *argv[])
     detailFile << endl << ",";
     for(unsigned i=0; i<regs_coeff[3].size(); i++) detailFile << regs_coeff[3][i] << ",";
     detailFile << endl;
-
     detailFile.close();
+
+    // output normalized data to csv file
+    ofstream normFile(normDataFileName.c_str());
+    normFile << "id,";
+    normFile << targetColName << ",";  // print feature title
+    for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
+        normFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
+    }
+    normFile << "Ridge, LASSO, Elastic Net" << endl;
+    for(unsigned i=0; i<normalizedColVec.front().size(); i++){  // print value
+        normFile << i+1 << ",";
+        for(unsigned j=0; j<normalizedColVec.size(); j++){
+            normFile << normalizedColVec[j][i] << ",";
+        }
+        normFile << linearComb[0][i] << "," << linearComb[1][i] << "," << linearComb[2][i] << endl;
+    }
+    normFile.close();
 
     delete [] dataMatrix;
 

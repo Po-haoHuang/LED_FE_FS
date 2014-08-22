@@ -43,9 +43,6 @@ FeatureSelection::FeatureSelection(string FE_fileName)
         string typeName = attrName.substr(0, attrName.rfind('_'));
         if(find(typeNameVec.begin(), typeNameVec.end(), typeName) == typeNameVec.end()){
             typeNameVec.push_back(typeName);
-            #ifdef DEBUG_INFO
-            cout << "Identify type: " << typeName << endl;
-            #endif
         }
     }
 
@@ -186,7 +183,7 @@ void FeatureSelection::useFeature(string ftName)
     for(unsigned i=0; i<numOfFeatures(); i++){
         if(attrNameVec[i].find(ftName)!=string::npos){  // if attribute name match
             bool repeated = false;
-            for(unsigned j=0; i<useFeatureId_.size(); j++){
+            for(unsigned j=0; j<useFeatureId_.size(); j++){
                 if(attrNameVec[i]==getAttrName(useFeatureId_[j])){ // already contained
                     repeated = true;
                     break;
