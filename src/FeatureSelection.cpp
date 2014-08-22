@@ -64,11 +64,6 @@ FeatureSelection::FeatureSelection(string FE_fileName)
         featureData.push_back(lineValue);
     }
     inFile.close();
-
-    // record using features' id (exclude undesired attributes)
-    for(unsigned i=0; i<numOfFeatures(); i++){
-        useFeatureId_.push_back(i);  // initialize: use all feature id
-    }
     valid_ = true;
 }
 
@@ -140,23 +135,23 @@ void FeatureSelection::csvSplit(string s, const char delimiter, vector<string> &
     }
 }
 
-void FeatureSelection::excludeAttr(string attrName)
+void FeatureSelection::excludeFeature(string ftName)
 {
-    if(attrName.size()==0) return;
+    if(ftName.size()==0) return;
     for(unsigned i=0; i<useFeatureId_.size(); i++){
-        if(getAttrName(useFeatureId_[i]).find(attrName)!=string::npos){  // if attribute name match
+        if(getAttrName(useFeatureId_[i]).find(ftName)!=string::npos){  // if attribute name match
             useFeatureId_[i]=-1;  // exclude
         }
     }
     // remove unused feature id
-    vector<int> useFeatureIdReplace;  // temporary use only
+    vector<int> newUseFeatureId;  // temporary use only
     for(unsigned i=0; i<useFeatureId_.size(); i++){
-        if(useFeatureId_[i]!=-1) useFeatureIdReplace.push_back(useFeatureId_[i]);
+        if(useFeatureId_[i]!=-1) newUseFeatureId.push_back(useFeatureId_[i]);
     }
-    useFeatureId_.swap(useFeatureIdReplace);
+    useFeatureId_.swap(newUseFeatureId);
 }
 
-void FeatureSelection::excludeNonChangeColumn()
+void FeatureSelection::excludeNonChangeFeature()
 {
     for(unsigned i=0; i<useFeatureId_.size(); i++){
         vector<double> colVec;
@@ -171,6 +166,35 @@ void FeatureSelection::excludeNonChangeColumn()
         if(useFeatureId_[i]!=-1) useFeatureIdReplace.push_back(useFeatureId_[i]);
     }
     useFeatureId_.swap(useFeatureIdReplace);
+}
+
+void FeatureSelection::useAllFeature()
+{
+    useFeatureId_.clear();
+    for(unsigned i=0; i<numOfFeatures(); i++){
+        useFeatureId_.push_back(i);  // initialize: use all feature id
+    }
+}
+
+void FeatureSelection::useFeature(string ftName)
+{
+    if(ftName.size()==0) return;
+    if(ftName=="ALL"){
+       useAllFeature();
+       return;
+    }
+    for(unsigned i=0; i<numOfFeatures(); i++){
+        if(attrNameVec[i].find(ftName)!=string::npos){  // if attribute name match
+            bool repeated = false;
+            for(unsigned j=0; i<useFeatureId_.size(); j++){
+                if(attrNameVec[i]==getAttrName(useFeatureId_[j])){ // already contained
+                    repeated = true;
+                    break;
+                }
+            }
+            if(!repeated) useFeatureId_.push_back(i); // add the feature
+        }
+    }
 }
 
 void FeatureSelection::score_and_rank_mi(vector<vector<int> > &mi_rank, unsigned print_n, ostream &fout)

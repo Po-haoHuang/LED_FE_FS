@@ -41,18 +41,20 @@ public:
     unsigned numOfSamples(){return featureData.size();}
     int attrId(string attrName);
     int useFeatureId(int i){return useFeatureId_[i];}
-    string getAttrName(int attrId){return attrNameVec[attrId];}
+    string getAttrName(int attrId){if(attrNameVec.size()>attrId) return attrNameVec[attrId]; return "";}
     string stringOut();
 
-    // feature excluding
-    void excludeAttr(string attrName);
-    void excludeNonChangeColumn();
+    // feature using and excluding
+    void excludeFeature(string featureName);
+    void excludeNonChangeFeature();
+    void useAllFeature();
+    void useFeature(string featureName);
 
     // discretization method
     bool disct_ew(vector<vector<double> >& discreteData, int partitionNum, vector<vector<double> >*inDataPtr=NULL);
     bool disct_ew_cycle(vector<vector<double> >& discreteData, int partitionNum);
-    bool disct_col_manual(vector<double> &inFeatureData, vector<double> &discreteData, vector<double>& cutPoints);
-    void disct_col_ew_cycle(vector<double> &inFeatureData, vector<double> &outDisctData, int partitionNum);
+    bool disct_col_manual(vector<double> &inFeatureData, vector<double> &discreteData, vector<double>& cutPoints, bool increaseNoBack);
+    void disct_col_ew_cycle(vector<double> &inFeatureData, vector<double> &outDisctData, int partitionNum, bool increaseNoBack);
 
     // selection algorithm
     void JMI(int top_k, int noOfSamples, int noOfFeatures, double *featureMatrix, double *classColumn, vector<int> &outputId);
