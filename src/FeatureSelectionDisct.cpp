@@ -121,7 +121,7 @@ bool FeatureSelection::disct_ew_cycle(vector<vector<double> >& discreteData, int
     return true;
 }
 
-bool FeatureSelection::disct_col_manual(vector<double> &inFeatureData, vector<double> &discreteData, vector<double> &cutPoints)
+bool FeatureSelection::disct_col_manual(vector<double> &inFeatureData, vector<double> &discreteData, vector<double> &cutPoints, bool increaseNoBack)
 {
     if(cutPoints.size()<=1){  // return n*1 matrix
         for(unsigned i=0; i<inFeatureData.size(); i++){
@@ -147,7 +147,10 @@ bool FeatureSelection::disct_col_manual(vector<double> &inFeatureData, vector<do
         if(level > thresholdLevel){
             thresholdLevel = level;
         }
-        discreteData.push_back(thresholdLevel);
+        if(increaseNoBack)
+            discreteData.push_back(thresholdLevel);
+        else
+            discreteData.push_back(level);
 
         // when reading last element or cycles not equal, it's the end of cycleDiscreteData
         if(i==featureData.size()-1 || featureDataCycle[i]!=featureDataCycle[i+1]){
@@ -157,7 +160,7 @@ bool FeatureSelection::disct_col_manual(vector<double> &inFeatureData, vector<do
     return true;
 }
 
-void FeatureSelection::disct_col_ew_cycle(vector<double> &inFeatureData, vector<double> &outDisctData, int partitionNum)
+void FeatureSelection::disct_col_ew_cycle(vector<double> &inFeatureData, vector<double> &outDisctData, int partitionNum, bool increaseNoBack)
 {
     vector<double> cycleFeatureData;
     vector<double> cycleDiscreteData;
@@ -182,7 +185,7 @@ void FeatureSelection::disct_col_ew_cycle(vector<double> &inFeatureData, vector<
             }
             sout << endl;
             vector<double> cycleDisctData;
-            disct_col_manual(cycleFeatureData, cycleDisctData, cutPoints);
+            disct_col_manual(cycleFeatureData, cycleDisctData, cutPoints, increaseNoBack);
 
             for(unsigned ci=0; ci<cycleDisctData.size(); ci++){
                 outDisctData.push_back(cycleDisctData[ci]);

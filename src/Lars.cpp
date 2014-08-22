@@ -26,7 +26,7 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
         lars.Regress(data, responses, beta, true );
 	}catch(exception& e){
         cerr << "exception caught: " << e.what() << endl;
-        return 0;
+        return 1;
 	}
 	try{
 	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));

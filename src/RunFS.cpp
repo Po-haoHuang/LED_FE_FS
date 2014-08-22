@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
+#include <thread>
 
 #include "../include/FeatureSelection.h"
 #include "../include/Regression.h"
@@ -26,7 +27,14 @@ void output_select_result(FeatureSelection &fs, string typeName, vector<int> &re
 
 void process_argv(string argvStr, int &partitionNum, int &disctMethod, vector<double> &manual_cut_points)
 {
-    if(isdigit(argvStr[0])){  // manual, CSV parse
+    if(argvStr.substr(0,6)=="manual"){  // manual, CSV parse
+        if(argvStr[6] == '='){
+            argvStr = argvStr.substr(7); // manual=5,15,20
+            disctMethod = 1;
+        }else{
+            argvStr = argvStr.substr(8); // manual2=5,15,20
+            disctMethod = 2;
+        }
         size_t mStart=0;
         size_t mEnd = argvStr.find_first_of(",");
         while (mEnd <= string::npos){
@@ -37,11 +45,14 @@ void process_argv(string argvStr, int &partitionNum, int &disctMethod, vector<do
             mStart = mEnd+1;
             mEnd = argvStr.find_first_of(",", mStart);
         }
-        disctMethod = 1;
+
         partitionNum = manual_cut_points.size()+1;
     }else if(argvStr.substr(0,9)=="ew_cycle="){
-        disctMethod = 2;
+        disctMethod = 3;
         partitionNum = atoi(argvStr.substr(9).c_str());
+    }else if(argvStr.substr(0,10)=="ew_cycle2="){
+        disctMethod = 4;
+        partitionNum = atoi(argvStr.substr(10).c_str());
     }
 }
 
@@ -62,11 +73,12 @@ string gen_filename(string prefix, int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    if(argc!=12){
+    if(argc!=14){
         cout << "Argument setting error." << endl;
         cout << "usage: FS_no_GUI.exe input_file target_feature "
              << "disct_method fcbf_thrd ridge_lambda lasso_lambda els_lambda1 els_lambda2 "
-             << "print_n score_method top_k" << endl;
+             << "print_n score_method top_k exclude_list use_feature_list" << endl;
+        cout << "Press any key to exit." << endl;
         cin.get(); // pause
         return 1;
     }
@@ -77,6 +89,8 @@ int main(int argc, char *argv[])
     const unsigned print_n = atoi(argv[9]);
     bool disctByCycle = ~strcmp(argv[10], "true");
     unsigned top_k = atoi(argv[11]);
+    const string excludeListFileName = argv[12];
+    const string useFeatureListFileName = argv[13];
 
     // set cut points (defined in the head of file)
     int partitionNum;
@@ -90,15 +104,14 @@ int main(int argc, char *argv[])
     const string selectedDataFileName = gen_filename("FS_SelectedData",argc, argv);
     const string normDataFileName = gen_filename("FS_NormalizedData",argc, argv);
     const string detailFileName = gen_filename("FS_Details",argc, argv);
-    const string excludeListFileName = "exclude_list.csv";
 
     // output result to file
     ofstream resultFile(resultFileName.c_str());
 
     // log the parameters
-    resultFile << "Feature Selection Result - ver. 2014.08.15" << endl;
-    resultFile << "Use file:," << featureDataSetFileName << endl;
-    resultFile << "target:," << targetColName << endl;
+    resultFile << "Feature Selection Result - ver. 2014.08.19" << endl;
+    resultFile << "Use file:," << argv[1] << endl;
+    resultFile << "target:," << argv[2] << endl;
     resultFile << "target discretize method:," << argv[3] << endl;
     resultFile << "FCBF threshold:," << argv[4] << endl;
     resultFile << "RIDGE lambda:," << argv[5] << endl;
@@ -108,37 +121,49 @@ int main(int argc, char *argv[])
     resultFile << "print_n:," << argv[9] << endl;
     resultFile << "discretize by cycle:," << (disctByCycle?"true":"false") << endl;
     resultFile << "top_k:," << argv[11] << endl;
+    resultFile << "excludeListFileName:," << argv[12] << endl;
     resultFile << endl;
 
     /// main data class
     FeatureSelection fs(featureDataSetFileName);
     if(!fs.valid()){
+        cout << "Database init error. Press any key to exit." << endl;
         cin.get(); // pause
         return 1;
     }
 
-    /// exclude undesired attributes
-    unsigned sPos = targetColName.find_last_of("_");
-    fs.excludeAttr(targetColName.substr(0,sPos));  // remove all target-related features
-    fs.excludeNonChangeColumn();
+    /// select features to use
+    ifstream useFeatureListFile(useFeatureListFileName.c_str());
+    string useFt;
+    while(getline(useFeatureListFile, useFt)){
+        fs.useFeature(useFt);
+    }
+    useFeatureListFile.close();
 
-    ifstream excludeListFile(excludeListFileName);
+    ifstream excludeListFile(excludeListFileName.c_str());
     string exStr;
     while(getline(excludeListFile, exStr)){
-        fs.excludeAttr(exStr);
+        fs.excludeFeature(exStr);
     }
     excludeListFile.close();
+    unsigned sPos = targetColName.find_last_of("_");
+    fs.excludeFeature(targetColName.substr(0,sPos));  // remove all target-related features
+    fs.excludeNonChangeFeature();
 
     cout << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features. ";
     cout << "Use " << fs.numOfUsedFeatures() << " features for calculation." << endl << endl;
     resultFile << "Read " << fs.numOfSamples() << " samples and " << fs.numOfFeatures() << " features. ";
     resultFile << "Use " << fs.numOfUsedFeatures() << " features for calculation." << endl << endl;
 
+    if(fs.numOfUsedFeatures()==0){
+        cout << "No feature used. Press any key to exit" << endl;
+        cin.get();
+        return 1;
+    }
+
     /// Discretize
-
-    // EW_discrete for discreteData
+    // choose discretized method for all data
     vector<vector<double> > discreteData;
-
     if(disctByCycle)
         fs.disct_ew_cycle(discreteData,partitionNum);
     else
@@ -151,19 +176,26 @@ int main(int argc, char *argv[])
         cin.get(); // pause
         return 1;
     }
-
     // discretized input labels
     vector<double> labels;
-
-    // choose the method
+    // choose discretized method for target column
     switch(disctMethod){
     case 1:
-        fs.disct_col_manual(targetColVec, labels, manual_cut_points);
+        fs.disct_col_manual(targetColVec, labels, manual_cut_points, true);
         break;
     case 2:
-    default:
-        fs.disct_col_ew_cycle(targetColVec, labels, partitionNum);
+        fs.disct_col_manual(targetColVec, labels, manual_cut_points, false);
         break;
+    case 3:
+        fs.disct_col_ew_cycle(targetColVec, labels, partitionNum, true);
+        break;
+    case 4:
+        fs.disct_col_ew_cycle(targetColVec, labels, partitionNum, false);
+        break;
+    default:
+        cout << "disctMethod setting error. Press any key to exit." << endl;
+        cin.get();
+        return 1;
     }
 
     // change EW-discrete data to input matrix 1-D column array
@@ -195,15 +227,15 @@ int main(int argc, char *argv[])
     disctFile.close();
 
     // output the attributes in use
-    ofstream detailFile(detailFileName);
-    detailFile << "Use " << fs.numOfUsedFeatures() << " features: " << endl;
+    ofstream detailFile(detailFileName.c_str());
+    detailFile << "Use " << fs.numOfUsedFeatures() << " features:,";
     for(unsigned i=0; i<fs.numOfUsedFeatures(); i++){
-        detailFile << i+1 << "," << fs.getAttrName(fs.useFeatureId(i)) << endl;
+        detailFile << fs.getAttrName(fs.useFeatureId(i)) << ",";
     }
-    cout << endl;
-    detailFile << endl;
+    cout << endl << endl;
+    detailFile << endl << endl;
 
-    /// Algorithm
+    /// Algorithm - MI
     vector<vector<int> > mi_rank(9,vector<int>());
     if(top_k > fs.numOfUsedFeatures()) top_k = fs.numOfUsedFeatures();
 
@@ -238,12 +270,11 @@ int main(int argc, char *argv[])
     // MI result
     fs.score_and_rank_mi(mi_rank, print_n, resultFile);
 
-    // Regression
+    /// Algorithm - Regression
     // usage of linear regression and ridge regression(set lambda = 1 or 2 or 3)
     vector<vector<double> > selectedDataMatrix;
     vector<vector<double> > normalizedColVec;
     fs.allSelectedData(selectedDataMatrix);
-
 
     Regression regs;
 	regs.init(selectedDataMatrix, targetColVec, normalizedColVec);
@@ -259,12 +290,17 @@ int main(int argc, char *argv[])
         distanceVec.push_back(se);
     }
     sort(distanceVec.begin(), distanceVec.end());
-    detailFile << "Average distance between target(" << targetColName << ") and feature:" << endl;
+
+    detailFile << "Average distance:,";
     for(unsigned i=0; i<distanceVec.size(); i++){
-        detailFile << i+1 << "," << fs.getAttrName(distanceVec[i].id) << ",";
-        detailFile << distanceVec[i].score << endl;
+        detailFile << fs.getAttrName(distanceVec[i].id) << ",";
     }
     detailFile << endl;
+    detailFile << ",";
+    for(unsigned i=0; i<distanceVec.size(); i++){
+        detailFile << distanceVec[i].score << ",";
+    }
+    detailFile << endl << endl;
 
     // 1. Regs - Least Square
 	regs.doLinearRegression(0,regs_rank[0],regs_coeff[0]);
@@ -303,6 +339,51 @@ int main(int argc, char *argv[])
     output_select_result(fs, "LASSO", regs_rank[2], print_n, resultFile);
     output_select_result(fs, "Elastic net", regs_rank[3], print_n, resultFile);
 
+    resultFile.close();
+
+    // output details info to csv file
+    detailFile << fs.stringOut(); // cut points
+
+    // linear combination
+	vector<vector<double> > linearComb(3, vector<double>(fs.numOfSamples(), 0.0));
+	for(unsigned ti=0; ti<linearComb.size(); ti++){  // 1~3
+        for(unsigned i=0; i<regs_coeff[ti+1].size(); i++){
+            double coeff = regs_coeff[ti+1][i];
+            int ftId = regs_rank[ti+1][i];
+            for(unsigned j=0; j<fs.numOfSamples(); j++){
+                linearComb[ti][j] += normalizedColVec[ftId+1][j] * coeff;
+            }
+        }
+	}
+	detailFile << endl;
+	detailFile << "Ridge - average distance," << fs.eu_distance(linearComb[0], normalizedColVec[0])/ fs.numOfSamples() << endl;
+    detailFile << "LASSO - average distance," << fs.eu_distance(linearComb[1], normalizedColVec[0])/ fs.numOfSamples() << endl;
+    detailFile << "Elastic net - average distance," << fs.eu_distance(linearComb[2], normalizedColVec[0])/ fs.numOfSamples() << endl;
+    detailFile << endl;
+
+    // coefficients
+    detailFile << "Least Square coefficients:,";
+    for(unsigned i=0; i<regs_rank[0].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[0][i])) << ",";
+    detailFile << endl << ",";
+    for(unsigned i=0; i<regs_coeff[0].size(); i++) detailFile << regs_coeff[0][i] << ",";
+
+    detailFile << endl << "Ridge coefficients:,";
+    for(unsigned i=0; i<regs_rank[1].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[1][i])) << ",";
+    detailFile << endl << ",";
+    for(unsigned i=0; i<regs_coeff[1].size(); i++) detailFile << regs_coeff[1][i] << ",";
+
+    detailFile << endl << "LASSO coefficients:,";
+    for(unsigned i=0; i<regs_rank[2].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[2][i])) << ",";
+    detailFile << endl << ",";
+    for(unsigned i=0; i<regs_coeff[2].size(); i++) detailFile << regs_coeff[2][i] << ",";
+
+    detailFile << endl << "Elastic net coefficients:,";
+    for(unsigned i=0; i<regs_rank[3].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[3][i])) << ",";
+    detailFile << endl << ",";
+    for(unsigned i=0; i<regs_coeff[3].size(); i++) detailFile << regs_coeff[3][i] << ",";
+    detailFile << endl;
+    detailFile.close();
+
     // output normalized data to csv file
     ofstream normFile(normDataFileName.c_str());
     normFile << "id,";
@@ -310,44 +391,18 @@ int main(int argc, char *argv[])
     for(unsigned ftid=0; ftid<fs.numOfUsedFeatures(); ftid++){
         normFile << fs.getAttrName(fs.useFeatureId(ftid)) << ",";
     }
-    normFile << endl;
+    normFile << "Ridge, LASSO, Elastic Net" << endl;
     for(unsigned i=0; i<normalizedColVec.front().size(); i++){  // print value
         normFile << i+1 << ",";
         for(unsigned j=0; j<normalizedColVec.size(); j++){
             normFile << normalizedColVec[j][i] << ",";
         }
-        normFile << endl;
+        normFile << linearComb[0][i] << "," << linearComb[1][i] << "," << linearComb[2][i] << endl;
     }
     normFile.close();
 
-    // output details info to csv file
-    detailFile << fs.stringOut(); // cut points
-
-    detailFile << endl << "Least Square rank:,";
-    for(unsigned i=0; i<regs_rank[0].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[0][i])) << ",";
-    detailFile << endl << "Least Square coefficients:,";
-    for(unsigned i=0; i<regs_coeff[0].size(); i++) detailFile << regs_coeff[0][i] << ",";
-
-    detailFile << endl << "Ridge rank:,";
-    for(unsigned i=0; i<regs_rank[1].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[1][i])) << ",";
-    detailFile << endl << "Ridge coefficients:,";
-    for(unsigned i=0; i<regs_coeff[1].size(); i++) detailFile << regs_coeff[1][i] << ",";
-
-    detailFile << endl << "LASSO rank:,";
-    for(unsigned i=0; i<regs_rank[2].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[2][i])) << ",";
-    detailFile << endl << "LASSO coefficients:,";
-    for(unsigned i=0; i<regs_coeff[2].size(); i++) detailFile << regs_coeff[2][i] << ",";
-
-    detailFile << endl << "Elastic net rank:,";
-    for(unsigned i=0; i<regs_rank[3].size(); i++) detailFile << fs.getAttrName(fs.useFeatureId(regs_rank[3][i])) << ",";
-    detailFile << endl << "Elastic net coefficients:,";
-    for(unsigned i=0; i<regs_coeff[3].size(); i++) detailFile << regs_coeff[3][i] << ",";
-    detailFile << endl;
-
-    detailFile.close();
-
     delete [] dataMatrix;
-    resultFile.close();
+
     return 0;
 }
 
