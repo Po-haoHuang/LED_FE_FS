@@ -10,7 +10,9 @@ Regression::~Regression(){
 }
 bool Regression::init(vector<vector<double > > input,
 					  vector<double > response,
-					  vector<vector<double > >& normal){
+					  vector<vector<double > >& normal,
+					  vector<double>& outputMean,
+					  vector<double>& outputStd){
 
 	//convert vector to vec
 	response_mod = vec(response);
@@ -23,11 +25,17 @@ bool Regression::init(vector<vector<double > > input,
 	input_mod = mat(temp);
 	input_mod.reshape(input[0].size(),input.size());
 	//normalization
+	/*
 	response_mod -= mean(response_mod);
-	response_mod /= stddev(response_mod);
+	response_mod /= stddev(response_mod);*/
+	double tempMean,tempStd;
 	for(unsigned i = 0;i < input_mod.n_rows;i++){
-		input_mod.row(i) -= mean(input_mod.row(i));
-		input_mod.row(i) /= stddev(input_mod.row(i));
+		tempMean = mean(input_mod.row(i));
+		outputMean.push_back(tempMean);
+		input_mod.row(i) -= tempMean;
+		tempStd = stddev(input_mod.row(i));
+		outputStd.push_back(tempStd);
+		input_mod.row(i) /= tempStd;
 	}
 	temp.clear();
 	temp = conv_to< std::vector<double> >::from(response_mod);

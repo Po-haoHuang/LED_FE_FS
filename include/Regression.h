@@ -18,9 +18,12 @@ class Regression{
 	public:
 		Regression();
 		virtual ~Regression();
+		
 		bool init(vector<vector<double > > input,
-				  vector<double > response,
-				  vector<vector<double > >& normal);
+					  vector<double > response,
+					  vector<vector<double > >& normal,
+					  vector<double>& outputMean,
+					  vector<double>& outputStd);
 		bool doLinearRegression(int lambda ,
 								vector<int >& result,
 								vector<double > &cof);
