@@ -25,7 +25,12 @@ bool Linear_Regression::useLinearRegression(arma::mat& data,
 	vec tempPara = lr.Parameters();
 	//remove the B0 of linear regression(constant beta 0)
 	tempPara.shed_row(0);
-	cof = conv_to< std::vector<double> >::from(sort(tempPara,"d"));
+	try{
+		cof = conv_to< std::vector<double> >::from(sort(tempPara,"d"));
+	}catch(exception& e){
+		cerr << "exception caught: " << e.what() << endl;
+        return 0;
+	}
 	//sort the beta coefficient
 	uvec temp;
 	try{

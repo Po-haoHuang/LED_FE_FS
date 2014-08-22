@@ -28,8 +28,12 @@ bool Lars_Regression::useLarsRegression(arma::mat& data,
         cerr << "exception caught: " << e.what() << endl;
         return 0;
 	}
-
+	try{
 	cof = conv_to< std::vector<double> >::from(sort(beta,"d"));
+	}catch(exception& e){
+		cerr << "exception caught: " << e.what() << endl;
+        return 0;
+	}
 	//sort the beta coefficient
 	uvec temp;
 	try{
