@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>380</height>
+    <height>400</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1000</width>
-    <height>380</height>
+    <height>400</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1000</width>
-    <height>380</height>
+    <height>400</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -216,7 +216,7 @@
     <property name="geometry">
      <rect>
       <x>880</x>
-      <y>330</y>
+      <y>340</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -840,7 +840,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Scoring Method:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Discretize by cycle:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -863,52 +863,12 @@
     </property>
     <item>
      <property name="text">
-      <string>1</string>
+      <string>False</string>
      </property>
     </item>
     <item>
      <property name="text">
-      <string>2</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>3</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>4</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>5</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>6</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>7</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>8</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>9</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>10</string>
+      <string>True</string>
      </property>
     </item>
    </widget>
@@ -1022,7 +982,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

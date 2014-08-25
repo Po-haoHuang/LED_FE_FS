@@ -92,6 +92,7 @@ void MainWindow::open_dialog(){
     exe_command += ui->comboBox_7->currentText().toLocal8Bit().constData();
     exe_command += " ";
     exe_command += ui->lineEdit_10->text().toLocal8Bit().constData();
+    exe_command += " FSi_exclude_list FSi_use_feature_list";
     cout<<exe_command;
 
 
