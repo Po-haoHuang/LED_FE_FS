@@ -5,12 +5,14 @@
 #include <algorithm>
 #include <iomanip>
 #include <cstdlib>
-#include <thread>
+#include <ctime>
 
 #include "../include/FeatureSelection.h"
 #include "../include/Regression.h"
 
 using namespace std;
+
+tm *ptrnow;
 
 void output_select_result(FeatureSelection &fs, string typeName, vector<int> &resultVec, unsigned print_n, ofstream &fout)
 {
@@ -63,10 +65,13 @@ string gen_filename(string prefix, int argc, char *argv[])
     if(inFileName.find_last_of("/\\")==string::npos) inFileName = inFileName.substr(0, inFileName.find("."));
     else inFileName = inFileName.substr(inFileName.find_last_of("/\\")+1,
                                         inFileName.find(".") - inFileName.find_last_of("/\\")-1);
-    finalName += inFileName;
-    for(int i=2; i<argc; i++){
-        finalName += string("_") + string(argv[i]);
-    }
+    finalName += inFileName + "_";
+    finalName += to_string(ptrnow->tm_year+1900) + "-";
+    finalName += to_string(ptrnow->tm_mon+1) + "-";
+    finalName += to_string(ptrnow->tm_mday) + "-";
+    finalName += to_string(ptrnow->tm_hour) + "-";
+    finalName += to_string(ptrnow->tm_min);
+
     finalName += ".csv";
     return finalName;
 }
@@ -97,6 +102,11 @@ int main(int argc, char *argv[])
     int disctMethod;
     vector<double> manual_cut_points;
     process_argv(argv[3], partitionNum, disctMethod, manual_cut_points);
+
+    // time
+    time_t loc_now=0;
+    time(&loc_now);//seconds from 1970/01/01
+    ptrnow=localtime(&loc_now);//get local time
 
     // filename
     const string resultFileName = gen_filename("FS_Result",argc, argv);
@@ -274,10 +284,11 @@ int main(int argc, char *argv[])
     // usage of linear regression and ridge regression(set lambda = 1 or 2 or 3)
     vector<vector<double> > selectedDataMatrix;
     vector<vector<double> > normalizedColVec;
+    vector<double> normMean, normStd;
     fs.allSelectedData(selectedDataMatrix);
 
     Regression regs;
-	regs.init(selectedDataMatrix, targetColVec, normalizedColVec);
+	regs.init(selectedDataMatrix, targetColVec, normalizedColVec, normMean, normStd);
     vector<vector<int> > regs_rank(4, vector<int>());
     vector<vector<double> > regs_coeff(4, vector<double>());
 
@@ -291,14 +302,31 @@ int main(int argc, char *argv[])
     }
     sort(distanceVec.begin(), distanceVec.end());
 
-    detailFile << "Average distance:,";
+
+    detailFile << ",";
     for(unsigned i=0; i<distanceVec.size(); i++){
         detailFile << fs.getAttrName(distanceVec[i].id) << ",";
     }
     detailFile << endl;
-    detailFile << ",";
+    detailFile << "Average distance:,";
     for(unsigned i=0; i<distanceVec.size(); i++){
         detailFile << distanceVec[i].score << ",";
+    }
+    detailFile << endl << endl;
+
+    detailFile << ",";
+    for(unsigned i=0; i<normMean.size(); i++){
+        detailFile << fs.getAttrName(fs.useFeatureId(i)) << ",";
+    }
+    detailFile << endl;
+    detailFile << "mean,";
+    for(unsigned i=0; i<normMean.size(); i++){
+        detailFile << normMean[i] << ",";
+    }
+    detailFile << endl;
+    detailFile << "std,";
+    for(unsigned i=0; i<normStd.size(); i++){
+        detailFile << normStd[i] << ",";
     }
     detailFile << endl << endl;
 
