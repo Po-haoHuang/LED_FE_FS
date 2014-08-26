@@ -111,9 +111,9 @@ int main(int argc, char *argv[])
     // filename
     const string resultFileName = gen_filename("FSo_Result",argc, argv);
     const string disctDataFileName = gen_filename("FSo_DiscretizedData",argc, argv);
-    const string selectedDataFileName = gen_filename("FSo_SelectedData",argc, argv);
     const string normDataFileName = gen_filename("FSo_NormalizedData",argc, argv);
     const string detailFileName = gen_filename("FSo_Details",argc, argv);
+    const string selectedDataFileName = "FSo_SelectedData.csv";
 
     // output result to file
     ofstream resultFile(resultFileName.c_str());
@@ -429,8 +429,19 @@ int main(int argc, char *argv[])
     }
     normFile.close();
 
-    delete [] dataMatrix;
+    // output selected features
+    ofstream selectedDataFile(selectedDataFileName);
+    vector<double> colPosition, colReactorPress, colFilterPress;
+    fs.getAttrCol("Position_max", colPosition);
+    fs.getAttrCol("Reactor.press_mean", colReactorPress);
+    fs.getAttrCol("Filter.press_mean", colFilterPress);
+    selectedDataFile << "Position_max,Reactor.press_mean,Filter.press_mean" << endl;
+    for(unsigned i=0; i<fs.numOfSamples(); i++){
+        selectedDataFile << colPosition[i] << "," << colReactorPress[i] << "," << colFilterPress[i] << endl;
+    }
+    selectedDataFile.close();
 
+    delete [] dataMatrix;
     return 0;
 }
 

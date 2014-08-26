@@ -268,17 +268,6 @@ bool DataBase::singleFileExtract(string fileName, FileData &fileData)
 
     inFile.close();
 
-
-    /*vector<double> lineValue(7);
-    csvIO::CSVReader<8> in(dir+fileName);
-    in.read_header(csvIO::ignore_extra_column, "DataTime", "dP_Filter (X1)", "Cp2Mg_1.source (F120)", "TMIn_2.press (P156)",
-                    "RunHyd1.feed1 (F300)", "FilterConsumption (C6)", "ScrubberConsumption (C5)", "Position (P21)");
-    string DateTime;
-    while(in.read_row(DateTime,lineValue[0], lineValue[1], lineValue[2], lineValue[3], lineValue[4], lineValue[5], lineValue[6])) {
-        //fileData.timeStamp.push_back(DateTime);
-        fileData.dataVector.push_back(lineValue);
-    }*/
-
     #ifdef USE_FAST_CSV
     csvIO::LineReader in(dir+fileName);
     in.next_line(); // discard attribute title

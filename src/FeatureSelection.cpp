@@ -265,12 +265,7 @@ void FeatureSelection::score_and_rank_regs(vector<vector<int> > &regs_rank, vect
             int id = useFeatureId(regs_rank[i][curRank]);
             scoreVector[id].id = id;
             // Regs score
-            if(regs_coeff[i][curRank] > 2)
-                scoreVector[id].score += 2;
-            else if(regs_coeff[i][curRank] < -2)
-                scoreVector[id].score += -2;
-            else
-                scoreVector[id].score += regs_coeff[i][curRank];
+            scoreVector[id].score += regs_coeff[i][curRank];
         }
     }
     sort(scoreVector.begin(), scoreVector.end());
