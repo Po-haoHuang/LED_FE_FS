@@ -13,13 +13,13 @@
 using namespace std;
 
 
-const string cycleListFileName = "use_file_list.csv";
-const string dataDir = ".\\new_current_num\\";
-
 int main(int argc, char *argv[])
 {
     // database
     DataBase db;
+
+    const string cycleListFileName = argv[1];
+    const string dataDir = argv[2];
 
     db.init(dataDir, cycleListFileName);   // use filtered files directory as working directory
 

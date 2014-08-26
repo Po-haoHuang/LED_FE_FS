@@ -109,11 +109,11 @@ int main(int argc, char *argv[])
     ptrnow=localtime(&loc_now);//get local time
 
     // filename
-    const string resultFileName = gen_filename("FS_Result",argc, argv);
-    const string disctDataFileName = gen_filename("FS_DiscretizedData",argc, argv);
-    const string selectedDataFileName = gen_filename("FS_SelectedData",argc, argv);
-    const string normDataFileName = gen_filename("FS_NormalizedData",argc, argv);
-    const string detailFileName = gen_filename("FS_Details",argc, argv);
+    const string resultFileName = gen_filename("FSo_Result",argc, argv);
+    const string disctDataFileName = gen_filename("FSo_DiscretizedData",argc, argv);
+    const string selectedDataFileName = gen_filename("FSo_SelectedData",argc, argv);
+    const string normDataFileName = gen_filename("FSo_NormalizedData",argc, argv);
+    const string detailFileName = gen_filename("FSo_Details",argc, argv);
 
     // output result to file
     ofstream resultFile(resultFileName.c_str());
@@ -374,7 +374,7 @@ int main(int argc, char *argv[])
 
     // linear combination
 	vector<vector<double> > linearComb(3, vector<double>(fs.numOfSamples(), 0.0));
-	for(unsigned ti=0; ti<linearComb.size(); ti++){  // 1~3
+	for(unsigned ti=0; ti<linearComb.size(); ti++){
         for(unsigned i=0; i<regs_coeff[ti+1].size(); i++){
             double coeff = regs_coeff[ti+1][i];
             int ftId = regs_rank[ti+1][i];
