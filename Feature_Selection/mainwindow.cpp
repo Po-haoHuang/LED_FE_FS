@@ -179,3 +179,13 @@ void MainWindow::on_pushButton_4_clicked()
 {
     this->open_dialog_1();
 }
+
+void MainWindow::on_pushButton_5_clicked()
+{
+    system("notepad FSi_exclude_list.txt");
+}
+
+void MainWindow::on_pushButton_6_clicked()
+{
+    system("notepad FSi_use_feature_list.txt");
+}
