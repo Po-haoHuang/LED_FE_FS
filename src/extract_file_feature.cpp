@@ -161,6 +161,7 @@ double FeatureExtraction(unsigned chunkSize,double* cleanData,unsigned calculate
         }
         case 5:{
             f = gsl_stats_max (cleanData, 1, length);
+            break;
         }
         case 6:{
             f = gsl_stats_min (cleanData, 1, length);
@@ -239,17 +240,17 @@ int main(int argc, char *argv[]){
         cout<<selectedFeatures[i]<<endl;
     }
     extract_file_feature(inputFileName, selectedFeatures, matrix);
-    for(unsigned i=0; i<matrix.size(); i++){
+    /*for(unsigned i=0; i<matrix.size(); i++){
         for(unsigned j=0; j<matrix[i].size(); j++){
             cout << matrix[i][j] << "  \t";
         }
         cout << endl;
-    }
+    }*/
 
 	for(unsigned i = 0;i < (unsigned)calculateFeatures.size();i++){
 		for(unsigned j = 0;j < featureNum;j++){
 			if(calculateFeatures[i].find(featureName[j]) != string::npos){
-                cout<<"hi";
+                cout<<j<<endl;
                 Output.push_back(FeatureExtraction(matrix[i].size(),&matrix[i][0],j));
 			}
 		}
