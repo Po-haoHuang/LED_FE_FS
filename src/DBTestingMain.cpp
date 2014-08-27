@@ -18,6 +18,8 @@ int main(int argc, char *argv[])
     // database
     DataBase db;
 
+    if(argc!=3) return 1;
+
     const string cycleListFileName = argv[1];
     const string dataDir = argv[2];
 

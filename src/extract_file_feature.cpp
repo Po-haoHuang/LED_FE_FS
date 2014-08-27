@@ -24,7 +24,7 @@ using namespace std;
 
 //Feature_name list
 const char featureName[][30] ={"mean","variance","skewness","kurtosis","RMS","max","min","range","iqr","std"};
-const char* selectedFeaturesFile = "FSo_SelectedData_Output.csv";
+const char* selectedFeaturesFile = "FSo_SelectedData.csv";
 
 void csvValueSplit(string s, const char delimiter, vector<double> &lineValue)
 {
@@ -45,9 +45,15 @@ void csvStrSplit(string s, const char delimiter, vector<string> &value)
     size_t start=0;
     size_t end=s.find_first_of(delimiter);
 
-    while (end <= std::string::npos){
-        value.push_back(s.substr(start, end-start));
-        if (end == std::string::npos)
+    while (end <= string::npos){
+        string str;
+        if(s[0]=='"'){
+            str = s.substr(start+1, end-start-2);
+        }else{
+            str = s.substr(start, end-start);
+        }
+        value.push_back(str);
+        if (end == string::npos)
 	    	break;
     	start=end+1;
     	end = s.find_first_of(delimiter, start);
@@ -237,30 +243,3 @@ int main(int argc, char *argv[]){
 	}
 	return 0;
 }
-
-
-
-
-/*int main()
-{
-    vector<string> usedFeatureName;
-    usedFeatureName.push_back("Position_max");
-    usedFeatureName.push_back("Filter.press_mean");
-
-    vector<vector<double> > matrix;
-
-    extract_file_feature("FSo_SelectedData.csv", usedFeatureName, matrix);
-
-    cout << "First 10 samples:" << endl;
-    for(unsigned i=0; i<usedFeatureName.size(); i++){
-        cout << usedFeatureName[i] << " \t";
-    }
-    cout << endl;
-    for(unsigned i=0; i<matrix.size() && i<10; i++){
-        for(unsigned j=0; j<matrix[i].size(); j++){
-            cout << matrix[i][j] << " \t";
-        }
-        cout << endl;
-    }
-    return 0;
-}*/
