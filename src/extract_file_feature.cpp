@@ -112,6 +112,17 @@ bool extract_file_feature(string fileName, vector<string> usedFeatureName, vecto
         matrix.push_back(lineValueP);
     }
     #endif
+
+    // matrix transpose to column-major
+    vector<vector<double> > newMatrix;
+    for(unsigned type=0; type<matrix[0].size(); type++){
+        vector<double> newColumn;
+        for(unsigned sample=0; sample<matrix.size(); sample++){
+            newColumn.push_back(matrix[sample][type]);
+        }
+        newMatrix.push_back(newColumn);
+    }
+    matrix = newMatrix;
     return true;
 }
 
@@ -228,6 +239,12 @@ int main(int argc, char *argv[]){
         cout<<selectedFeatures[i]<<endl;
     }
     extract_file_feature(inputFileName, selectedFeatures, matrix);
+    for(unsigned i=0; i<matrix.size(); i++){
+        for(unsigned j=0; j<matrix[i].size(); j++){
+            cout << matrix[i][j] << "  \t";
+        }
+        cout << endl;
+    }
 
 	for(unsigned i = 0;i < (unsigned)calculateFeatures.size();i++){
 		for(unsigned j = 0;j < featureNum;j++){
