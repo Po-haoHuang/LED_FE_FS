@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <math.h>
 //gsl library for statistic
 #include "gsl/gsl_sort.h"
 #include "gsl/gsl_statistics_double.h"
@@ -210,25 +209,26 @@ int main(int argc, char *argv[]){
 		return -1;
 	}
 	else{
-	//data DIR
+	//input file name
 	inputFileName = (string)argv[1];
 	}
 
-    //read from file to add variable option in combo box to be selected
+    //read title from FS output
     string tempAttr,tempName;
     ifstream is(selectedFeaturesFile,ios::in);
     if(!is) {
-        cout << "Error! Cannot open file: " << selectedFeaturesFile << endl;
+        cerr << "Error! Cannot open file: " << selectedFeaturesFile << endl;
         return false;
     }
     getline(is,tempAttr);
     stringstream temp(tempAttr);
-
+    //get title recursively
     while(1){
 
         getline(temp,tempName,',');
-        cout<<tempName<<endl;
+        //get title
 		selectedFeatures.push_back(strtok((char*)tempName.c_str(),"_"));
+		//get calculate feture name (Ex: mean,max and etc.,)
 		calculateFeatures.push_back(strtok(NULL,"\n"));
         if(temp.eof())
             break;
@@ -236,26 +236,18 @@ int main(int argc, char *argv[]){
 
     vector<vector<double> > matrix;
     vector<double> Output;
-    for(unsigned i = 0;i < selectedFeatures.size();i++){
-        cout<<selectedFeatures[i]<<endl;
-    }
+    //extract from online new input
     extract_file_feature(inputFileName, selectedFeatures, matrix);
-    /*for(unsigned i=0; i<matrix.size(); i++){
-        for(unsigned j=0; j<matrix[i].size(); j++){
-            cout << matrix[i][j] << "  \t";
-        }
-        cout << endl;
-    }*/
-
+    //calculating features
 	for(unsigned i = 0;i < (unsigned)calculateFeatures.size();i++){
 		for(unsigned j = 0;j < featureNum;j++){
 			if(calculateFeatures[i].find(featureName[j]) != string::npos){
-                cout<<j<<endl;
                 Output.push_back(FeatureExtraction(matrix[i].size(),&matrix[i][0],j));
 			}
 		}
 
 	}
+    //output format
 	for(unsigned i = 0;i < Output.size();i++){
         cout<<Output[i]<<endl;
 	}
