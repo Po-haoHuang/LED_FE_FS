@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>400</height>
+    <height>420</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1000</width>
-    <height>400</height>
+    <height>420</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1000</width>
-    <height>400</height>
+    <height>420</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -29,10 +29,10 @@
    <widget class="QLabel" name="FS_inputLable">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>490</x>
       <y>40</y>
-      <width>101</width>
-      <height>31</height>
+      <width>71</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">
@@ -45,10 +45,10 @@
    <widget class="QLabel" name="FS_InputFileLabel">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>70</y>
+      <x>600</x>
+      <y>80</y>
       <width>351</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -67,14 +67,14 @@
    <widget class="QPushButton" name="FS_ChooseFile">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>40</y>
+      <x>590</x>
+      <y>50</y>
       <width>93</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Choose File:</string>
+     <string>Choose File</string>
     </property>
     <property name="checkable">
      <bool>false</bool>
@@ -86,8 +86,8 @@
    <widget class="QComboBox" name="FS_FeaturnameBox">
     <property name="geometry">
      <rect>
-      <x>610</x>
-      <y>100</y>
+      <x>590</x>
+      <y>110</y>
       <width>341</width>
       <height>22</height>
      </rect>
@@ -96,10 +96,10 @@
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>90</y>
+      <x>490</x>
+      <y>100</y>
       <width>101</width>
-      <height>31</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -112,10 +112,10 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>490</x>
       <y>130</y>
       <width>111</width>
-      <height>31</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -131,7 +131,7 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>640</x>
+      <x>590</x>
       <y>140</y>
       <width>131</width>
       <height>22</height>
@@ -139,7 +139,7 @@
     </property>
     <item>
      <property name="text">
-      <string>Equal Width(Cycle)</string>
+      <string>Equal Weight(Cycle)</string>
      </property>
     </item>
     <item>
@@ -151,10 +151,10 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>230</y>
+      <x>740</x>
+      <y>250</y>
       <width>161</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -167,10 +167,10 @@
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>230</y>
+      <x>490</x>
+      <y>250</y>
       <width>111</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -183,10 +183,10 @@
    <widget class="QLabel" name="label_10">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>270</y>
+      <x>490</x>
+      <y>280</y>
       <width>121</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -199,10 +199,10 @@
    <widget class="QLabel" name="label_11">
     <property name="geometry">
      <rect>
-      <x>520</x>
+      <x>490</x>
       <y>310</y>
       <width>121</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -215,11 +215,18 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>880</x>
+      <x>870</x>
       <y>360</y>
-      <width>93</width>
-      <height>28</height>
+      <width>91</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+     </font>
     </property>
     <property name="text">
      <string>Start</string>
@@ -240,7 +247,7 @@
       <x>780</x>
       <y>130</y>
       <width>131</width>
-      <height>31</height>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -256,9 +263,9 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>910</x>
+      <x>890</x>
       <y>140</y>
-      <width>81</width>
+      <width>61</width>
       <height>22</height>
      </rect>
     </property>
@@ -269,10 +276,10 @@
    <widget class="QLabel" name="label_13">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>190</y>
+      <x>490</x>
+      <y>220</y>
       <width>111</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -285,10 +292,10 @@
    <widget class="QLineEdit" name="lineEdit_7">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>200</y>
-      <width>101</width>
-      <height>22</height>
+      <x>890</x>
+      <y>220</y>
+      <width>61</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -298,10 +305,10 @@
    <widget class="QLabel" name="label_14">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>190</y>
+      <x>740</x>
+      <y>220</y>
       <width>111</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -314,9 +321,9 @@
    <widget class="QLabel" name="label_15">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>220</y>
-      <width>351</width>
+      <x>130</x>
+      <y>240</y>
+      <width>311</width>
       <height>31</height>
      </rect>
     </property>
@@ -336,14 +343,14 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>130</y>
-      <width>93</width>
+      <x>120</x>
+      <y>140</y>
+      <width>111</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Choose File:</string>
+     <string>Choose File</string>
     </property>
     <property name="checkable">
      <bool>false</bool>
@@ -355,151 +362,30 @@
    <widget class="QLabel" name="label_16">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>190</y>
+      <x>20</x>
+      <y>210</y>
       <width>101</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Row Data Dir:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Raw Data Dir:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>280</x>
-      <y>50</y>
-      <width>156</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
-     <item>
-      <widget class="QLineEdit" name="lineEdit_8">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>110</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="focusPolicy">
-        <enum>Qt::ClickFocus</enum>
-       </property>
-       <property name="inputMask">
-        <string/>
-       </property>
-       <property name="text">
-        <string>1-23</string>
-       </property>
-       <property name="maxLength">
-        <number>32767</number>
-       </property>
-       <property name="cursorPosition">
-        <number>4</number>
-       </property>
-       <property name="dragEnabled">
-        <bool>false</bool>
-       </property>
-       <property name="cursorMoveStyle">
-        <enum>Qt::LogicalMoveStyle</enum>
-       </property>
-       <property name="clearButtonEnabled">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="comboBox_5">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <item>
-        <property name="text">
-         <string>1</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>2</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>3</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>4</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>5</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>6</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>7</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>8</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>9</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>10</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-    </layout>
-   </widget>
    <widget class="QPushButton" name="pushButton_3">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>190</y>
-      <width>93</width>
+      <x>120</x>
+      <y>210</y>
+      <width>111</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Choose Dir:</string>
+     <string>Choose Directory</string>
     </property>
     <property name="checkable">
      <bool>false</bool>
@@ -511,10 +397,10 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>20</x>
       <y>90</y>
-      <width>265</width>
-      <height>16</height>
+      <width>261</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -524,14 +410,14 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>130</y>
+      <x>20</x>
+      <y>140</y>
       <width>101</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cycles List File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cycle List File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -540,9 +426,9 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>160</y>
-      <width>351</width>
+      <x>130</x>
+      <y>170</y>
+      <width>311</width>
       <height>31</height>
      </rect>
     </property>
@@ -562,10 +448,10 @@
    <widget class="QPushButton" name="pushButton_4">
     <property name="geometry">
      <rect>
-      <x>340</x>
-      <y>300</y>
-      <width>93</width>
-      <height>28</height>
+      <x>190</x>
+      <y>360</y>
+      <width>91</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -581,14 +467,14 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>20</x>
       <y>50</y>
-      <width>265</width>
-      <height>31</height>
+      <width>261</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cycles for FeatureExtrction(Ex: 1-n):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Cycles Range (Ex: 1-n):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -597,14 +483,19 @@
    <widget class="QLabel" name="label_18">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>0</y>
+      <x>20</x>
+      <y>10</y>
       <width>81</width>
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Extraction:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#7f7f7f;&quot;&gt;Extraction&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -613,14 +504,19 @@
    <widget class="QLabel" name="label_19">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>0</y>
+      <x>480</x>
+      <y>10</y>
       <width>81</width>
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Selection:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#7f7f7f;&quot;&gt;Selection&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -629,11 +525,26 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>0</y>
+      <x>440</x>
+      <y>10</y>
       <width>20</width>
-      <height>351</height>
+      <height>401</height>
      </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>16777214</height>
+     </size>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>1</number>
+    </property>
+    <property name="midLineWidth">
+     <number>0</number>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -642,8 +553,8 @@
    <widget class="QComboBox" name="comboBox">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>200</y>
+      <x>590</x>
+      <y>220</y>
       <width>51</width>
       <height>22</height>
      </rect>
@@ -667,8 +578,8 @@
    <widget class="QComboBox" name="comboBox_2">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>240</y>
+      <x>590</x>
+      <y>250</y>
       <width>51</width>
       <height>22</height>
      </rect>
@@ -692,7 +603,7 @@
    <widget class="QComboBox" name="comboBox_3">
     <property name="geometry">
      <rect>
-      <x>640</x>
+      <x>590</x>
       <y>280</y>
       <width>51</width>
       <height>22</height>
@@ -717,8 +628,8 @@
    <widget class="QComboBox" name="comboBox_4">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>320</y>
+      <x>590</x>
+      <y>310</y>
       <width>51</width>
       <height>22</height>
      </rect>
@@ -742,10 +653,10 @@
    <widget class="QComboBox" name="comboBox_6">
     <property name="geometry">
      <rect>
-      <x>930</x>
-      <y>240</y>
-      <width>51</width>
-      <height>22</height>
+      <x>890</x>
+      <y>250</y>
+      <width>61</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -833,10 +744,10 @@
    <widget class="QLabel" name="label_17">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>290</y>
+      <x>740</x>
+      <y>310</y>
       <width>111</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -849,9 +760,9 @@
    <widget class="QComboBox" name="comboBox_7">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>300</y>
-      <width>101</width>
+      <x>890</x>
+      <y>310</y>
+      <width>61</width>
       <height>22</height>
      </rect>
     </property>
@@ -875,10 +786,10 @@
    <widget class="Line" name="line_2">
     <property name="geometry">
      <rect>
-      <x>490</x>
-      <y>160</y>
-      <width>501</width>
-      <height>16</height>
+      <x>460</x>
+      <y>170</y>
+      <width>531</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="orientation">
@@ -888,14 +799,19 @@
    <widget class="QLabel" name="label_20">
     <property name="geometry">
      <rect>
-      <x>520</x>
-      <y>160</y>
-      <width>131</width>
+      <x>480</x>
+      <y>180</y>
+      <width>161</width>
       <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selection Parameters:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic; color:#7f7f7f;&quot;&gt;Algorithm Parameters&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -904,10 +820,10 @@
    <widget class="QLabel" name="label_21">
     <property name="geometry">
      <rect>
-      <x>760</x>
-      <y>260</y>
+      <x>740</x>
+      <y>280</y>
       <width>111</width>
-      <height>31</height>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -920,9 +836,9 @@
    <widget class="QLineEdit" name="lineEdit_10">
     <property name="geometry">
      <rect>
-      <x>880</x>
-      <y>270</y>
-      <width>101</width>
+      <x>890</x>
+      <y>280</y>
+      <width>61</width>
       <height>22</height>
      </rect>
     </property>
@@ -934,9 +850,9 @@
     <property name="geometry">
      <rect>
       <x>520</x>
-      <y>350</y>
-      <width>131</width>
-      <height>28</height>
+      <y>360</y>
+      <width>121</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -953,9 +869,9 @@
     <property name="geometry">
      <rect>
       <x>690</x>
-      <y>350</y>
+      <y>360</y>
       <width>131</width>
-      <height>28</height>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -968,6 +884,126 @@
      <bool>false</bool>
     </property>
    </widget>
+   <widget class="QLineEdit" name="lineEdit_8">
+    <property name="geometry">
+     <rect>
+      <x>286</x>
+      <y>62</y>
+      <width>61</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>110</width>
+      <height>16777215</height>
+     </size>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::ClickFocus</enum>
+    </property>
+    <property name="inputMask">
+     <string/>
+    </property>
+    <property name="text">
+     <string>1-23</string>
+    </property>
+    <property name="maxLength">
+     <number>32767</number>
+    </property>
+    <property name="cursorPosition">
+     <number>4</number>
+    </property>
+    <property name="dragEnabled">
+     <bool>false</bool>
+    </property>
+    <property name="cursorMoveStyle">
+     <enum>Qt::LogicalMoveStyle</enum>
+    </property>
+    <property name="clearButtonEnabled">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox_5">
+    <property name="geometry">
+     <rect>
+      <x>286</x>
+      <y>99</y>
+      <width>38</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <item>
+     <property name="text">
+      <string>1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>3</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>4</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>5</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>6</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>7</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>8</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>9</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>10</string>
+     </property>
+    </item>
+   </widget>
+   <zorder>lineEdit_8</zorder>
+   <zorder>comboBox_5</zorder>
    <zorder>FS_inputLable</zorder>
    <zorder>FS_InputFileLabel</zorder>
    <zorder>FS_ChooseFile</zorder>
@@ -987,7 +1023,6 @@
    <zorder>label_15</zorder>
    <zorder>pushButton_2</zorder>
    <zorder>label_16</zorder>
-   <zorder>layoutWidget</zorder>
    <zorder>pushButton_3</zorder>
    <zorder>label_2</zorder>
    <zorder>label_4</zorder>
@@ -1011,16 +1046,6 @@
    <zorder>lineEdit_10</zorder>
    <zorder>pushButton_5</zorder>
    <zorder>pushButton_6</zorder>
-  </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1000</width>
-     <height>25</height>
-    </rect>
-   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
