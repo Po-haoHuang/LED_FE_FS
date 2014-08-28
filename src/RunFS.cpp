@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
     vector<double> manual_cut_points;
     process_argv(argv[3], partitionNum, disctMethod, manual_cut_points);
 
-    // time
+    // time, for filename generating
     time_t loc_now=0;
     time(&loc_now);//seconds from 1970/01/01
     ptrnow=localtime(&loc_now);//get local time
