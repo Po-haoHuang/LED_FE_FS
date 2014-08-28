@@ -248,6 +248,21 @@ int main(int argc, char *argv[]){
 
 	}
     //output format
+    FILE *fout;
+    fout = fopen("Online Feature output.csv","w+");
+    for(unsigned i = 0;i < selectedFeatures.size();i++){
+        if (i != 0)
+            fprintf(fout,",");
+        fprintf(fout,"%s_%s",selectedFeatures[i].c_str(),calculateFeatures[i].c_str());
+    }
+        fprintf(fout,"\n");
+    for (unsigned i = 0;i < selectedFeatures.size();i++){
+        if(i != 0)
+            fprintf(fout,",");
+        fprintf(fout,"%lf",Output[i]);
+
+    }
+    fclose(fout);
 	for(unsigned i = 0;i < Output.size();i++){
         cout<<Output[i]<<endl;
 	}

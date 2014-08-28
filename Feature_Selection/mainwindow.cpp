@@ -31,9 +31,11 @@ void MainWindow::on_FS_ChooseFile_clicked()
     ui->FS_InputFileLabel->setText(fileName);
     //read from file to add variable option in combo box to be selected
     string tempAttr,tempName;
-    ifstream is;
-    filebuf *fb = is.rdbuf();
-    fb->open (fileName.toLocal8Bit().constData(),ios::in);
+    ifstream is(fileName.toLocal8Bit().constData(),ios::in);
+    if(!is) {
+        cerr << "Error! Cannot open file: " << fileName.toLocal8Bit().constData() << endl;
+        return;
+    }
     getline(is,tempAttr);
     stringstream temp(tempAttr);
     getline(temp,tempName, ',');
@@ -42,11 +44,11 @@ void MainWindow::on_FS_ChooseFile_clicked()
     ui->FS_FeaturnameBox->clear();
     while(1){
         getline(temp,tempName, ',');
-        if(tempName.c_str()==NULL||tempName=="")
-            break;
         ui->FS_FeaturnameBox->addItem(QApplication::translate("FS_FeaturnameBox",tempName.c_str(), 0));
+        if(temp.eof())
+            break;
     }
-    fb->close();
+
 
 }
 

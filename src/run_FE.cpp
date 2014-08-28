@@ -130,10 +130,10 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 
 			FILE* fout = fopen(tempFile.c_str(),"w+");
 
-			fprintf(fout,"%s,%s,%s,","Id","Original_ID","Cycle");
+			fprintf(fout,"%s,%s,%s","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
-					fprintf(fout,"%s_%s,",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
+					fprintf(fout,",%s_%s",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
 				}
 			}
 
@@ -167,10 +167,10 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 
 					fprintf(fout,"\n");
 
-					fprintf(fout,"%d,%d,%d,",fd.id,fd.fid,fd.nCycle);
+					fprintf(fout,"%d,%d,%d",fd.id,fd.fid,fd.nCycle);
 					for(unsigned j = 0;j < attrNum;j++){
 						for(unsigned i = 0;i < featureNum;i++){
-							fprintf(fout,"%lf,",singleResult[i][j]);
+							fprintf(fout,",%lf",singleResult[i][j]);
 						}
 					}
 
@@ -213,30 +213,28 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 			FILE* fout2 = fopen(f2.c_str(),"w+");
 			
 			//Pre-Output
-			fprintf(fout1,"%s,%s,%s,","Id","Original_ID","Cycle");
+			fprintf(fout1,"%s,%s,%s","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				if(tempfd.attrTypeVector[j+1].find("dP_Filter") != string::npos){
 					dpID = j;
 					for(unsigned i = 0;i < featureNum;i++)
-						fprintf(fout1,"%s_%s,",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
+						fprintf(fout1,",%s_%s",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
 					continue;
 				}
 				for(unsigned i = 0;i < featureNum;i++){
                     for(unsigned k = 0;k < segNum;k++){
-						fprintf(fout1,"%s%s%d_%s,",tempfd.attrTypeVector[j+1].c_str(),"_Seg_",k,featureName[i]);
+						fprintf(fout1,",%s%s%d_%s",tempfd.attrTypeVector[j+1].c_str(),"_Seg_",k,featureName[i]);
 					}
 				}
 			}
-			fprintf(fout1,"\n");
 
-			fprintf(fout2,"%s,%s,%s,","Id","Original_ID","Cycle");
+			fprintf(fout2,"%s,%s,%s","Id","Original_ID","Cycle");
 			for(unsigned j = 0;j < attrNum;j++){
 				for(unsigned i = 0;i < featureNum;i++){
-					fprintf(fout2,"%s_%s,",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
+					fprintf(fout2,",%s_%s",tempfd.attrTypeVector[j+1].c_str(),featureName[i]);
 				}
 			}
-			fprintf(fout2,"\n");
-			
+
 
 			/*Call FE by file,attribute and data size
 			EX: calculate 12 features of first attribute of first segment
@@ -299,32 +297,30 @@ void runFeatureExtraction(DataBase db,char* cycleBegin,char* cycleEnd){
 							}
 						}
 					}
-
-					fprintf(fout1,"%d,%d,%d,",fd.id,
+					fprintf(fout1,"\n");
+					fprintf(fout1,"%d,%d,%d",fd.id,
 					fd.fid,fd.nCycle);
 
 					for(unsigned j = 0;j < attrNum;j++){
 						for(unsigned i = 0;i < featureNum;i++){
 							if(j == dpID){
-								fprintf(fout1,"%lf,",originalDP[i]);
+								fprintf(fout1,",%lf",originalDP[i]);
 								continue;
 							}
 							for(unsigned l = 0;l < segNum;l++)
-								fprintf(fout1,"%lf,",singleResult[l*featureNum+i][j]);
+								fprintf(fout1,",%lf",singleResult[l*featureNum+i][j]);
 						}
 					}
-					fprintf(fout1,"\n");
-				
 				
 					for(unsigned l = 0;l < segNum;l++){
-						fprintf(fout2,"%d,%d,%d,",fd.id,
+						fprintf(fout2,"\n");
+						fprintf(fout2,"%d,%d,%d",fd.id,
 						fd.fid,fd.nCycle);
 						for(unsigned j = 0;j < attrNum;j++){
 							for(unsigned i = 0;i < featureNum;i++){
-								fprintf(fout2,"%lf,",singleResult[l*featureNum+i][j]);
+								fprintf(fout2,",%lf",singleResult[l*featureNum+i][j]);
 							}
 						}
-						fprintf(fout2,"\n");
 					}
 					if( (id)!=0 && (id%100)==0 )
 						cout<<"Computing "<<id<<" files."<<endl;
